@@ -1,5 +1,9 @@
 // Service worker Mareva — cachea la app para funcionar 100% sin conexión
-var CACHE='mareva-v1';
+// IMPORTANTE: cada vez que subas una versión nueva de index.html, sube TAMBIÉN
+// este archivo cambiando el número de CACHE (v2, v3, v4...). Ese cambio es lo
+// que le dice al móvil "hay versión nueva, descárgala" — si no cambia, el móvil
+// se queda con la versión vieja para siempre aunque el index.html sea otro.
+var CACHE='mareva-v3';
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){
     return c.addAll(['./','./index.html']).catch(function(){return c.add('./');});
