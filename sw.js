@@ -3,7 +3,7 @@
 // este archivo cambiando el número de CACHE (v2, v3, v4...). Ese cambio es lo
 // que le dice al móvil "hay versión nueva, descárgala" — si no cambia, el móvil
 // se queda con la versión vieja para siempre aunque el index.html sea otro.
-var CACHE='mareva-v4';
+var CACHE='mareva-v5';
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){
     return c.addAll(['./','./index.html']).catch(function(){return c.add('./');});
