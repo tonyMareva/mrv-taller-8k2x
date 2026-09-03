@@ -953,6 +953,7 @@ function vN(n){
     color:'BLANCO',mp:[0,0,0,0],h3:0,h5:0,h7:0,foto:null,guardada:false,nombre:'Ventana '+(n||1)};
 }
 var VS=[vN(1)],IDX=0,sCr='4/16/4 Incoloro',sCrBase='aire',sCl='BLANCO',RPT='fria',MP=[0,0,0,0],H3=0,H5=0,H7=0,EXP=null;
+var _prevTipoCat=null; // 'corredera' o 'hoja' — para no heredar nº de hojas al cambiar de categoría (ver onTipo)
 
 // ── PRECIOS DE MOTORES CHERUBINI (privado — NUNCA usar en el Medidor del taller) ──
 // Guardado codificado igual que el resto de tarifas privadas. Sin UI todavía.
@@ -2796,8 +2797,22 @@ function onTipo(){
     document.querySelectorAll('#ch-serie .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v==='70');});
   }
   var hs=document.getElementById('hojas'),cur=parseInt(hs.value)||2;
-  if(t==='corredera'){var v2=Math.max(2,cur);hs.innerHTML=[2,3,4].map(function(n){return'<option value="'+n+'"'+(n===v2?' selected':'')+'>'+n+' hojas</option>';}).join('');}
-  else{var v2=Math.max(1,cur);hs.innerHTML=[1,2,3,4,5,6,7,8].map(function(n){return'<option value="'+n+'"'+(n===v2?' selected':'')+'>'+(n===1?'1 hoja':n+' hojas')+'</option>';}).join('');}
+  // Solo se conserva el nº de hojas si nos movemos DENTRO de la misma
+  // categoría (practicable↔oscilobatiente↔batiente↔fija). Si venimos de
+  // corredera (mínimo 2 hojas) hacia esa categoría (mínimo 1), o al revés,
+  // se resetea al mínimo del tipo nuevo — así no "hereda" un valor que no
+  // pintaba nada ahí (ej. pasar de corredera 2 hojas a practicable ya no
+  // se queda pegado en 2, empieza limpio en 1).
+  var catAhora=(t==='corredera')?'corredera':'hoja';
+  var v2;
+  if(_prevTipoCat!==null&&_prevTipoCat!==catAhora){
+    v2=(t==='corredera')?2:1;
+  } else {
+    v2=(t==='corredera')?Math.max(2,cur):Math.max(1,cur);
+  }
+  _prevTipoCat=catAhora;
+  if(t==='corredera'){hs.innerHTML=[2,3,4].map(function(n){return'<option value="'+n+'"'+(n===v2?' selected':'')+'>'+n+' hojas</option>';}).join('');}
+  else{hs.innerHTML=[1,2,3,4,5,6,7,8].map(function(n){return'<option value="'+n+'"'+(n===v2?' selected':'')+'>'+(n===1?'1 hoja':n+' hojas')+'</option>';}).join('');}
   bManeta();bAlfil();actualizarCam();draw();
 }
 function onHojas(){bManeta();draw();}
@@ -2949,6 +2964,7 @@ function cargar(){
   var v=VS[IDX];
   // Tipo
   document.querySelectorAll('#ch-tipo .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===v.tipo);});
+  _prevTipoCat=(v.tipo==='corredera')?'corredera':'hoja';
   // Hojas
   var hs=document.getElementById('hojas');
   hs.innerHTML=(v.tipo==='corredera'?[2,3,4]:[1,2,3,4,5,6,7,8]).map(function(n){return'<option value="'+n+'"'+(String(n)===v.hojas?' selected':'')+'>'+(n===1?'1 hoja':n+' hojas')+'</option>';}).join('');
@@ -3534,7 +3550,7 @@ function imprimirEtiquetaCEVentana(){
   setTimeout(function(){ window.print(); },80);
 }
 
-function nuevoPedido(){if(!confirm('¿Borrar todo el pedido y empezar de nuevo?'))return;localStorage.removeItem('mareva2');localStorage.removeItem('mareva');VS=[vN(1)];IDX=0;ESTS=[nuevaEstObj()];EIDX=0;EST=ESTS[0];RPT='fria';MP=[0,0,0,0];H3=0;H5=0;H7=0;sCr='4/16/4 Incoloro';sCl='BLANCO';proyActualId=null;['cli-ref','cli-tel','cli-dir','notas-cli'].forEach(function(id){document.getElementById(id).value='';});rTabs();cargar();toast('🗑 Pedido borrado');}
+function nuevoPedido(){if(!confirm('¿Borrar todo el pedido y empezar de nuevo?'))return;localStorage.removeItem('mareva2');localStorage.removeItem('mareva');VS=[vN(1)];IDX=0;ESTS=[nuevaEstObj()];EIDX=0;EST=ESTS[0];RPT='fria';MP=[0,0,0,0];H3=0;H5=0;H7=0;sCr='4/16/4 Incoloro';sCrBase='aire';sCl='BLANCO';_prevTipoCat=null;EXP=null;proyActualId=null;['cli-ref','cli-tel','cli-dir','notas-cli'].forEach(function(id){document.getElementById(id).value='';});rTabs();cargar();sLocal();toast('🗑 Pedido borrado');}
 
 // ════════════════════════════════════════
 // TEXTOS
@@ -4351,7 +4367,7 @@ function htmlDespiece(v,nVen){
     var esHoja=/hoja/i.test(p.nom)&&!/marco/i.test(p.nom);
     if(esHoja&&etiquetaHoja)nomPieza+=etiquetaHoja;
     var ref=refDePerfil(p.nom,esCorredera,esRpt,serie,variante);
-    if(ref)nomPieza+=' <span style="color:#94a3b8;font-size:7pt;font-weight:400">(ref. '+ref+')</span>';
+    if(ref)nomPieza+=' <span style="color:#64748b;font-size:7pt;font-weight:400">(ref. '+ref+')</span>';
     html+='<tr><td>'+nomPieza+'</td><td class="dp-med">'+p.med+' mm</td><td class="dp-cant">'+boxes+'</td></tr>';
   });
   html+='</tbody></table>';
@@ -4376,7 +4392,7 @@ function htmlDespieceEstructura(est){
     var tipoNom={corredera:'Corredera',practicable:'Practicable',oscilobatiente:'Oscilobatiente',batiente:'Batiente',fija:'Fija'};
     var titulo=item.nombre+' — '+(tipoNom[item.cel.tipo]||item.cel.tipo)+' '+(item.cel.alto||'?')+'×'+(item.cel.ancho||'?')+' mm';
     if(item.dUnionAncho>0||item.dUnionAlto>0){
-      titulo+=' <span style="color:#94a3b8;font-weight:400;font-size:8pt">(pletina unión: -'+item.dUnionAncho+'mm anc. / -'+item.dUnionAlto+'mm alt.)</span>';
+      titulo+=' <span style="color:#64748b;font-weight:400;font-size:8pt">(pletina unión: -'+item.dUnionAncho+'mm anc. / -'+item.dUnionAlto+'mm alt.)</span>';
     }
     if(!d){
       html+='<div class="dp" style="margin-top:2mm"><div class="dp-ttl">'+titulo+'</div>'
@@ -4393,7 +4409,7 @@ function htmlDespieceEstructura(est){
     d.piezas.forEach(function(p){
       var boxes='';for(var b=0;b<p.cant;b++)boxes+='<span class="chk"></span>';
       var refC=refDePerfil(p.nom,esCorrederaC,esRptC,serieC);
-      var nomPiezaC=p.nom+' '+item.nombre+(refC?' <span style="color:#94a3b8;font-size:7pt;font-weight:400">(ref. '+refC+')</span>':'');
+      var nomPiezaC=p.nom+' '+item.nombre+(refC?' <span style="color:#64748b;font-size:7pt;font-weight:400">(ref. '+refC+')</span>':'');
       tabla+='<tr><td>'+nomPiezaC+'</td><td class="dp-med">'+p.med+' mm</td><td class="dp-cant">'+boxes+'</td></tr>';
     });
     tabla+='</tbody></table>';
@@ -4952,22 +4968,23 @@ function construirDocPDF(){
     +'.info{background:#1D4ED8;color:#fff;text-align:center;padding:8px;font-size:12px}'
     +'.cont{padding:8px}'
     +'.pagina{background:#fff;max-width:800px;margin:0 auto 12px;padding:6mm 8mm;display:flex;flex-direction:column;gap:1.2mm;box-shadow:0 2px 8px rgba(0,0,0,.12)}'
-    +'.cab{background:#1a1a1a;padding:1.5mm 3mm;border-radius:1.5mm}'
-    +'.csub{font-size:8pt;color:#888;margin-top:1mm}'
+    +'.cab{background:#F1F5F9;border-bottom:2pt solid #1D4ED8;padding:1.5mm 3mm;border-radius:1.5mm}'
+    +'.cab .m1{color:#0F172A!important}.cab .m2{color:#B45309!important}'
+    +'.csub{font-size:8pt;color:#475569;margin-top:1mm}'
     +'.bgris{background:#f1f5f9;padding:2mm 3mm;font-size:8.5pt;color:#334155}'
     +'.bam{background:#fefce8;border:0.5pt solid #fde68a;padding:2mm 3mm;font-size:8.5pt;color:#451a03}'
     +'.vtit{background:#eff6ff;border:0.5pt solid #bfdbfe;padding:1.5mm 3mm;font-size:9.5pt;font-weight:700;color:#1d4ed8}'
     +'.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1mm}'
     +'.cel{background:#f8fafc;border:0.3pt solid #e2e8f0;padding:0.7mm 1.8mm}'
-    +'.lbl{font-size:6.5pt;font-weight:700;color:#94a3b8;text-transform:uppercase}'
+    +'.lbl{font-size:6.5pt;font-weight:700;color:#64748b;text-transform:uppercase}'
     +'.val{font-size:8.5pt;font-weight:600;color:#1e293b;margin-top:.3mm}'
     +'.cbox{border:0.5pt solid #cbd5e1;flex:1;display:flex;flex-direction:column;overflow:hidden}'
-    +'.clbl{text-align:center;font-size:6pt;font-weight:700;color:#94a3b8;text-transform:uppercase;padding:1mm;background:#f8fafc}'
+    +'.clbl{text-align:center;font-size:6pt;font-weight:700;color:#64748b;text-transform:uppercase;padding:1mm;background:#f8fafc}'
     +'.cbox img{flex:1;width:100%;object-fit:contain;min-height:0}'
     +'.nt{border:0.5pt solid #e2e8f0;padding:1mm 2.5mm;background:#fafafa}'
-    +'.ntl{font-size:7pt;font-weight:700;color:#cbd5e1;text-transform:uppercase;margin-bottom:1.5mm}'
+    +'.ntl{font-size:7pt;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:1.5mm}'
     +'.lin{border-bottom:0.3pt solid #e2e8f0;height:3.5mm}'
-    +'.pie{font-size:7pt;color:#94a3b8;border-top:0.3pt solid #e2e8f0;padding-top:1.5mm;margin-top:auto}'
+    +'.pie{font-size:7pt;color:#64748b;border-top:0.3pt solid #e2e8f0;padding-top:1.5mm;margin-top:auto}'
     +'@media print{.tb,.info{display:none!important}body{background:#fff}.cont{padding:0}.pagina{box-shadow:none;margin:0;page-break-after:always;padding:4mm 7mm}.pagina:last-child{page-break-after:auto}'
       // Ventana: el croquis es lo más importante de la ficha — de ahí se guía
       // el taller para fabricar. Prioriza SIEMPRE la legibilidad de las cotas
@@ -4981,7 +4998,7 @@ function construirDocPDF(){
       // el resto (persiana/peso/despiece) simplemente pasa a la hoja siguiente
       // — mejor eso que un croquis diminuto e ilegible.
       +'.cboxEst{max-height:130mm!important;height:130mm!important}'
-    +'}'+'  .dp{border:1pt solid #1d4ed8;border-radius:2mm;padding:1.5mm 2.5mm;background:#eff6ff;margin-top:1.5mm}'+'  .dp-ttl{font-size:8.5pt;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1.5mm}'+'  .dp-tabla{width:100%;border-collapse:collapse;font-size:8pt}'+'  .dp-tabla th{background:#1d4ed8;color:#fff;padding:2px 5px;text-align:left;font-weight:700;font-size:7.5pt}'+'  .dp-tabla td{padding:2px 5px;border-bottom:0.3pt solid #bfdbfe;color:#1e293b}'+'  .dp-tabla tr:last-child td{border-bottom:none}'+'  .dp-med{font-weight:700;color:#1d4ed8;font-size:10pt}'+'  .dp-cant{text-align:left;vertical-align:middle;padding-top:2px}'+'.chk{display:inline-block;width:5mm;height:5mm;border:1pt solid #1d4ed8;border-radius:0.8mm;margin:0.5mm}'+'  .dp-cristal{margin-top:2mm;font-size:9pt;color:#1d4ed8;font-weight:500;padding:2px 0}'+'  .dp-aviso{font-size:7pt;color:#94a3b8;font-style:italic;padding:2mm}';
+    +'}'+'  .dp{border:1pt solid #1d4ed8;border-radius:2mm;padding:1.5mm 2.5mm;background:#eff6ff;margin-top:1.5mm}'+'  .dp-ttl{font-size:8.5pt;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1.5mm}'+'  .dp-tabla{width:100%;border-collapse:collapse;font-size:8pt}'+'  .dp-tabla th{background:#1d4ed8;color:#fff;padding:2px 5px;text-align:left;font-weight:700;font-size:7.5pt}'+'  .dp-tabla td{padding:2px 5px;border-bottom:0.3pt solid #bfdbfe;color:#1e293b}'+'  .dp-tabla tr:last-child td{border-bottom:none}'+'  .dp-med{font-weight:700;color:#1d4ed8;font-size:10pt}'+'  .dp-cant{text-align:left;vertical-align:middle;padding-top:2px}'+'.chk{display:inline-block;width:5mm;height:5mm;border:1pt solid #1d4ed8;border-radius:0.8mm;margin:0.5mm}'+'  .dp-cristal{margin-top:2mm;font-size:9pt;color:#1d4ed8;font-weight:500;padding:2px 0}'+'  .dp-aviso{font-size:7pt;color:#64748b;font-style:italic;padding:2mm}';
 
   // Páginas de estructuras guardadas
   ges.forEach(function(e,ie){
