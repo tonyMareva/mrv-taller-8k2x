@@ -233,6 +233,7 @@ select option{background:var(--bg2);color:var(--txt)}
     <div class="tabs-actions">
       <button class="tab-btn dup" onclick="dupV()">⧉ Duplicar</button>
       <button class="tab-btn prim" onclick="nuevaV()">+ Nueva</button>
+      <button class="tab-btn" style="color:#F87171" onclick="nuevoPedido()">🗑 Borrar todo</button>
     </div>
   </div>
   <div class="tabs-scroll" id="tabs"></div>
@@ -2302,11 +2303,11 @@ function renderHistorial(){
   var html='<div style="display:flex;justify-content:flex-end;margin-bottom:.5rem"><button class="btn" style="color:#F87171" onclick="vaciarHistorial()">🗑 Vaciar historial</button></div>';
   arr.forEach(function(h){
     html+='<div class="card" style="margin-bottom:.5rem"><div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:.6rem">'
-      +'<div><div style="font-size:13px;font-weight:700;color:#E2E8F0">'+h.icono+' '+h.resumen+'</div>'
+      +'<div style="min-width:0;flex:1;overflow:hidden"><div style="font-size:13px;font-weight:700;color:#E2E8F0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+h.icono+' '+h.resumen+'</div>'
       +'<div style="font-size:11px;color:#64748B;margin-top:2px">'+h.fecha+'</div></div>'
       +'<div style="display:flex;align-items:center;gap:.6rem;flex-shrink:0">'
-      +'<b style="font-size:15px;color:#34D399">'+eur2(h.total)+'</b>'
-      +'<button onclick="borrarDeHistorial(\''+h.id+'\')" style="background:none;border:none;color:#64748B;font-size:16px;cursor:pointer">✕</button>'
+      +'<b style="font-size:15px;color:#34D399;white-space:nowrap">'+eur2(h.total)+'</b>'
+      +'<button onclick="borrarDeHistorial(\''+h.id+'\')" style="background:none;border:none;color:#64748B;font-size:16px;cursor:pointer;flex-shrink:0">✕</button>'
       +'</div></div></div>';
   });
   cont.innerHTML=html;
@@ -3378,7 +3379,7 @@ function habilitarScrollPC(el){
 }
 function camTab(i){leer();sLocal();IDX=i;rTabs();cargar();}
 function nuevaV(){leer();VS.push(vN(VS.length+1));IDX=VS.length-1;RPT='fria';MP=[0,0];H3=0;sCr='4/16/4 Incoloro';sCl='BLANCO';rTabs();cargar();toast('🪟 Nueva ventana');}
-function dupV(){leer();var c=JSON.parse(JSON.stringify(VS[IDX]));c.ubic='';c.notasVen='';c.guardada=false;c.nombre='Ventana '+(VS.length+1);VS.push(c);IDX=VS.length-1;rTabs();cargar();setTimeout(function(){document.getElementById('ubic').focus();},300);toast('⧉ Duplicada');}
+function dupV(){leer();var c=JSON.parse(JSON.stringify(VS[IDX]));c.ubic='';c.notasVen='';c.guardada=false;c.nombre='Ventana '+(VS.length+1);VS.push(c);IDX=VS.length-1;rTabs();cargar();toast('⧉ Duplicada');}
 function borTab(i){if(VS.length===1){toast('⚠️ No puedes eliminar la única ventana');return;}if(!confirm('¿Eliminar esta ventana?'))return;VS.splice(i,1);IDX=Math.min(IDX,VS.length-1);rTabs();cargar();}
 
 // ════════════════════════════════════════
@@ -4066,11 +4067,15 @@ function drawQ(cv,bg,pdf){
   var pFs=fSV?(gF('fix-sup-a')>0?Math.round(gF('fix-sup-a')*sc):Math.round((dH-mw*2)*.18)):0;
   var pFn=fNV?(gF('fix-inf-a')>0?Math.round(gF('fix-inf-a')*sc):Math.round((dH-mw*2)*.18)):0;
 
-  // Alto en px de fijos laterales (puede ser menor que el hueco)
-  var faIzq=fIV?(gF('fix-izq-a')>0?Math.round(gF('fix-izq-a')*sc):dH-mw*2):0;
-  faIzq=Math.min(faIzq,dH-mw*2);
-  var faDer=fDV?(gF('fix-der-a')>0?Math.round(gF('fix-der-a')*sc):dH-mw*2):0;
-  faDer=Math.min(faDer,dH-mw*2);
+  // Alto en px de fijos laterales (puede ser menor que el hueco). dFij dibuja
+  // su propio marco en coordenadas EXTERIORES (como la ventana), así que el
+  // tope tiene que ser dH (alto total), no dH-mw*2 — si no, el fijo se queda
+  // corto por abajo aunque el usuario haya puesto la misma altura que la
+  // ventana (el hueco que faltaba era justo 2× el ancho del marco).
+  var faIzq=fIV?(gF('fix-izq-a')>0?Math.round(gF('fix-izq-a')*sc):dH):0;
+  faIzq=Math.min(faIzq,dH);
+  var faDer=fDV?(gF('fix-der-a')>0?Math.round(gF('fix-der-a')*sc):dH):0;
+  faDer=Math.min(faDer,dH);
 
   // Función que dibuja UN fijo como estructura independiente con su propio marco
   function dFij(fx,fy,fw,fh,dim){
@@ -6797,7 +6802,7 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
 </script>
 
 <!-- ══════ PANTALLA DE INICIO ══════ -->
-<div id="inicio-wrap" style="position:fixed;inset:0;z-index:10000;background:#0F172A;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:26px">
+<div id="inicio-wrap" style="position:fixed;inset:0;z-index:10000;background:#0F172A;display:flex;flex-direction:column;align-items:center;gap:16px;padding:26px;overflow-y:auto">
   <button onclick="elegirModo('ajustes')" title="Ajustes" style="position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:#1E293B;border:1.5px solid #334155;color:#CBD5E1;font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center">⚙️</button>
   <div style="text-align:center;margin-bottom:10px">
     <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:.5px">MAREVA <span style="color:#F5A623">ALUMINIOS</span></div>
