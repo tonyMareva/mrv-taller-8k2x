@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ube esta versión (y sube un número el sw.j<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -17,7 +17,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0F172A;--bg2:#1E293B;--bg3:#0A0F1E;--brd:#334155;--brd2:#475569;--txt:#E2E8F0;--txt2:#94A3B8;--txt3:#64748B;--blu:#1D4ED8;--ora:#F5A623}
-html,body{height:100%;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;overflow-x:hidden}
+html,body{height:100%;width:100%;max-width:100vw;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;overflow-x:hidden}
 .wrap{padding:.5rem .9rem 7rem;max-width:680px;margin:0 auto}
 .hdr{background:var(--bg2);border:0.5px solid var(--brd);border-radius:12px;padding:.8rem 1rem;margin-bottom:.7rem}
 .hdr-txt{font-size:17px;font-weight:900;letter-spacing:.02em}
@@ -2759,6 +2759,20 @@ function gC(g){var a=document.querySelector('#'+g+' .chip.on');return a?a.datase
 function gF(id){var e=document.getElementById(id);return e?parseInt(e.value)||0:0;}
 function selC(el,g){document.querySelectorAll('#'+g+' .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+// Fuerza a Safari/iOS a recalcular el ancho real de la pantalla — lo mismo
+// que consigue girar el móvil y volver a girarlo. Hace falta después de
+// cambios grandes de la pantalla (crear/duplicar ventana: se muestran/
+// ocultan muchas secciones a la vez y a veces el navegador no recalcula
+// bien el ancho por su cuenta, dejando la pantalla desplazada).
+function forzarReflow(){
+  try{
+    window.scrollTo(0,0);
+    var tabs=document.getElementById('tabs'); if(tabs)tabs.scrollLeft=0;
+    document.body.style.display='none';
+    void document.body.offsetHeight; // fuerza el recálculo síncrono
+    document.body.style.display='';
+  }catch(e){}
+}
 function irA(s){
   document.querySelectorAll('.sec').forEach(function(x){x.classList.remove('on');});
   document.querySelectorAll('.nav-btn').forEach(function(x){x.classList.remove('on');});
@@ -3377,9 +3391,9 @@ function habilitarScrollPC(el){
     el.scrollLeft=scrollStart-delta;
   });
 }
-function camTab(i){leer();sLocal();IDX=i;rTabs();cargar();}
-function nuevaV(){leer();VS.push(vN(VS.length+1));IDX=VS.length-1;RPT='fria';MP=[0,0];H3=0;sCr='4/16/4 Incoloro';sCl='BLANCO';rTabs();cargar();toast('🪟 Nueva ventana');}
-function dupV(){leer();var c=JSON.parse(JSON.stringify(VS[IDX]));c.ubic='';c.notasVen='';c.guardada=false;c.nombre='Ventana '+(VS.length+1);VS.push(c);IDX=VS.length-1;rTabs();cargar();toast('⧉ Duplicada');}
+function camTab(i){leer();sLocal();IDX=i;rTabs();cargar();forzarReflow();}
+function nuevaV(){leer();VS.push(vN(VS.length+1));IDX=VS.length-1;RPT='fria';MP=[0,0];H3=0;sCr='4/16/4 Incoloro';sCl='BLANCO';rTabs();cargar();forzarReflow();toast('🪟 Nueva ventana');}
+function dupV(){leer();var c=JSON.parse(JSON.stringify(VS[IDX]));c.ubic='';c.notasVen='';c.guardada=false;c.nombre='Ventana '+(VS.length+1);VS.push(c);IDX=VS.length-1;rTabs();cargar();forzarReflow();toast('⧉ Duplicada');}
 function borTab(i){if(VS.length===1){toast('⚠️ No puedes eliminar la única ventana');return;}if(!confirm('¿Eliminar esta ventana?'))return;VS.splice(i,1);IDX=Math.min(IDX,VS.length-1);rTabs();cargar();}
 
 // ════════════════════════════════════════
