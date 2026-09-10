@@ -3334,12 +3334,20 @@ function rTabs(){
     t.innerHTML='<span onclick="camTab('+i+')">'+m+'</span>'+(VS.length>1?'<button class="tab-del" onclick="borTab('+i+')">✕</button>':'');
     s.appendChild(t);
   });
-  // Llevar la pestaña activa a la vista (importante cuando hay muchas ventanas)
-  var activa=s.querySelector('.tab.on');
-  if(activa && typeof activa.scrollIntoView==='function'){
-    try{ activa.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); }catch(e){}
-  }
   habilitarScrollPC(s);
+}
+// Centra la pestaña activa en el carril horizontal — SOLO se llama al cambiar
+// de ventana o crear/duplicar una, nunca mientras se escribe (rTabs() se
+// llama en cada tecla de "Ubicación" para refrescar el nombre de la pestaña;
+// si aquí hiciéramos scroll también, la pantalla saltaría en cada letra).
+// Sin animación ("smooth" generaba saltos raros al encadenarse con otros
+// repintados en móvil).
+function scrollTabActiva(){
+  var s=document.getElementById('tabs');
+  var activa=s&&s.querySelector('.tab.on');
+  if(activa && typeof activa.scrollIntoView==='function'){
+    try{ activa.scrollIntoView({behavior:'auto',inline:'center',block:'nearest'}); }catch(e){}
+  }
 }
 
 function habilitarScrollPC(el){
@@ -3377,9 +3385,9 @@ function habilitarScrollPC(el){
     el.scrollLeft=scrollStart-delta;
   });
 }
-function camTab(i){leer();sLocal();IDX=i;rTabs();cargar();}
-function nuevaV(){leer();VS.push(vN(VS.length+1));IDX=VS.length-1;RPT='fria';MP=[0,0];H3=0;sCr='4/16/4 Incoloro';sCl='BLANCO';rTabs();cargar();toast('🪟 Nueva ventana');}
-function dupV(){leer();var c=JSON.parse(JSON.stringify(VS[IDX]));c.ubic='';c.notasVen='';c.guardada=false;c.nombre='Ventana '+(VS.length+1);VS.push(c);IDX=VS.length-1;rTabs();cargar();toast('⧉ Duplicada');}
+function camTab(i){leer();sLocal();IDX=i;rTabs();cargar();scrollTabActiva();}
+function nuevaV(){leer();VS.push(vN(VS.length+1));IDX=VS.length-1;RPT='fria';MP=[0,0];H3=0;sCr='4/16/4 Incoloro';sCl='BLANCO';rTabs();cargar();scrollTabActiva();toast('🪟 Nueva ventana');}
+function dupV(){leer();var c=JSON.parse(JSON.stringify(VS[IDX]));c.ubic='';c.notasVen='';c.guardada=false;c.nombre='Ventana '+(VS.length+1);VS.push(c);IDX=VS.length-1;rTabs();cargar();scrollTabActiva();toast('⧉ Duplicada');}
 function borTab(i){if(VS.length===1){toast('⚠️ No puedes eliminar la única ventana');return;}if(!confirm('¿Eliminar esta ventana?'))return;VS.splice(i,1);IDX=Math.min(IDX,VS.length-1);rTabs();cargar();}
 
 // ════════════════════════════════════════
@@ -6797,7 +6805,7 @@ function guardarEstructura(){
   toast('✅ Estructura guardada en el pedido');
 }
 
-lLocal();rTabs();cargar();onTipo();cargarDatosCE();draw();
+lLocal();rTabs();cargar();onTipo();cargarDatosCE();draw();scrollTabActiva();
 window.addEventListener("resize",function(){if(document.getElementById("cv-est"))drawEst();});
 </script>
 
