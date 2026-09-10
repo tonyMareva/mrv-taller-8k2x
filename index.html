@@ -31,9 +31,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:-apple-s
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
 .f{display:flex;flex-direction:column;gap:3px}
 .f label{font-size:12px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em}
-input,select,textarea{background:var(--bg3);border:0.5px solid var(--brd);border-radius:8px;padding:11px 13px;font-size:15px;color:var(--txt);width:100%;outline:none;font-family:inherit;-webkit-appearance:none}
+input,select,textarea{background:var(--bg3);border:0.5px solid var(--brd);border-radius:8px;padding:11px 13px;font-size:16px;color:var(--txt);width:100%;outline:none;font-family:inherit;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:var(--blu)}
-textarea{resize:vertical;min-height:56px;line-height:1.5;font-size:15px}
+textarea{resize:vertical;min-height:56px;line-height:1.5;font-size:16px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{padding:8px 14px;border-radius:22px;border:0.5px solid var(--brd);font-size:12px;cursor:pointer;background:var(--bg2);color:var(--txt2);font-weight:500;transition:all .1s;user-select:none}
 .chip.disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
@@ -137,7 +137,7 @@ button.btn.drk{background:#0F172A;color:#E2E8F0;border-color:#334155}
 .est-celda-ttl{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em}
 .est-grid{display:grid;gap:8px;margin-bottom:.5rem}
 .est-row{display:contents}
-.celda-f select,.celda-f input{background:var(--bg2);border:0.5px solid var(--brd);border-radius:7px;padding:7px 9px;font-size:13px;color:#F1F5F9;width:100%}
+.celda-f select,.celda-f input{background:var(--bg2);border:0.5px solid var(--brd);border-radius:7px;padding:7px 9px;font-size:16px;color:#F1F5F9;width:100%}
 .celda-f label{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;display:block;margin-bottom:3px}
 .celda-f{margin-bottom:5px}
 .proy-item{background:var(--bg3);border:0.5px solid var(--brd);border-radius:10px;padding:.65rem .9rem;margin-bottom:.45rem;display:flex;align-items:center;gap:10px}
@@ -279,13 +279,6 @@ select option{background:var(--bg2);color:var(--txt)}
       <div class="chips" id="ch-cierre">
         <span class="chip sm on" data-v="normal" onclick="selC(this,'ch-cierre');draw()">Normal</span>
         <span class="chip sm" data-v="multipunto" onclick="selC(this,'ch-cierre');draw()">Multipunto</span>
-      </div>
-    </div>
-    <div class="sub" id="sub-alfil" style="display:none">
-      <div class="sub-ttl">Herraje (por si no es Alba)</div>
-      <div class="chips" id="ch-alfil">
-        <span class="chip sm on" data-v="auto" onclick="selC(this,'ch-alfil');draw()">Alba (automático)</span>
-        <span class="chip sm" data-v="alfilrpt" onclick="selC(this,'ch-alfil');draw()">Alfil A-45 RPT</span>
       </div>
     </div>
   </div>
@@ -556,8 +549,6 @@ select option{background:var(--bg2);color:var(--txt)}
               <option value="pros70fria">Alba Pros 70 Fría</option>
               <option value="pros70rptA">Alba Pros 70 RPT (1200×1200)</option>
               <option value="pros70rptB">Alba Pros 70 RPT (1230×1510)</option>
-              <option value="alfil45">Alfil / Alba A-45</option>
-              <option value="alfil45rpt">Alfil / Alba A-45 RPT</option>
             </select>
           </div>
         </div>
@@ -910,6 +901,73 @@ var CR16=[
     {v:'Panel Sandwich (SW)',d:'Panel opaco aislante, sin cristal transparente.'}
   ]}
 ];
+// ══════════════════════════════════════════════════════════════════════
+// RECARGO POR COLOR (tirada corta) — "Relación de Rales", Aluminios
+// Barcelona, actualización 13/10/2025 (documento subido por Toni).
+// Es un recargo FIJO por pedido (no por metro/barra): si pides menos de 30
+// barras de un color/acabado concreto, se factura ese recargo una vez para
+// cubrir el coste de preparar el lote de lacado. El blanco (LB) no lleva
+// recargo. 626 acabados, tal cual el documento — no está inventado.
+// Estructura: { "CODIGO": [recargoEuros, "descripción"] }
+var RALES_RECARGO={"LB":[0,"BLANCO"],"9016T":[0,"9016 TEXTURADO"],"9005T":[0,"9005 TEXTURADO"],"8019T":[0,"8019 TEXTURADO"],"7022T":[0,"7022 TEXTURADO"],"7016T":[0,"7016 TEXTURADO"],"NEGROMATE":[0,"NEGRO MATE"],"9016M":[0,"9016 MATE"],"9010M":[0,"9010 MATE"],"8019M":[0,"8019 MATE"],"8017M":[0,"8017 MATE"],"8014M":[0,"8014 MATE"],"7035M":[0,"7035 MATE"],"7022M":[0,"7022 MATE"],"7016M":[0,"7016 MATE"],"7016P":[0,"7016 MATE"],"7012M":[0,"7012 MATE"],"7011M":[0,"7011 MATE"],"6009M":[0,"6009 MATE"],"6005M":[0,"6005 MATE"],"5010M":[0,"5010 MATE"],"1015M":[0,"1015 MATE"],"1000B":[150.0,"1000 BRILLO"],"1000M":[200.0,"1000 MATE"],"1001B":[75.0,"1001 BRILLO"],"1001M":[150.0,"1001 MATE"],"1001T":[150.0,"1001 TEXTURADO"],"1002B":[100.0,"1002 BRILLO"],"1002M":[200.0,"1002 MATE"],"1003B":[200.0,"1003 BRILLO"],"1003M":[200.0,"1003 MATE"],"1003T":[400.0,"1003 TEXTURADO"],"1004B":[200.0,"1004 BRILLO"],"1004M":[200.0,"1004 MATE"],"1004T":[200.0,"1004 TEXTURADO"],"1005B":[200.0,"1005 BRILLO"],"1005M":[400.0,"1005 MATE"],"1006B":[200.0,"1006 BRILLO"],"1006M":[400.0,"1006 MATE"],"1007B":[200.0,"1007 BRILLO"],"1007M":[200.0,"1007 MATE"],"1009B":[150.0,"1009 BRILLO"],"1011B":[75.0,"1011 BRILLO"],"1011M":[150.0,"1011 MATE"],"1011T":[200.0,"1011 TEXTURADO"],"1012B":[150.0,"1012 BRILLO"],"1013B":[30.0,"1013 BRILLO"],"1013M":[30.0,"1013 MATE"],"1013T":[0,"1013 TEXTURADO"],"1014B":[75.0,"1014 BRILLO"],"1014M":[150.0,"1014 MATE"],"1014T":[200.0,"1014 TEXTURADO"],"1015B":[30.0,"1015 BRILLO"],"1015P":[100.0,"1015 BRILLO"],"1015T":[0,"1015 TEXTURADO"],"1016B":[200.0,"1016 BRILLO"],"1016M":[200.0,"1016 MATE"],"1016T":[200.0,"1016 TEXTURADO"],"1017B":[150.0,"1017 BRILLO"],"1017M":[200.0,"1017 MATE"],"1018B":[200.0,"1018 BRILLO"],"1018M":[200.0,"1018 MATE"],"1018T":[200.0,"1018 TEXTURADO"],"1019B":[150.0,"1019 BRILLO"],"1019M":[150.0,"1019 MATE"],"1019T":[150.0,"1019 TEXTURADO"],"1020B":[100.0,"1020 BRILLO"],"1020M":[150.0,"1020 MATE"],"1021B":[200.0,"1021 BRILLO"],"1021M":[400.0,"1021 MATE"],"1021T":[200.0,"1021 TEXTURADO"],"1023B":[200.0,"1023 BRILLO"],"1023M":[400.0,"1023 MATE"],"1023T":[400.0,"1023 TEXTURADO"],"1024B":[150.0,"1024 BRILLO"],"1024M":[150.0,"1024 MATE"],"1027B":[200.0,"1027 BRILLO"],"1028B":[200.0,"1028 BRILLO"],"1028M":[400.0,"1028 MATE"],"1028T":[400.0,"1028 TEXTURADO"],"1032B":[200.0,"1032 BRILLO"],"1032M":[400.0,"1032 MATE"],"1032T":[200.0,"1032 TEXTURADO"],"1033B":[200.0,"1033 BRILLO"],"1033M":[400.0,"1033 MATE"],"1034B":[150.0,"1034 BRILLO"],"1034M":[200.0,"1034 MATE"],"1035B":[200.0,"1035 BRILLO"],"1036B":[200.0,"1036 BRILLO"],"1036M":[400.0,"1036 MATE"],"1037B":[200.0,"1037 BRILLO"],"1247M":[400.0,"1247 MATE"],"2000B":[200.0,"2000 BRILLO"],"2000M":[200.0,"2000 MATE"],"2000T":[400.0,"2000 TEXTURADO"],"2001B":[150.0,"2001 BRILLO"],"2001M":[200.0,"2001 MATE"],"2001T":[400.0,"2001 TEXTURADO"],"2002B":[150.0,"2002 BRILLO"],"2002M":[200.0,"2002 MATE"],"2002T":[400.0,"2002 TEXTURADO"],"2003B":[150.0,"2003 BRILLO"],"2003M":[200.0,"2003 MATE"],"2003T":[400.0,"2003 TEXTURADO"],"2004B":[200.0,"2004 BRILLO"],"2004M":[200.0,"2004 MATE"],"2004T":[400.0,"2004 TEXTURADO"],"2007T":[30.0,"2007 TEXTURADO"],"2008B":[200.0,"2008 BRILLO"],"2008M":[200.0,"2008 MATE"],"2008T":[400.0,"2008 TEXTURADO"],"2009B":[150.0,"2009 BRILLO"],"2009M":[400.0,"2009 MATE"],"2009T":[400.0,"2009 TEXTURADO"],"2010B":[200.0,"2010 BRILLO"],"2010M":[400.0,"2010 MATE"],"2010T":[400.0,"2010 TEXTURADO"],"2011B":[200.0,"2011 BRILLO"],"2011M":[400.0,"2011 MATE"],"2011T":[400.0,"2011 TEXTURADO"],"2012B":[200.0,"2012 BRILLO"],"2012M":[200.0,"2012 MATE"],"2013B":[400.0,"2013 BRILLO"],"2017B":[400.0,"2017 BRILLO"],"3000B":[150.0,"3000 BRILLO"],"3000M":[150.0,"3000 MATE"],"3000T":[150.0,"3000 TEXTURADO"],"3001B":[150.0,"3001 BRILLO"],"3001M":[200.0,"3001 MATE"],"3001T":[200.0,"3001 TEXTURADO"],"3002B":[150.0,"3002 BRILLO"],"3002M":[150.0,"3002 MATE"],"3002T":[200.0,"3002 TEXTURADO"],"3003B":[30.0,"3003 BRILLO"],"3003M":[75.0,"3003 MATE"],"3003T":[150.0,"3003 TEXTURADO"],"3004B":[150.0,"3004 BRILLO"],"3004M":[150.0,"3004 MATE"],"3004T":[150.0,"3004 TEXTURADO"],"3005B":[30.0,"3005 BRILLO"],"3005M":[30.0,"3005 MATE"],"3005T":[0,"3005 TEXTURADO"],"3007B":[150.0,"3007 BRILLO"],"3007M":[200.0,"3007 MATE"],"3007T":[150.0,"3007 TEXTURADO"],"3009B":[150.0,"3009 BRILLO"],"3009M":[100.0,"3009 MATE"],"3009T":[150.0,"3009 TEXTURADO"],"3011B":[30.0,"3011 BRILLO"],"3011M":[150.0,"3011 MATE"],"3011T":[200.0,"3011 TEXTURADO"],"3012B":[150.0,"3012 BRILLO"],"3012M":[150.0,"3012 MATE"],"3012T":[200.0,"3012 TEXTURADO"],"3013B":[100.0,"3013 BRILLO"],"3013M":[200.0,"3013 MATE"],"3013T":[200.0,"3013 TEXTURADO"],"3014B":[150.0,"3014 BRILLO"],"3014M":[200.0,"3014 MATE"],"3015B":[100.0,"3015 BRILLO"],"3015M":[150.0,"3015 MATE"],"3016B":[150.0,"3016 BRILLO"],"3016M":[150.0,"3016 MATE"],"3016T":[200.0,"3016 TEXTURADO"],"3017B":[150.0,"3017 BRILLO"],"3017M":[150.0,"3017 MATE"],"3018B":[200.0,"3018 BRILLO"],"3018M":[200.0,"3018 MATE"],"3018T":[200.0,"3018 TEXTURADO"],"3020B":[100.0,"3020 BRILLO"],"3020M":[150.0,"3020 MATE"],"3020T":[200.0,"3020 TEXTURADO"],"3022B":[150.0,"3022 BRILLO"],"3022M":[200.0,"3022 MATE"],"3027B":[150.0,"3027 BRILLO"],"3027M":[150.0,"3027 MATE"],"3028B":[200.0,"3028 BRILLO"],"3028M":[300.0,"3028 MATE"],"3031B":[150.0,"3031 BRILLO"],"3031M":[200.0,"3031 MATE"],"3031T":[200.0,"3031 TEXTURADO"],"4001B":[200.0,"4001 BRILLO"],"4001M":[400.0,"4001 MATE"],"4002B":[150.0,"4002 BRILLO"],"4002M":[150.0,"4002 MATE"],"4003B":[150.0,"4003 BRILLO"],"4004B":[150.0,"4004 BRILLO"],"4004M":[200.0,"4004 MATE"],"4004T":[200.0,"4004 TEXTURADO"],"4005B":[100.0,"4005 BRILLO"],"4005M":[150.0,"4005 MATE"],"4005T":[150.0,"4005 TEXTURADO"],"4006B":[150.0,"4006 BRILLO"],"4006M":[200.0,"4006 MATE"],"4006T":[200.0,"4006 TEXTURADO"],"4007B":[200.0,"4007 BRILLO"],"4007M":[200.0,"4007 MATE"],"4007T":[200.0,"4007 TEXTURADO"],"4008B":[150.0,"4008 BRILLO"],"4008M":[200.0,"4008 MATE"],"4008T":[200.0,"4008 TEXTURADO"],"4009B":[200.0,"4009 BRILLO"],"4009M":[200.0,"4009 MATE"],"4010B":[150.0,"4010 BRILLO"],"4010M":[200.0,"4010 MATE"],"4010T":[200.0,"4010 TEXTURADO"],"5000B":[150.0,"5000 BRILLO"],"5000M":[100.0,"5000 MATE"],"5000T":[200.0,"5000 TEXTURADO"],"5001B":[150.0,"5001 BRILLO"],"5001M":[100.0,"5001 MATE"],"5001T":[200.0,"5001 TEXTURADO"],"5002B":[150.0,"5002 BRILLO"],"5002M":[100.0,"5002 MATE"],"5002T":[200.0,"5002 TEXTURADO"],"5003B":[30.0,"5003 BRILLO"],"5003M":[150.0,"5003 MATE"],"5003T":[0,"5003 TEXTURADO"],"5004B":[150.0,"5004 BRILLO"],"5004M":[100.0,"5004 MATE"],"5004T":[200.0,"5004 TEXTURADO"],"5005B":[30.0,"5005 BRILLO"],"5005M":[150.0,"5005 MATE"],"5005T":[150.0,"5005 TEXTURADO"],"5007B":[150.0,"5007 BRILLO"],"5007M":[100.0,"5007 MATE"],"5007T":[200.0,"5007 TEXTURADO"],"5008B":[150.0,"5008 BRILLO"],"5008M":[100.0,"5008 MATE"],"5008T":[150.0,"5008 TEXTURADO"],"5009B":[150.0,"5009 BRILLO"],"5009M":[100.0,"5009 MATE"],"5009T":[150.0,"5009 TEXTURADO"],"5010B":[30.0,"5010 BRILLO"],"5010T":[0,"5010 TEXTURADO"],"5011B":[75.0,"5011 BRILLO"],"5011M":[150.0,"5011 MATE"],"5011T":[150.0,"5011 TEXTURADO"],"5012B":[150.0,"5012 BRILLO"],"5012M":[100.0,"5012 MATE"],"5012T":[100.0,"5012 TEXTURADO"],"5013B":[30.0,"5013 BRILLO"],"5013M":[75.0,"5013 MATE"],"5013T":[150.0,"5013 TEXTURADO"],"5014B":[75.0,"5014 BRILLO"],"5014M":[75.0,"5014 MATE"],"5014T":[150.0,"5014 TEXTURADO"],"5015B":[75.0,"5015 BRILLO"],"5015M":[100.0,"5015 MATE"],"5015T":[150.0,"5015 TEXTURADO"],"5017B":[100.0,"5017 BRILLO"],"5017M":[150.0,"5017 MATE"],"5017T":[150.0,"5017 TEXTURADO"],"5018B":[150.0,"5018 BRILLO"],"5018M":[150.0,"5018 MATE"],"5018T":[200.0,"5018 TEXTURADO"],"5019B":[150.0,"5019 BRILLO"],"5019M":[100.0,"5019 MATE"],"5019T":[200.0,"5019 TEXTURADO"],"5020B":[150.0,"5020 BRILLO"],"5020M":[150.0,"5020 MATE"],"5021B":[150.0,"5021 BRILLO"],"5021M":[100.0,"5021 MATE"],"5021T":[200.0,"5021 TEXTURADO"],"5022B":[150.0,"5022 BRILLO"],"5022M":[75.0,"5022 MATE"],"5023B":[150.0,"5023 BRILLO"],"5023M":[100.0,"5023 MATE"],"5023T":[200.0,"5023 TEXTURADO"],"5024B":[75.0,"5024 BRILLO"],"5024M":[100.0,"5024 MATE"],"5024T":[0,"5024 TEXTURADO"],"5025B":[200.0,"5025 BRILLO"],"6000B":[150.0,"6000 BRILLO"],"6000M":[150.0,"6000 MATE"],"6001B":[150.0,"6001 BRILLO"],"6001M":[150.0,"6001 MATE"],"6001T":[150.0,"6001 TEXTURADO"],"6002B":[30.0,"6002 BRILLO"],"6002M":[200.0,"6002 MATE"],"6003B":[75.0,"6003 BRILLO"],"6003M":[150.0,"6003 MATE"],"6003T":[200.0,"6003 TEXTURADO"],"6004B":[100.0,"6004 BRILLO"],"6004M":[200.0,"6004 MATE"],"6004T":[150.0,"6004 TEXTURADO"],"6005B":[30.0,"6005 BRILLO"],"6005T":[0,"6005 TEXTURADO"],"6006B":[150.0,"6006 BRILLO"],"6006M":[150.0,"6006 MATE"],"6007B":[150.0,"6007 BRILLO"],"6007M":[150.0,"6007 MATE"],"6007T":[150.0,"6007 TEXTURADO"],"6008B":[150.0,"6008 BRILLO"],"6008M":[150.0,"6008 MATE"],"6008T":[200.0,"6008 TEXTURADO"],"6009B":[30.0,"6009 BRILLO"],"6009T":[0,"6009 TEXTURADO"],"6010B":[150.0,"6010 BRILLO"],"6010M":[200.0,"6010 MATE"],"6011B":[75.0,"6011 BRILLO"],"6011M":[150.0,"6011 MATE"],"6011T":[200.0,"6011 TEXTURADO"],"6012B":[150.0,"6012 BRILLO"],"6012M":[150.0,"6012 MATE"],"6012T":[150.0,"6012 TEXTURADO"],"6013B":[75.0,"6013 BRILLO"],"6013M":[150.0,"6013 MATE"],"6013T":[200.0,"6013 TEXTURADO"],"6014B":[150.0,"6014 BRILLO"],"6014M":[200.0,"6014 MATE"],"6014T":[200.0,"6014 TEXTURADO"],"6015B":[150.0,"6015 BRILLO"],"6015M":[150.0,"6015 MATE"],"6015T":[200.0,"6015 TEXTURADO"],"6016B":[150.0,"6016 BRILLO"],"6016M":[150.0,"6016 MATE"],"6016T":[150.0,"6016 TEXTURADO"],"6017B":[150.0,"6017 BRILLO"],"6017M":[150.0,"6017 MATE"],"6017T":[200.0,"6017 TEXTURADO"],"6018B":[100.0,"6018 BRILLO"],"6018M":[200.0,"6018 MATE"],"6018T":[200.0,"6018 TEXTURADO"],"6019B":[75.0,"6019 BRILLO"],"6019M":[75.0,"6019 MATE"],"6019T":[0,"6019 TEXTURADO"],"6020B":[150.0,"6020 BRILLO"],"6020M":[100.0,"6020 MATE"],"6021B":[100.0,"6021 BRILLO"],"6021M":[150.0,"6021 MATE"],"6021T":[150.0,"6021 TEXTURADO"],"6022B":[150.0,"6022 BRILLO"],"6022M":[200.0,"6022 MATE"],"6022T":[200.0,"6022 TEXTURADO"],"6024B":[150.0,"6024 BRILLO"],"6024M":[150.0,"6024 MATE"],"6024T":[200.0,"6024 TEXTURADO"],"6025B":[150.0,"6025 BRILLO"],"6025M":[200.0,"6025 MATE"],"6026B":[150.0,"6026 BRILLO"],"6026M":[100.0,"6026 MATE"],"6027B":[150.0,"6027 BRILLO"],"6027M":[150.0,"6027 MATE"],"6027T":[200.0,"6027 TEXTURADO"],"6028B":[150.0,"6028 BRILLO"],"6028M":[100.0,"6028 MATE"],"6028T":[150.0,"6028 TEXTURADO"],"6029B":[150.0,"6029 BRILLO"],"6029M":[30.0,"6029 MATE"],"6029T":[200.0,"6029 TEXTURADO"],"6031M":[150.0,"6031 MATE"],"6032B":[150.0,"6032 BRILLO"],"6032M":[150.0,"6032 MATE"],"6033B":[150.0,"6033 BRILLO"],"6033M":[100.0,"6033 MATE"],"6033T":[200.0,"6033 TEXTURADO"],"6034B":[75.0,"6034 BRILLO"],"6034M":[150.0,"6034 MATE"],"6034T":[200.0,"6034 TEXTURADO"],"6035B":[200.0,"6035 BRILLO"],"6037B":[200.0,"6037 BRILLO"],"6037M":[400.0,"6037 MATE"],"7000B":[150.0,"7000 BRILLO"],"7000M":[150.0,"7000 MATE"],"7000T":[150.0,"7000 TEXTURADO"],"7001B":[75.0,"7001 BRILLO"],"7001M":[100.0,"7001 MATE"],"7001T":[150.0,"7001 TEXTURADO"],"7002B":[75.0,"7002 BRILLO"],"7002M":[100.0,"7002 MATE"],"7002T":[150.0,"7002 TEXTURADO"],"7003B":[75.0,"7003 BRILLO"],"7003M":[75.0,"7003 MATE"],"7003T":[150.0,"7003 TEXTURADO"],"7004B":[150.0,"7004 BRILLO"],"7004M":[100.0,"7004 MATE"],"7004T":[150.0,"7004 TEXTURADO"],"7005B":[100.0,"7005 BRILLO"],"7005M":[100.0,"7005 MATE"],"7005T":[150.0,"7005 TEXTURADO"],"7006B":[75.0,"7006 BRILLO"],"7006M":[150.0,"7006 MATE"],"7006T":[150.0,"7006 TEXTURADO"],"7008B":[100.0,"7008 BRILLO"],"7008M":[150.0,"7008 MATE"],"7008T":[150.0,"7008 TEXTURADO"],"7009B":[150.0,"7009 BRILLO"],"7009M":[100.0,"7009 MATE"],"7009T":[150.0,"7009 TEXTURADO"],"7010B":[150.0,"7010 BRILLO"],"7010M":[150.0,"7010 MATE"],"7010T":[150.0,"7010 TEXTURADO"],"7011B":[30.0,"7011 BRILLO"],"7011T":[0,"7011 TEXTURADO"],"7012B":[30.0,"7012 BRILLO"],"7012T":[0,"7012 TEXTURADO"],"7013B":[150.0,"7013 BRILLO"],"7013M":[150.0,"7013 MATE"],"7013T":[150.0,"7013 TEXTURADO"],"7015B":[75.0,"7015 BRILLO"],"7015M":[100.0,"7015 MATE"],"7016B":[30.0,"7016 BRILLO"],"7021B":[30.0,"7021 BRILLO"],"7021M":[30.0,"7021 MATE"],"7021T":[0,"7021 TEXTURADO"],"7022B":[30.0,"7022 BRILLO"],"7023B":[150.0,"7023 BRILLO"],"7023M":[100.0,"7023 MATE"],"7023T":[150.0,"7023 TEXTURADO"],"7024B":[30.0,"7024 BRILLO"],"7024M":[150.0,"7024 MATE"],"7024T":[150.0,"7024 TEXTURADO"],"7026B":[150.0,"7026 BRILLO"],"7026M":[100.0,"7026 MATE"],"7026T":[150.0,"7026 TEXTURADO"],"7030B":[75.0,"7030 BRILLO"],"7030M":[100.0,"7030 MATE"],"7030T":[150.0,"7030 TEXTURADO"],"7031B":[30.0,"7031 BRILLO"],"7031M":[100.0,"7031 MATE"],"7031T":[0,"7031 TEXTURADO"],"7032B":[75.0,"7032 BRILLO"],"7032M":[150.0,"7032 MATE"],"7032MA":[150.0,"7032 MATE"],"7032T":[150.0,"7032 TEXTURADO"],"7033B":[150.0,"7033 BRILLO"],"7033M":[75.0,"7033 MATE"],"7033T":[150.0,"7033 TEXTURADO"],"7034B":[75.0,"7034 BRILLO"],"7034M":[150.0,"7034 MATE"],"7034T":[150.0,"7034 TEXTURADO"],"7035B":[30.0,"7035 BRILLO"],"7035T":[0,"7035 TEXTURADO"],"7036B":[150.0,"7036 BRILLO"],"7036M":[100.0,"7036 MATE"],"7036T":[150.0,"7036 TEXTURADO"],"7037B":[75.0,"7037 BRILLO"],"7037M":[100.0,"7037 MATE"],"7037T":[150.0,"7037 TEXTURADO"],"7038B":[150.0,"7038 BRILLO"],"7038M":[150.0,"7038 MATE"],"7038T":[100.0,"7038 TEXTURADO"],"7039B":[100.0,"7039 BRILLO"],"7039M":[150.0,"7039 MATE"],"7039T":[200.0,"7039 TEXTURADO"],"7040B":[75.0,"7040 BRILLO"],"7040M":[100.0,"7040 MATE"],"7040T":[100.0,"7040 TEXTURADO"],"7042B":[75.0,"7042 BRILLO"],"7042M":[100.0,"7042 MATE"],"7042T":[150.0,"7042 TEXTURADO"],"7043B":[150.0,"7043 BRILLO"],"7043M":[100.0,"7043 MATE"],"7043T":[150.0,"7043 TEXTURADO"],"7044B":[75.0,"7044 BRILLO"],"7044M":[75.0,"7044 MATE"],"7044T":[150.0,"7044 TEXTURADO"],"7045B":[75.0,"7045 BRILLO"],"7045M":[150.0,"7045 MATE"],"7045T":[150.0,"7045 TEXTURADO"],"7046B":[150.0,"7046 BRILLO"],"7046M":[100.0,"7046 MATE"],"7046T":[150.0,"7046 TEXTURADO"],"7047B":[150.0,"7047 BRILLO"],"7047M":[100.0,"7047 MATE"],"7047T":[150.0,"7047 TEXTURADO"],"7048B":[300.0,"7048 BRILLO"],"8000B":[150.0,"8000 BRILLO"],"8000M":[200.0,"8000 MATE"],"8000T":[200.0,"8000 TEXTURADO"],"8001B":[150.0,"8001 BRILLO"],"8001M":[150.0,"8001 MATE"],"8001T":[150.0,"8001 TEXTURADO"],"8002B":[100.0,"8002 BRILLO"],"8002M":[150.0,"8002 MATE"],"8002T":[150.0,"8002 TEXTURADO"],"8003B":[75.0,"8003 BRILLO"],"8003M":[100.0,"8003 MATE"],"8003T":[200.0,"8003 TEXTURADO"],"8004B":[150.0,"8004 BRILLO"],"8004M":[150.0,"8004 MATE"],"8004T":[150.0,"8004 TEXTURADO"],"8007B":[75.0,"8007 BRILLO"],"8007M":[150.0,"8007 MATE"],"8007T":[150.0,"8007 TEXTURADO"],"8008B":[75.0,"8008 BRILLO"],"8008M":[100.0,"8008 MATE"],"8008T":[150.0,"8008 TEXTURADO"],"8011B":[75.0,"8011 BRILLO"],"8011M":[100.0,"8011 MATE"],"8011T":[150.0,"8011 TEXTURADO"],"8012B":[75.0,"8012 BRILLO"],"8012M":[150.0,"8012 MATE"],"8012T":[150.0,"8012 TEXTURADO"],"8014B":[30.0,"8014 BRILLO"],"8014T":[0,"8014 TEXTURADO"],"8015B":[150.0,"8015 BRILLO"],"8015M":[150.0,"8015 MATE"],"8015T":[150.0,"8015 TEXTURADO"],"8016B":[100.0,"8016 BRILLO"],"8016M":[100.0,"8016 MATE"],"8016T":[150.0,"8016 TEXTURADO"],"8017B":[30.0,"8017 BRILLO"],"8017T":[0,"8017 TEXTURADO"],"8019B":[30.0,"8019 BRILLO"],"8022B":[150.0,"8022 BRILLO"],"8022M":[150.0,"8022 MATE"],"8022T":[150.0,"8022 TEXTURADO"],"8023B":[150.0,"8023 BRILLO"],"8023M":[150.0,"8023 MATE"],"8023T":[200.0,"8023 TEXTURADO"],"8024B":[150.0,"8024 BRILLO"],"8024M":[150.0,"8024 MATE"],"8024T":[150.0,"8024 TEXTURADO"],"8025B":[150.0,"8025 BRILLO"],"8025M":[150.0,"8025 MATE"],"8025T":[200.0,"8025 TEXTURADO"],"8028B":[150.0,"8028 BRILLO"],"8028M":[150.0,"8028 MATE"],"8028T":[150.0,"8028 TEXTURADO"],"9001B":[75.0,"9001 BRILLO"],"9001M":[100.0,"9001 MATE"],"9001T":[150.0,"9001 TEXTURADO"],"9002B":[100.0,"9002 BRILLO"],"9002M":[100.0,"9002 MATE"],"9002T":[100.0,"9002 TEXTURADO"],"9003B":[150.0,"9003 BRILLO"],"9003M":[100.0,"9003 MATE"],"9003T":[150.0,"9003 TEXTURADO"],"9004B":[150.0,"9004 BRILLO"],"9004M":[100.0,"9004 MATE"],"9004T":[200.0,"9004 TEXTURADO"],"9005B":[100.0,"9005 BRILLO"],"9006AB":[200.0,"9006 MATE"],"9006B":[30.0,"9006 BRILLO"],"9006M":[30.0,"9006 MATE"],"9006T":[30.0,"9006 TEXTURADO"],"9007B":[30.0,"9007 BRILLO"],"9007M":[30.0,"9007 MATE"],"9007T":[30.0,"9007 TEXTURADO"],"9010B":[100.0,"9010 BRILLO"],"9010T":[0,"9010 TEXTURADO"],"9011B":[30.0,"9011 BRILLO"],"9011M":[30.0,"9011 MATE"],"9011T":[0,"9011 TEXTURADO"],"9012B":[200.0,"9012 BRILLO"],"9016B":[100.0,"9016 BRILLO"],"9017B":[150.0,"9017 BRILLO"],"9017M":[100.0,"9017 MATE"],"9017T":[150.0,"9017 TEXTURADO"],"9018B":[100.0,"9018 BRILLO"],"9018M":[150.0,"9018 MATE"],"9018T":[150.0,"9018 TEXTURADO"],"ALBY":[300.0,"Alby"],"AMBRE":[400.0,"Ambre"],"ANTU":[300.0,"Antu"],"AURORA":[400.0,"Aurora"],"B2600":[300.0,"Bleu 2600"],"B2650":[300.0,"Brun 2650"],"B2700":[300.0,"Bleu 2700"],"B650":[30.0,"BRUN 650"],"BABUA":[300.0,"Babua"],"BAKU":[300.0,"Baku"],"BODRUM":[300.0,"Bodrum"],"BRISBANE":[300.0,"Brisbane"],"BRONCETI":[400.0,"BRONCE ULTRAMATE"],"BRONZ":[200.0,"BRONZE"],"BS":[0,"BRONCE"],"CANON":[300.0,"Canon"],"CHANGI":[300.0,"Changi"],"CHICAGO":[300.0,"Chicago"],"CUSCO":[300.0,"Cusco"],"DETENDRE":[300.0,"Detendre"],"DJIBUTI":[300.0,"Djibouti"],"DRYLAC":[200.0,"Drylac"],"FOSSIL":[400.0,"FOSSIL 9023"],"G2150":[300.0,"Gris 2150"],"G2400":[300.0,"Gris 2400"],"G2500":[300.0,"Gris 2500"],"G2800":[400.0,"GRIS 2800"],"G2900":[300.0,"Gris 2900"],"G900":[200.0,"GRIS 900"],"GALET":[300.0,"Galet"],"GOLD":[0,"GOLDAX"],"GRAFITO":[150.0,"GRAFITO"],"GRISMOT":[150.0,"GRIS MOTEADO"],"IL":[0,"INOXAX"],"INNOKO":[300.0,"Innoko"],"KARAKO":[300.0,"Karako"],"LAHORE":[300.0,"Lahore"],"LICHEN":[300.0,"Lichen"],"LOTUS":[300.0,"LOTUS"],"LUXOR":[300.0,"Luxor"],"MANGANESE":[300.0,"Manganèse"],"MARS":[30.0,"MARS"],"MARS2525":[300.0,"MARS2525"],"N100":[30.0,"NOIR 100 SABLE"],"N200":[30.0,"NOIR 200 SABLE"],"N2100":[75.0,"NOIR 2100 SABLE"],"N2200":[75.0,"NOIR 2200"],"N2300":[400.0,"NOIR 2300"],"NCS":[300.0,"NCS5020AX"],"OiaSilky":[300.0,"OiaSilky"],"ORDOS":[500.0,"ORDOS"],"OSTUNI":[300.0,"Ostuni"],"OTAGO":[300.0,"OTAGOAK"],"OXI":[30.0,"OXICOBRE"],"PACHUCA":[300.0,"Pachuca"],"PAMPLONA":[300.0,"Pamplona"],"PATAH":[300.0,"Patah"],"PL":[0,"NATUREAX"],"PYRITE":[300.0,"Pyrite"],"ROUGE2600":[500.0,"ROUGE2600"],"RX7265XW":[400.0,"RX72 METALIZADO"],"SAMOA":[300.0,"Samoa"],"SENOUAL":[300.0,"SENOUAL"],"SILVER2525":[300.0,"Silver"],"Starlight":[400.0,"Starlight"],"SUMELA":[300.0,"Sumela"],"SYDNEY":[300.0,"Sydney"],"Tanami":[400.0,"Tanami"],"Tijuka":[400.0,"Tijuka"],"V2300":[400.0,"VERT2300"],"YAZD":[300.0,"Yazd"],"YUMA":[400.0,"YUMA"]};
+// Corresponencia entre la paleta de colores de la app (CL, arriba) y el
+// código de acabado de la Relación de Rales. Solo incluye las que se
+// pueden deducir con seguridad (número de RAL + acabado brillo/mate/
+// texturado); "ANOD PLATA/BRONCE/INOX" (anodizado) y "PINO NUDO/ROBLE
+// DORADO/SAPELLI CAOBA" (símil madera) no aparecen en este documento (son
+// procesos distintos al lacado, con tarifa aparte que no tengo) — no se
+// mapean para no inventar un recargo. "RAL 9005 MATE" tampoco: solo existe
+// 9005 en brillo (9005B) y texturado (9005T) en la lista de Alba, no mate.
+var CL_RECARGO_MAP={
+  'BLANCO':'LB','BLANCO 9010 MATE':'9010M','BLANCO 9016 MATE':'9016M','BLANCO 9010 TX':'9010T','BLANCO 9016 TX':'9016T',
+  'RAL 1013':'1013B','RAL 1013 TX':'1013T','RAL 1015':'1015B','RAL 1015 MATE':'1015M',
+  'RAL 3004':'3004B','RAL 3005':'3005B',
+  'RAL 5013':'5013B','RAL 5024':'5024B',
+  'RAL 6005':'6005B','RAL 6009':'6009B','RAL 6013':'6013B','RAL 6021':'6021B',
+  'RAL 7010':'7010B','RAL 7011':'7011B','RAL 7016':'7016B','RAL 7016 MATE':'7016M','RAL 7016 TX':'7016T','RAL 7021 TX':'7021T','RAL 7022':'7022B','RAL 7022 TX':'7022T','RAL 7035':'7035B','RAL 7039':'7039B',
+  'RAL 8014':'8014B','RAL 8017':'8017B','RAL 8019':'8019B','RAL 8022 MATE':'8022M',
+  'RAL 9005 NEGRO':'9005B','RAL 9006 PLATA':'9006B','RAL 9007 INOX':'9007B',
+  'SABLE NOIR 100':'N100','SABLE MARS 2525':'MARS2525'
+  // SABLE BLEUR 600: tampoco aparece en el documento con ese nombre exacto
+  // (hay "Bleu 2600" y "Bleu 2700" pero no "600") — sin mapear, revisar con Alba.
+};
+// Recargos por color a nivel de TODO el pedido (no por ventana): agrupa las
+// ventanas/estructuras guardadas por color, y para cada color no-blanco
+// recalcula cuántas barras hacen falta SOLO de ese color. Si son menos de
+// 30, se aplica el recargo fijo de la tarifa de Alba.
+// vsList/estsList: listas de ventanas/estructuras guardadas a evaluar (para
+// poder usarlo tanto con el pedido en memoria como con un proyecto guardado).
+function calcularRecargosColor(vsList,estsList){
+  var porColor={};
+  (vsList||[]).forEach(function(v){
+    var c=v.color||'BLANCO'; (porColor[c]=porColor[c]||{vs:[],ests:[]}).vs.push(v);
+  });
+  (estsList||[]).forEach(function(e){
+    var c=e.color||'BLANCO'; (porColor[c]=porColor[c]||{vs:[],ests:[]}).ests.push(e);
+  });
+  var resultado=[];
+  Object.keys(porColor).forEach(function(color){
+    if(color==='BLANCO')return; // el blanco no lleva recargo
+    var codigo=CL_RECARGO_MAP[color];
+    if(!codigo){ resultado.push({color:color, sinDato:true}); return; }
+    var info=RALES_RECARGO[codigo];
+    if(!info)return;
+    var recargo=info[0];
+    if(recargo<=0)return; // "SIN RECARGO" en la tarifa de Alba
+    // Recalcular barras SOLO para las ventanas/estructuras de este color,
+    // pisando temporalmente VS/ESTS (que es lo que lee calcMaterial())
+    var vsOriginal=VS, estsOriginal=ESTS;
+    VS=porColor[color].vs; ESTS=porColor[color].ests;
+    var m=null;
+    try{ m=calcMaterial(); }catch(e){}
+    VS=vsOriginal; ESTS=estsOriginal;
+    var totalBarras=0;
+    if(m&&m.perfiles)m.perfiles.forEach(function(p){totalBarras+=p.barras;});
+    resultado.push({color:color, codigo:codigo, totalBarras:totalBarras, recargo:recargo, aplica:(totalBarras<30)});
+  });
+  return resultado;
+}
+
 var CL=[
   {g:'Blancos',r:'BLANCO',h:'#F5F0E8'},{g:'Blancos',r:'BLANCO 9010 MATE',h:'#F4F4F0'},{g:'Blancos',r:'BLANCO 9016 MATE',h:'#F6F6F4'},{g:'Blancos',r:'BLANCO 9010 TX',h:'#EFEDE8'},{g:'Blancos',r:'BLANCO 9016 TX',h:'#F2F0EB'},
   {g:'Marfiles',r:'RAL 1013',h:'#EAE0CA'},{g:'Marfiles',r:'RAL 1013 TX',h:'#E0D6C0'},{g:'Marfiles',r:'RAL 1015',h:'#E8DCBE'},{g:'Marfiles',r:'RAL 1015 MATE',h:'#DDD2B4'},
@@ -2067,24 +2125,22 @@ var CLAVES_MANDOS=['mandoNormal','mandoMulticanal'];
 // "escala": true = la cantidad es POR HOJA operable (se multiplica por v.hojas);
 //   false = la cantidad ya es fija para toda la ventana.
 // "porSistema": true = hay referencia distinta según el sistema de perfil
-//   ('fria'=Alba 40 Abisagrada, 'rpt'=Alba 65 RPT, 'alfilrpt'=Alfil A-45 RPT
-//   — este último es el único Alfil con datos: Toni confirmó que la versión
-//   fría de Alfil no está documentada en ningún sitio, así que no se ofrece).
-//   false = pieza genérica sin referencia (cremona, bisagras, kits...).
+//   ('fria'=Alba 40 Abisagrada, 'rpt'=Alba 65 RPT); false = pieza genérica
+//   sin referencia (cremona, bisagras, kits...).
 // "solo": restringe a un tipo de apertura ('practicable' u 'oscilobatiente');
 //   sin este campo, aplica a ambos. Ventanas "batiente" usan el juego de
 //   practicable — confirmado por Toni, es lo mismo.
 // "conInversor": solo se añade si la ventana tiene inversor (exactamente 2 hojas).
 var HERRAJE_PRACTICABLE=[
-  {id:'escuadraMarco',   nombre:'Escuadra marco',           cant:4, escala:false, porSistema:true,  ref:{fria:'50443',rpt:'50443',alfilrpt:'50443'}, precio:{fria:0.49,rpt:0.49}},
-  {id:'escuadraHoja',    nombre:'Escuadra hoja',             cant:4, escala:true,  porSistema:true,  ref:{fria:'50443',rpt:'50443',alfilrpt:'50443'}, precio:{fria:0.49,rpt:0.49}},
-  {id:'escuadraRef',     nombre:'Escuadra refuerzo', cant:4, escala:true, porSistema:true, ref:{rpt:'50449'}, precio:{rpt:0.62}}, // Alfil A-45 RPT no lleva (columna en blanco en el Excel)
-  {id:'juntaCentralV',   nombre:'Junta central vertical',    cant:2, escala:true,  porSistema:true,  ref:{fria:'90006',rpt:'90065',alfilrpt:'90019'}, precio:{fria:0.56,rpt:0.54}},
-  {id:'juntaCentralH',   nombre:'Junta central horizontal',  cant:2, escala:true,  porSistema:true,  ref:{fria:'90006',rpt:'90065',alfilrpt:'90019'}, precio:{fria:0.56,rpt:0.54}},
-  {id:'tapaVierteaguas', nombre:'Tapón vierteaguas',         cant:1, escala:false, porSistema:true,  ref:{fria:'52357',rpt:'52357',alfilrpt:'52357'}, precio:{fria:0.13,rpt:0.13}},
-  {id:'gomaHojaV',       nombre:'Goma hoja vertical',        cant:2, escala:true,  porSistema:true,  ref:{fria:'89016',rpt:'89016',alfilrpt:'89016'}, precio:{fria:0.15,rpt:0.15}},
-  {id:'gomaHojaH',       nombre:'Goma hoja horizontal',      cant:2, escala:true,  porSistema:true,  ref:{fria:'89016',rpt:'89016',alfilrpt:'89016'}, precio:{fria:0.15,rpt:0.15}},
-  {id:'tapaInversor',    nombre:'Tapón inversor',            cant:1, escala:false, porSistema:true,  ref:{fria:'51272',rpt:'51912',alfilrpt:'51903'}, precio:{rpt:1.22}}, // 51272 (fría) y 51903 (Alfil RPT) no aparecen en el export Gesfacil — sin precio
+  {id:'escuadraMarco',   nombre:'Escuadra marco',           cant:4, escala:false, porSistema:true,  ref:{fria:'50443',rpt:'50443'}, precio:{fria:0.49,rpt:0.49}},
+  {id:'escuadraHoja',    nombre:'Escuadra hoja',             cant:4, escala:true,  porSistema:true,  ref:{fria:'50443',rpt:'50443'}, precio:{fria:0.49,rpt:0.49}},
+  {id:'escuadraRef',     nombre:'Escuadra refuerzo (solo RPT)', cant:4, escala:true, porSistema:true, ref:{rpt:'50449'}, precio:{rpt:0.62}},
+  {id:'juntaCentralV',   nombre:'Junta central vertical',    cant:2, escala:true,  porSistema:true,  ref:{fria:'90006',rpt:'90065'}, precio:{fria:0.56,rpt:0.54}},
+  {id:'juntaCentralH',   nombre:'Junta central horizontal',  cant:2, escala:true,  porSistema:true,  ref:{fria:'90006',rpt:'90065'}, precio:{fria:0.56,rpt:0.54}},
+  {id:'tapaVierteaguas', nombre:'Tapón vierteaguas',         cant:1, escala:false, porSistema:true,  ref:{fria:'52357',rpt:'52357'}, precio:{fria:0.13,rpt:0.13}},
+  {id:'gomaHojaV',       nombre:'Goma hoja vertical',        cant:2, escala:true,  porSistema:true,  ref:{fria:'89016',rpt:'89016'}, precio:{fria:0.15,rpt:0.15}},
+  {id:'gomaHojaH',       nombre:'Goma hoja horizontal',      cant:2, escala:true,  porSistema:true,  ref:{fria:'89016',rpt:'89016'}, precio:{fria:0.15,rpt:0.15}},
+  {id:'tapaInversor',    nombre:'Tapón inversor',            cant:1, escala:false, porSistema:true,  ref:{fria:'51272',rpt:'51912'}, precio:{rpt:1.22}}, // 51272 (fría) no aparece en el export Gesfacil — sin precio
   {id:'cremona',         nombre:'Cremona',                   cant:1, escala:true,  porSistema:false, solo:'practicable'},
   {id:'bisagras',        nombre:'Bisagras',                  cant:2, escala:true,  porSistema:false, solo:'practicable'},
   {id:'kit1Hoja',        nombre:'Kit 1 hoja',                cant:1, escala:true,  porSistema:false, solo:'practicable'},
@@ -2093,15 +2149,15 @@ var HERRAJE_PRACTICABLE=[
   {id:'compasOsc',       nombre:'Compás oscilobatiente',     cant:1, escala:true,  porSistema:false, solo:'oscilobatiente'},
   {id:'reenvio',         nombre:'Reenvío',                   cant:1, escala:true,  porSistema:false, solo:'oscilobatiente'}
 ];
-var HERRAJE_SISTEMA_LBL={fria:'Fría',rpt:'RPT',alfilrpt:'Alfil A-45 RPT'};
+var HERRAJE_SISTEMA_LBL={fria:'Fría',rpt:'RPT'};
 var _herrajePracticableCache=null;
 function getPreciosHerrajePracticable(){
   if(_herrajePracticableCache)return _herrajePracticableCache;
   var precios={}, referencias={};
   HERRAJE_PRACTICABLE.forEach(function(h){
     if(h.porSistema){
-      ['fria','rpt','alfilrpt'].forEach(function(sis){
-        if(!h.ref || !h.ref[sis]) return; // esta pieza no existe en este sistema (ej. escuadra refuerzo en fría/Alfil)
+      ['fria','rpt'].forEach(function(sis){
+        if(!h.ref || !h.ref[sis]) return; // esta pieza no existe en este sistema (ej. escuadra refuerzo en fría)
         var key=h.id+'|'+sis;
         precios[key]=(h.precio&&h.precio[sis])||0;
         referencias[key]={nombre:h.nombre+' ('+HERRAJE_SISTEMA_LBL[sis]+')', ref:h.ref[sis]};
@@ -2117,12 +2173,9 @@ function getPreciosHerrajePracticable(){
 }
 // Lista de herraje que le hace falta a UNA ventana practicable/oscilobatiente/
 // batiente concreta, con cantidades ya multiplicadas por nº de hojas donde toca.
-// v.sistemaManual='alfilrpt' fuerza el juego de Alfil A-45 RPT (no se detecta
-// solo porque el medidor no distingue Alba/Alfil); si no se indica, usa
-// automáticamente fría/RPT según v.rpt (Alba 40 Abisagrada / Alba 65 RPT).
 function herrajePracticableVentana(v){
   if(!(v.tipo==='practicable'||v.tipo==='oscilobatiente'||v.tipo==='batiente'))return [];
-  var sis=(v.sistemaManual==='alfilrpt')?'alfilrpt':((v.rpt==='rpt')?'rpt':'fria');
+  var sis=(v.rpt==='rpt')?'rpt':'fria';
   var hojas=parseInt(v.hojas)||1;
   var tipoAccesorio=(v.tipo==='oscilobatiente')?'oscilobatiente':'practicable'; // batiente → juego de practicable
   var pp=getPreciosHerrajePracticable();
@@ -2131,7 +2184,7 @@ function herrajePracticableVentana(v){
     if(h.solo && h.solo!==tipoAccesorio)return;
     if(h.conInversor && !(hojas===2))return; // el inversor solo existe con 2 hojas
     var key=h.porSistema?(h.id+'|'+sis):h.id;
-    if(!(key in pp.precios))return; // ej. escuadra refuerzo en Alfil RPT: no existe
+    if(!(key in pp.precios))return; // ej. escuadra refuerzo en fría: no existe
     var cant=h.cant*(h.escala?hojas:1);
     var precioUnit=pp.precios[key]||0;
     out.push({nombre:h.nombre, cant:cant, ref:(pp.referencias[key]||{}).ref||'—', precioUnit:precioUnit, subtotal:cant*precioUnit});
@@ -2143,6 +2196,7 @@ var CATALOGO_MATERIALES=[
   {tab:'materiales', categoria:'① Ventana — Aluminio: perfiles y tapetas (Aluminios Barcelona)', unidad:'€/ml', overridesKey:'mareva_ov_alu', claves:CLAVES_PERFILES_ALU, obtener:function(){return getPreciosAlu();}, resetCache:function(){_preciosAluCache=null;}},
   {tab:'materiales', categoria:'② Persiana — Lamas y cajones (tarifa Persitec)', unidad:'€/m² o €/ud', overridesKey:'mareva_ov_persianas', obtener:function(){return getPreciosPersianasFlat();}, resetCache:function(){_preciosPersCache=null;}},
   {tab:'materiales', categoria:'② Persiana — Motores, mandos y soportes (Cherubini)', unidad:'€/ud', overridesKey:'mareva_ov_motores', obtener:function(){return getPreciosMotoresPersitec();}, resetCache:function(){_preciosMotoresPersCache=null;}},
+  {tab:'materiales', categoria:'③ Techos de aluminio (Persitec)', unidad:'€/m²', overridesKey:'mareva_ov_techos', obtener:function(){return getPreciosTechosFlat();}, resetCache:function(){resetTechosAluminio();}},
   {tab:'accesorios', categoria:'Kits de corredera · cruce panorámico (herraje)', unidad:'€/kit', overridesKey:'mareva_ov_alu', claves:CLAVES_KITS_CORREDERA, obtener:function(){return getPreciosAlu();}, resetCache:function(){_preciosAluCache=null;}},
   {tab:'accesorios', categoria:'Herraje practicable/oscilobatiente (por ventana)', unidad:'€/ud', overridesKey:'mareva_ov_herraje_practicable', obtener:function(){return getPreciosHerrajePracticable();}, resetCache:function(){_herrajePracticableCache=null;}}
 ];
@@ -2206,6 +2260,200 @@ function cerrarPrecioVentanas(){document.getElementById('precio-wrap').style.dis
 
 // ── PRESUPUESTO DE PERSIANA SUELTA (sin medir una ventana completa) ──
 var PP={persCat:'mini',persAc:'cinta',persMando:'mando',persMandoTipo:'normal',persAutoblock:false,persPartida:false,persPartidaMotores:2,color:'BLANCO'};
+
+// ══════════════════════════════════════════════════════════════════════
+// HISTORIAL DE CONSULTAS — guarda resultados de las calculadoras sueltas
+// (persiana, mosquitera, cristal, techo) para poder volver a mirarlos sin
+// tener que recalcular. Simple lista en localStorage, más reciente primero.
+// ══════════════════════════════════════════════════════════════════════
+var HISTORIAL_KEY='mareva_historial_consultas';
+function getHistorial(){
+  try{ return JSON.parse(localStorage.getItem(HISTORIAL_KEY))||[]; }catch(e){ return []; }
+}
+function guardarEnHistorial(tipo,icono,resumen,total){
+  var arr=getHistorial();
+  arr.unshift({id:'h'+Date.now(), tipo:tipo, icono:icono, resumen:resumen, total:total, fecha:new Date().toLocaleString('es-ES')});
+  if(arr.length>200)arr=arr.slice(0,200);
+  try{ localStorage.setItem(HISTORIAL_KEY,JSON.stringify(arr)); }catch(e){}
+  toast('💾 Guardado en el historial');
+}
+function borrarDeHistorial(id){
+  var arr=getHistorial().filter(function(h){return h.id!==id;});
+  try{ localStorage.setItem(HISTORIAL_KEY,JSON.stringify(arr)); }catch(e){}
+  renderHistorial();
+}
+function vaciarHistorial(){
+  if(!confirm('¿Borrar todo el historial de consultas guardadas?'))return;
+  try{ localStorage.removeItem(HISTORIAL_KEY); }catch(e){}
+  renderHistorial();
+}
+function abrirHistorial(){
+  renderHistorial();
+  document.getElementById('hist-wrap').style.display='flex';
+}
+function cerrarHistorial(){document.getElementById('hist-wrap').style.display='none';}
+function renderHistorial(){
+  var cont=document.getElementById('hist-body');
+  var arr=getHistorial();
+  if(!arr.length){
+    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Todavía no has guardado ninguna consulta.<br>Desde cada calculadora (persiana, mosquitera, cristal, techo) pulsa "💾 Guardar" para que aparezca aquí.</div></div>';
+    return;
+  }
+  var html='<div style="display:flex;justify-content:flex-end;margin-bottom:.5rem"><button class="btn" style="color:#F87171" onclick="vaciarHistorial()">🗑 Vaciar historial</button></div>';
+  arr.forEach(function(h){
+    html+='<div class="card" style="margin-bottom:.5rem"><div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:.6rem">'
+      +'<div><div style="font-size:13px;font-weight:700;color:#E2E8F0">'+h.icono+' '+h.resumen+'</div>'
+      +'<div style="font-size:11px;color:#64748B;margin-top:2px">'+h.fecha+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:.6rem;flex-shrink:0">'
+      +'<b style="font-size:15px;color:#34D399">'+eur2(h.total)+'</b>'
+      +'<button onclick="borrarDeHistorial(\''+h.id+'\')" style="background:none;border:none;color:#64748B;font-size:16px;cursor:pointer">✕</button>'
+      +'</div></div></div>';
+  });
+  cont.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TECHOS DE ALUMINIO — Persitec 2026, pág. 46. Precio por m² según acabado,
+// ancho de lama (100/200/300mm) y si el precio incluye perfil perimetral
+// nuevo o no. Las medidas se redondean a 5cm hacia arriba (norma general de
+// la tarifa para todo lo que se factura por m², pág. condiciones de venta).
+// ══════════════════════════════════════════════════════════════════════
+var TECHOS_ALUMINIO_DEFAULT={
+  conListon:{
+    'BLANCO BRILLO':{100:67.38,200:48.95,300:58.03},
+    'MARFIL RAL 1015':{200:70.66},
+    'ESPEJO':{200:162.59},
+    'PLATA NATURAL':{200:56.27},
+    'GRIS 9006 (PLATA MATE)':{200:70.66},
+    'GRIS RAL 7016 MATE':{200:70.66},
+    'GRIS RAL 7022 MATE':{200:70.66},
+    'PINO MEDIO':{200:93.54},
+    'BLANCO MATE':{100:67.38,200:56.27,300:58.03}
+  },
+  sinListon:{
+    'BLANCO BRILLO':{100:55.82,200:42.96,300:49.92},
+    'MARFIL RAL 1015':{200:53.91},
+    'ESPEJO':{200:111.18},
+    'PLATA NATURAL':{200:50.25},
+    'GRIS 9006 (PLATA MATE)':{200:53.91},
+    'GRIS RAL 7016 MATE':{200:53.91},
+    'GRIS RAL 7022 MATE':{200:53.91},
+    'PINO MEDIO':{200:82.46},
+    'BLANCO MATE':{100:55.82,200:46.96,300:49.92}
+  }
+};
+var TECHOS_ALUMINIO=JSON.parse(JSON.stringify(TECHOS_ALUMINIO_DEFAULT));
+function aplicarOverridesTechos(){
+  var ov=getOverridesPrecios('mareva_ov_techos');
+  Object.keys(ov).forEach(function(key){
+    var partes=key.split('|'); // tipo|acabado_con_guiones_bajos|lama
+    if(partes.length!==3)return;
+    var tabla=TECHOS_ALUMINIO[partes[0]], acabado=partes[1].replace(/_/g,' ');
+    if(tabla&&tabla[acabado]&&(partes[2] in tabla[acabado]))tabla[acabado][partes[2]]=ov[key];
+  });
+}
+aplicarOverridesTechos();
+function resetTechosAluminio(){
+  TECHOS_ALUMINIO=JSON.parse(JSON.stringify(TECHOS_ALUMINIO_DEFAULT));
+  aplicarOverridesTechos();
+}
+function getPreciosTechosFlat(){
+  var precios={}, referencias={};
+  function link(key,nombre,tipo,acabado,lama){
+    referencias[key]={nombre:nombre,ref:'—'};
+    Object.defineProperty(precios,key,{enumerable:true,configurable:true,
+      get:function(){return TECHOS_ALUMINIO[tipo][acabado][lama];},
+      set:function(v){TECHOS_ALUMINIO[tipo][acabado][lama]=v;}});
+  }
+  ['conListon','sinListon'].forEach(function(tipo){
+    var tipoLbl=tipo==='conListon'?'con perfil perimetral':'sin perfil perimetral';
+    Object.keys(TECHOS_ALUMINIO_DEFAULT[tipo]).forEach(function(acabado){
+      Object.keys(TECHOS_ALUMINIO_DEFAULT[tipo][acabado]).forEach(function(lama){
+        var key=tipo+'|'+acabado.replace(/\s+/g,'_')+'|'+lama;
+        link(key,'Techo '+acabado+' · Lama '+lama+'mm ('+tipoLbl+') €/m²',tipo,acabado,lama);
+      });
+    });
+  });
+  return {precios:precios,referencias:referencias};
+}
+// Redondea hacia arriba al múltiplo de 5cm más cercano (regla de la tarifa
+// para todo lo que se cobra por m²). Recibe y devuelve milímetros.
+function redondear5cm(mm){ return Math.ceil((mm/10)/5)*5*10; }
+function calcTechoAluminio(anchoMm,altoMm,acabado,lama,conListon){
+  var tabla=TECHOS_ALUMINIO[conListon?'conListon':'sinListon'];
+  var fila=tabla[acabado];
+  if(!fila||fila[lama]==null)return null;
+  var anchoR=redondear5cm(anchoMm), altoR=redondear5cm(altoMm);
+  var areaM2=(anchoR/1000)*(altoR/1000);
+  var precioM2=fila[lama];
+  return {anchoR:anchoR,altoR:altoR,areaM2:areaM2,precioM2:precioM2,total:areaM2*precioM2};
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CALCULADORAS RÁPIDAS: Mosquitera suelta / Cristal suelto / Techo aluminio
+// Reutilizan exactamente la misma lógica de precio que ya usa el medidor
+// (costeMosquiteraVentana, precioCristalM2, calcTechoAluminio) — no hay
+// fórmulas nuevas aquí, solo un atajo para consultar sin medir toda la
+// ventana, con opción de guardar el resultado en el historial.
+// ══════════════════════════════════════════════════════════════════════
+var RT={acabado:'BLANCO BRILLO',lama:'200',liston:'con'};
+var _ultimoResultadoRapido=null;
+
+function abrirRapidos(){
+  bRTlamas();
+  calcRapidoTecho();
+  document.getElementById('rapidos-wrap').style.display='flex';
+}
+function cerrarRapidos(){document.getElementById('rapidos-wrap').style.display='none';}
+
+// ── Techo de aluminio ──
+function selRTAcabado(v){RT.acabado=v;document.querySelectorAll('#rt-ch-acabado .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===v);});bRTlamas();calcRapidoTecho();}
+function selRTLama(v){RT.lama=v;document.querySelectorAll('#rt-ch-lama .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===v);});calcRapidoTecho();}
+function selRTListon(v){RT.liston=v;document.querySelectorAll('#rt-ch-liston .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===v);});bRTlamas();calcRapidoTecho();}
+function bRTlamas(){
+  // Solo mostrar los anchos de lama que existen de verdad para ese acabado
+  var tabla=TECHOS_ALUMINIO[RT.liston==='con'?'conListon':'sinListon'];
+  var disponibles=Object.keys(tabla[RT.acabado]||{});
+  if(disponibles.indexOf(RT.lama)<0)RT.lama=disponibles[0];
+  var cont=document.getElementById('rt-ch-lama');
+  cont.innerHTML=disponibles.map(function(l){return '<span class="chip sm'+(l===RT.lama?' on':'')+'" data-v="'+l+'" onclick="selRTLama(this.dataset.v)">Lama '+l+'mm</span>';}).join('');
+}
+function calcRapidoTecho(){
+  var ancho=parseFloat(document.getElementById('rt-ancho').value)||0;
+  var alto=parseFloat(document.getElementById('rt-alto').value)||0;
+  var cont=document.getElementById('rt-resultado');
+  if(!ancho||!alto){cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el ancho y el alto para calcular.</div></div>';_ultimoResultadoRapido=null;return;}
+  var r=calcTechoAluminio(ancho,alto,RT.acabado,RT.lama,RT.liston==='con');
+  if(!r){cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#F87171;padding:1.5rem">Esa combinación de acabado/lama no existe en la tarifa.</div></div>';_ultimoResultadoRapido=null;return;}
+  var resumen='Techo '+RT.acabado+' · lama '+RT.lama+'mm · '+ancho+'×'+alto+'mm';
+  _ultimoResultadoRapido={tipo:'Techo aluminio',icono:'🏗️',resumen:resumen,total:r.total};
+  cont.innerHTML='<div class="card" style="border-color:#34D399"><div class="card-body">'
+    +(r.anchoR!==ancho||r.altoR!==alto?'<div style="font-size:11px;color:#64748B;margin-bottom:.4rem">Medida facturable (redondeo a 5cm): '+r.anchoR+'×'+r.altoR+' mm</div>':'')
+    +'<div class="pv-linea"><span>'+r.areaM2.toFixed(2)+' m² × '+eur2(r.precioM2)+'/m²</span><b>'+eur2(r.total)+'</b></div>'
+    +'<div class="pv-total" style="font-size:15px;border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.5rem"><span>TOTAL</span><span>'+eur2(r.total)+'</span></div>'
+    +'<div class="btn-row" style="margin-top:.6rem"><button class="btn drk" onclick="guardarRapido()">💾 Guardar en historial</button></div>'
+    +'</div></div>';
+}
+function guardarRapido(){
+  if(!_ultimoResultadoRapido){toast('⚠️ No hay nada que guardar todavía');return;}
+  guardarEnHistorial(_ultimoResultadoRapido.tipo,_ultimoResultadoRapido.icono,_ultimoResultadoRapido.resumen,_ultimoResultadoRapido.total);
+}
+// Guardar el resultado de la persiana suelta (presupers-wrap) en el historial
+function guardarPersianaSuelta(){
+  var ancho=parseFloat(document.getElementById('pp-ancho').value)||0;
+  var alto=parseFloat(document.getElementById('pp-alto').value)||0;
+  if(!ancho||!alto){toast('⚠️ Pon ancho y alto primero');return;}
+  var horasMontaje=parseFloat(document.getElementById('pp-horas-montaje').value)||0;
+  var precioHora=parseFloat(document.getElementById('pp-precio-hora').value)||0;
+  var input={persCat:PP.persCat,persAc:PP.persAc,persMando:PP.persMando,persMandoTipo:PP.persMandoTipo,
+    persCos:'cosida',persAutoblock:PP.persAutoblock,persPartida:PP.persPartida,persPartidaMotores:PP.persPartidaMotores,
+    ancho:ancho,alto:alto,color:PP.color};
+  var persiana=costePersianaVentana(input);
+  if(!persiana){toast('⚠️ No se pudo calcular');return;}
+  var total=persiana.total+(horasMontaje*precioHora);
+  var resumen='Persiana '+PP.persCat+' '+ancho+'×'+alto+'mm '+PP.color;
+  guardarEnHistorial('Persiana','🪟',resumen,total);
+}
 function abrirPresupers(){
   document.getElementById('inicio-wrap').style.display='none';
   document.getElementById('presupers-wrap').style.display='flex';
@@ -2316,6 +2564,7 @@ function calcPresupers(){
   } else {
     html+='<div class="pv-nota" style="margin-top:.4rem">Pon un margen en Ajustes ⚙️ para ver precio de venta y beneficio.</div>';
   }
+  html+='<div class="btn-row" style="margin-top:.6rem"><button class="btn drk" onclick="guardarPersianaSuelta()">💾 Guardar en historial</button></div>';
   html+='</div></div>';
   cont.innerHTML=html;
 }
@@ -2452,6 +2701,30 @@ function renderPrecioVentanas(){
   });
 
   var margenP=DATOS_PRECIO_VENTANA.margenPct||0;
+
+  // ── Recargo por color (tirada corta) — se calcula sobre TODO el pedido ──
+  var recargosColor=calcularRecargosColor(proy.snap.ventanas||[], proy.snap.estructuras||[]);
+  var totalRecargoColor=0;
+  var recargosAplicables=recargosColor.filter(function(r){return r.aplica;});
+  var recargosSinDato=recargosColor.filter(function(r){return r.sinDato;});
+  if(recargosAplicables.length){
+    html+='<div class="card" style="margin-top:.7rem;border-color:#F5A623"><div class="card-body">'
+      +'<div style="color:#F5A623;font-weight:700;font-size:12.5px;margin-bottom:.4rem">🎨 Recargo por color (tirada corta, tarifa Alba 13/10/2025)</div>';
+    recargosAplicables.forEach(function(r){
+      totalRecargoColor+=r.recargo;
+      html+='<div class="pv-linea"><span>'+r.color+' · '+r.totalBarras+' barras (< 30)</span><b>'+eur2(r.recargo)+'</b></div>';
+    });
+    html+='<div class="pv-nota" style="margin-top:.3rem">Recargo fijo por pedido de ese color, no por barra — si en otro pedido llegas a 30+ barras del mismo color, no se aplica.</div>';
+    html+='</div></div>';
+  }
+  if(recargosSinDato.length){
+    html+='<div class="card" style="margin-top:.7rem;border-color:#F87171"><div class="card-body">'
+      +'<div style="color:#F87171;font-weight:700;font-size:12.5px;margin-bottom:.3rem">⚠ Color sin recargo verificado</div>'
+      +recargosSinDato.map(function(r){return '<div style="font-size:11.5px;color:#94A3B8">'+r.color+' — no está en la Relación de Rales de Alba (anodizado, símil madera, o revisar con Alba)</div>';}).join('')
+      +'</div></div>';
+  }
+  totalPedido+=totalRecargoColor;
+
   html+='<div class="card" style="margin-top:.7rem;border-color:#34D399">'
     +'<div class="card-body"><div class="pv-total" style="font-size:16px"><span>TU COSTE TOTAL ('+gs.length+' partida'+(gs.length>1?'s':'')+')</span><span>'+eur2(totalPedido)+'</span></div>';
   if(margenP>0){
@@ -2770,22 +3043,8 @@ function selRPT(v){
       document.getElementById('sub-serie').style.display='block';
     }
   }
-  bAlfil();
   actualizarCam();
   draw();
-}
-// El herraje de Alfil A-45 RPT solo tiene sentido en practicable/oscilo/
-// batiente + RPT (es lo único que tenemos documentado de Alfil). Si se
-// cambia a Fría o a corredera, se oculta y vuelve a "auto" (Alba).
-function bAlfil(){
-  var tipo=gC('ch-tipo');
-  var aplica=(tipo==='practicable'||tipo==='oscilobatiente'||tipo==='batiente')&&RPT==='rpt';
-  var cont=document.getElementById('sub-alfil');
-  if(cont)cont.style.display=aplica?'block':'none';
-  if(!aplica){
-    document.querySelectorAll('#ch-alfil .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v==='auto');});
-    if(VS[IDX])VS[IDX].sistemaManual='auto';
-  }
 }
 function onTipo(){
   var t=gC('ch-tipo');
@@ -2813,7 +3072,7 @@ function onTipo(){
   _prevTipoCat=catAhora;
   if(t==='corredera'){hs.innerHTML=[2,3,4].map(function(n){return'<option value="'+n+'"'+(n===v2?' selected':'')+'>'+n+' hojas</option>';}).join('');}
   else{hs.innerHTML=[1,2,3,4,5,6,7,8].map(function(n){return'<option value="'+n+'"'+(n===v2?' selected':'')+'>'+(n===1?'1 hoja':n+' hojas')+'</option>';}).join('');}
-  bManeta();bAlfil();actualizarCam();draw();
+  bManeta();actualizarCam();draw();
 }
 function onHojas(){bManeta();draw();}
 function onUbic(){var u=gV('ubic');if(u){VS[IDX].ubic=u;VS[IDX].nombre=u;rTabs();}}
@@ -2923,7 +3182,6 @@ function leer(){
   v.fixInfAn=gV('fix-inf-an')||'';v.fixInfA=gV('fix-inf-a')||'';
   v.cerradura=(v.tipo==='practicable')?(gC('ch-cerradura')||'no'):'no';
   v.apertura=(v.tipo==='practicable')?(gC('ch-apertura')||'normal'):'normal';
-  v.sistemaManual=(v.rpt==='rpt'&&(v.tipo==='practicable'||v.tipo==='oscilobatiente'||v.tipo==='batiente'))?(gC('ch-alfil')||'auto'):'auto';
   v.cristal=sCr;
   v.cristalBase=sCrBase;
   // PERSIANA: siempre leer del DOM explícitamente por grupo
@@ -2994,9 +3252,6 @@ function cargar(){
   document.getElementById('hoja-cont').style.display=v.tipo==='practicable'?'block':'none';
   document.querySelectorAll('#ch-apertura .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.apertura||'normal'));});
   document.querySelectorAll('#ch-cerradura .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.cerradura||'no'));});
-  // Herraje Alfil A-45 RPT (solo practicable/oscilo/batiente + RPT)
-  document.querySelectorAll('#ch-alfil .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.sistemaManual||'auto'));});
-  bAlfil();
   var cs=FC[v.fijo]||[];var fp=document.getElementById('fijo-panel');
   if(!cs.length){fp.classList.remove('open');}
   else{
@@ -3358,7 +3613,7 @@ var CE_KEY='mareva_datos_ce';
 // 'fuente' es solo informativo (no se imprime); si algún dato cambia, edítalo en la tarjeta.
 //
 // Uw "ESTIMADO": en los sistemas donde no hay ensayo de ventana completa pero sí Uf de
-// perfil (Alba 65 RPT, Alba 40 Abisagrada, Alfil/Alba A-45 RPT), el Uw se ha calculado
+// perfil (Alba 65 RPT, Alba 40 Abisagrada), el Uw se ha calculado
 // (no ensayado) con la fórmula completa de UNE-EN ISO 10077-1:
 //   Uw = (Ag·Ug + Af·Uf + lg·Ψg) / (Ag + Af)
 // sobre una ventana de referencia EN 14351-1 de 1230×1480 mm, con:
@@ -3391,15 +3646,7 @@ var SISTEMAS_CE={
   pros70rptB:{nombre:'Alba Pros 70 RPT Cruce Panorámico', tipoTxt:'corredera RPT · muestra 1230×1510',
     viento:'Clase C3/B4', agua:'Clase 6A', aire:'Clase 3', acustico:'32 (-1;-1) dB · RA 31,9 dBA',
     uw:'3,629 W/m²K (con vidrio Ug=3,0)', seg:'NPD',
-    fuente:'Applus exp. 21/32303450 (viento/agua/aire); acústico y Uw de la muestra 1200×1200 (17/15082-1731, 18-15082-283) por no haber ensayo propio'},
-  alfil45:{nombre:'Alfil / Alba A-45', tipoTxt:'practicable frío',
-    viento:'Clase C5', agua:'Clase E1200 (norma antigua UNE-EN 1027:2000)', aire:'Clase 4',
-    acustico:'36 (-2;-5) dB · RA 35,2 dBA', uw:'NPD', seg:'NPD',
-    fuente:'Cidemco nº18129 (2008), nº9042 (2003)'},
-  alfil45rpt:{nombre:'Alfil / Alba A-45 RPT', tipoTxt:'practicable RPT',
-    viento:'Clase C3', agua:'Clase 9A', aire:'Clase 4', acustico:'39 (0;-2) dB · RA 39,5 dBA',
-    uw:'3,35 W/m²K (ESTIMADO, no ensayado — UNE-EN ISO 10077-1, Uf=3,5 [Cidemco], Ug=3,0 [Tama], FM=0,30, Ψg=0,08)', seg:'NPD',
-    fuente:'Cidemco nº20011, nº16091, nº15654-(3) (2007-08). Uw calculado, no ensayado.'}
+    fuente:'Applus exp. 21/32303450 (viento/agua/aire); acústico y Uw de la muestra 1200×1200 (17/15082-1731, 18-15082-283) por no haber ensayo propio'}
 };
 var CE_SISTEMA_IDS=Object.keys(SISTEMAS_CE);
 var CE_CAMPO_SUF=['viento','agua','aire','acustico','uw','seg'];
@@ -6584,11 +6831,25 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
       <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Tarifa Tama abril-25 · cámara, laminados, BE y templados</span>
     </span>
   </button>
+  <button onclick="elegirModo('techos')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(16,185,129,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
+    <span style="font-size:34px">🏗️</span>
+    <span>
+      <span style="display:block;color:#10B981;font-weight:800;font-size:17px">Techo de aluminio</span>
+      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Tarifa Persitec 2026 — lamas 100/200/300mm (nuevo)</span>
+    </span>
+  </button>
   <button onclick="elegirModo('precio')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(52,211,153,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
     <span style="font-size:34px">💰</span>
     <span>
       <span style="display:block;color:#34D399;font-weight:800;font-size:17px">Presupuesto ventana</span>
       <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Carga un proyecto guardado y mira su precio</span>
+    </span>
+  </button>
+  <button onclick="elegirModo('historial')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid #334155;border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
+    <span style="font-size:34px">📋</span>
+    <span>
+      <span style="display:block;color:#CBD5E1;font-weight:800;font-size:17px">Historial de consultas</span>
+      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Persianas sueltas y techos que has guardado</span>
     </span>
   </button>
 </div>
@@ -6619,6 +6880,7 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
   <div style="background:#1E293B;border-bottom:0.5px solid #334155;color:#E2E8F0;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap">
     <button onclick="irInicio()" style="background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">🏠 Inicio</button>
     <b style="color:#A78BFA;font-size:14px">🪟 Presupuesto persiana</b>
+    <button onclick="abrirHistorial()" title="Historial" style="background:#0F172A;color:#CBD5E1;border:0.5px solid #334155;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer">📋</button>
     <button onclick="abrirAjustes()" title="Ajustes" style="margin-left:auto;background:#0F172A;color:#CBD5E1;border:0.5px solid #334155;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer">⚙️</button>
   </div>
   <div style="flex:1;overflow-y:auto;padding:12px">
@@ -6698,6 +6960,58 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
   </div>
 </div>
 
+<!-- ══════ TECHO DE ALUMINIO (calculadora nueva) ══════ -->
+<div id="rapidos-wrap" style="display:none;position:fixed;inset:0;z-index:9999;background:#0F172A;flex-direction:column;overflow:hidden">
+  <div style="background:#1E293B;border-bottom:0.5px solid #334155;color:#E2E8F0;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap">
+    <button onclick="irInicio()" style="background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">🏠 Inicio</button>
+    <b style="color:#10B981;font-size:14px">🏗️ Techo de aluminio</b>
+    <button onclick="abrirHistorial()" title="Historial" style="background:#0F172A;color:#CBD5E1;border:0.5px solid #334155;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer">📋</button>
+    <button onclick="abrirAjustes()" title="Ajustes" style="margin-left:auto;background:#0F172A;color:#CBD5E1;border:0.5px solid #334155;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer">⚙️</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px">
+    <div id="rapido-techo">
+      <div class="card">
+        <div class="card-head"><span class="bdg" style="background:#10B981">🏗️</span><span class="card-ttl">Techo de aluminio</span></div>
+        <div class="card-body">
+          <label>¿Lleva perfil perimetral nuevo?</label>
+          <div class="chips" id="rt-ch-liston">
+            <span class="chip sm on" data-v="con" onclick="selRTListon('con')">Sí, con perfil</span>
+            <span class="chip sm" data-v="sin" onclick="selRTListon('sin')">No, ya existe</span>
+          </div>
+          <label style="margin-top:.5rem">Acabado</label>
+          <div class="chips" id="rt-ch-acabado">
+            <span class="chip sm on" data-v="BLANCO BRILLO" onclick="selRTAcabado('BLANCO BRILLO')">Blanco brillo</span>
+            <span class="chip sm" data-v="BLANCO MATE" onclick="selRTAcabado('BLANCO MATE')">Blanco mate</span>
+            <span class="chip sm" data-v="MARFIL RAL 1015" onclick="selRTAcabado('MARFIL RAL 1015')">Marfil</span>
+            <span class="chip sm" data-v="PLATA NATURAL" onclick="selRTAcabado('PLATA NATURAL')">Plata natural</span>
+            <span class="chip sm" data-v="GRIS 9006 (PLATA MATE)" onclick="selRTAcabado('GRIS 9006 (PLATA MATE)')">Gris 9006</span>
+            <span class="chip sm" data-v="GRIS RAL 7016 MATE" onclick="selRTAcabado('GRIS RAL 7016 MATE')">Gris 7016</span>
+            <span class="chip sm" data-v="GRIS RAL 7022 MATE" onclick="selRTAcabado('GRIS RAL 7022 MATE')">Gris 7022</span>
+            <span class="chip sm" data-v="PINO MEDIO" onclick="selRTAcabado('PINO MEDIO')">Pino medio</span>
+            <span class="chip sm" data-v="ESPEJO" onclick="selRTAcabado('ESPEJO')">Espejo</span>
+          </div>
+          <label style="margin-top:.5rem">Ancho de lama</label>
+          <div class="chips" id="rt-ch-lama"></div>
+          <div class="row3" style="margin-top:.6rem">
+            <div class="f"><label>Ancho (mm)</label><input id="rt-ancho" type="number" inputmode="numeric" placeholder="3000" oninput="calcRapidoTecho()"></div>
+            <div class="f"><label>Alto/fondo (mm)</label><input id="rt-alto" type="number" inputmode="numeric" placeholder="2000" oninput="calcRapidoTecho()"></div>
+          </div>
+        </div>
+      </div>
+      <div id="rt-resultado" style="margin-top:.7rem"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ HISTORIAL DE CONSULTAS GUARDADAS ══════ -->
+<div id="hist-wrap" style="display:none;position:fixed;inset:0;z-index:9999;background:#0F172A;flex-direction:column;overflow:hidden">
+  <div style="background:#1E293B;border-bottom:0.5px solid #334155;color:#E2E8F0;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <button onclick="cerrarHistorial()" style="background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">← Volver</button>
+    <b style="color:#E2E8F0;font-size:14px">📋 Historial de consultas</b>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px" id="hist-body"></div>
+</div>
+
 <!-- ══════ AJUSTES GENERALES (nativo, privado) ══════ -->
 <div id="ajustes-wrap" style="display:none;position:fixed;inset:0;z-index:9999;background:#0F172A;flex-direction:column;overflow:hidden">
   <div style="background:#1E293B;border-bottom:0.5px solid #334155;color:#E2E8F0;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -6721,6 +7035,8 @@ function elegirModo(m){
   document.getElementById('inicio-wrap').style.display='none';
   if(m==='presu')abrirPresupuestos();
   if(m==='cris')abrirCristales();
+  if(m==='techos')abrirRapidos();
+  if(m==='historial')abrirHistorial();
   if(m==='precio')abrirPrecioVentanas();
   if(m==='presupers')abrirPresupers();
   if(m==='ajustes')abrirAjustes();
@@ -6731,6 +7047,8 @@ function irInicio(){
   cerrarPrecioVentanas();
   cerrarPresupers();
   cerrarAjustes();
+  cerrarRapidos();
+  cerrarHistorial();
   document.getElementById('inicio-wrap').style.display='flex';
 }
 var CRIS_B64='PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVzIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgo8dGl0bGU+TWFyZXZhIOKAlCBQcmVjaW9zIGNyaXN0YWxlczwvdGl0bGU+CjxzdHlsZT4KOnJvb3R7LS1iZzojMEYxNzJBOy0tYmcyOiMxRTI5M0I7LS1iZzM6IzBBMEYxRTstLWJyZDojMzM0MTU1Oy0tdHh0OiNFMkU4RjA7LS10eHQyOiM5NEEzQjg7LS10eHQzOiM2NDc0OEI7LS1ibHU6IzFENEVEODstLW9yYTojRjVBNjIzfQoqe2JveC1zaXppbmc6Ym9yZGVyLWJveDttYXJnaW46MDtwYWRkaW5nOjA7Zm9udC1mYW1pbHk6LWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsJ1NlZ29lIFVJJyxBcmlhbCxzYW5zLXNlcmlmfQpib2R5e2JhY2tncm91bmQ6dmFyKC0tYmcpO2NvbG9yOnZhcigtLXR4dCk7cGFkZGluZzoxMnB4O21heC13aWR0aDo2NDBweDttYXJnaW46MCBhdXRvfQouY2FyZHtiYWNrZ3JvdW5kOnZhcigtLWJnMik7Ym9yZGVyOjAuNXB4IHNvbGlkIHZhcigtLWJyZCk7Ym9yZGVyLXJhZGl1czoxMnB4O3BhZGRpbmc6MTRweDttYXJnaW4tYm90dG9tOjEycHh9Ci50dGx7Zm9udC1zaXplOjEzcHg7Zm9udC13ZWlnaHQ6NTAwO2NvbG9yOiNDQkQ1RTE7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO2xldHRlci1zcGFjaW5nOi40cHg7bWFyZ2luLWJvdHRvbTo5cHh9Ci5jaGlwc3tkaXNwbGF5OmZsZXg7Z2FwOjZweDtmbGV4LXdyYXA6d3JhcDttYXJnaW4tYm90dG9tOjEwcHh9Ci5jaGlwe3BhZGRpbmc6OHB4IDE0cHg7Ym9yZGVyLXJhZGl1czoyMnB4O2JvcmRlcjowLjVweCBzb2xpZCB2YXIoLS1icmQpO2JhY2tncm91bmQ6dmFyKC0tYmcyKTtmb250LXNpemU6MTJweDtmb250LXdlaWdodDo1MDA7Y29sb3I6dmFyKC0tdHh0Mik7Y3Vyc29yOnBvaW50ZXI7dXNlci1zZWxlY3Q6bm9uZX0KLmNoaXAub257YmFja2dyb3VuZDp2YXIoLS1ibHUpO2JvcmRlci1jb2xvcjp2YXIoLS1ibHUpO2NvbG9yOiNmZmZ9CmxhYmVse2Rpc3BsYXk6YmxvY2s7Zm9udC1zaXplOjEycHg7Zm9udC13ZWlnaHQ6NzAwO2NvbG9yOnZhcigtLXR4dDMpO3RleHQtdHJhbnNmb3JtOnVwcGVyY2FzZTtsZXR0ZXItc3BhY2luZzouMDVlbTttYXJnaW46OHB4IDAgM3B4fQpzZWxlY3QsaW5wdXR7d2lkdGg6MTAwJTtwYWRkaW5nOjExcHggMTNweDtib3JkZXI6MC41cHggc29saWQgdmFyKC0tYnJkKTtib3JkZXItcmFkaXVzOjhweDtmb250LXNpemU6MTVweDtiYWNrZ3JvdW5kOnZhcigtLWJnMyk7Y29sb3I6dmFyKC0tdHh0KX0KLnIye2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmcjtnYXA6MTBweH0KLnIze2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmciAxZnI7Z2FwOjEwcHh9Ci5wcmVjaW8tYm94e2JhY2tncm91bmQ6cmdiYSgyNDUsMTY2LDM1LC4wOCk7Ym9yZGVyOjFweCBzb2xpZCByZ2JhKDI0NSwxNjYsMzUsLjQpO2JvcmRlci1yYWRpdXM6MTJweDtwYWRkaW5nOjEycHg7bWFyZ2luLXRvcDoxMnB4fQoucHJlY2lvLWd7Zm9udC1zaXplOjI2cHg7Zm9udC13ZWlnaHQ6OTAwO2NvbG9yOnZhcigtLW9yYSl9Ci5wcmVjaW8tZHtmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS10eHQyKTttYXJnaW4tdG9wOjRweDtsaW5lLWhlaWdodDoxLjV9Ci5wcmVjaW8tZCBie2NvbG9yOnZhcigtLXR4dCl9Ci5idG57d2lkdGg6MTAwJTtwYWRkaW5nOjEzcHg7Ym9yZGVyOjAuNXB4IHNvbGlkIHZhcigtLWJyZCk7Ym9yZGVyLXJhZGl1czo4cHg7Zm9udC1zaXplOjE0cHg7Zm9udC13ZWlnaHQ6NjAwO2N1cnNvcjpwb2ludGVyO21hcmdpbi10b3A6MTBweDtiYWNrZ3JvdW5kOnZhcigtLWJnMik7Y29sb3I6dmFyKC0tdHh0Mil9Ci5idG4tYWRke2JhY2tncm91bmQ6dmFyKC0tYmx1KTtib3JkZXItY29sb3I6dmFyKC0tYmx1KTtjb2xvcjojZmZmfQoubGluZWF7ZGlzcGxheTpmbGV4O2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuO2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6OHB4O3BhZGRpbmc6OXB4IDA7Ym9yZGVyLWJvdHRvbTowLjVweCBzb2xpZCB2YXIoLS1icmQpO2ZvbnQtc2l6ZToxM3B4O2NvbG9yOnZhcigtLXR4dDIpfQoubGluZWEgYntjb2xvcjp2YXIoLS10eHQpfQoubGluZWEgLnh7Y29sb3I6I0Y4NzE3MTtmb250LXdlaWdodDo5MDA7Y3Vyc29yOnBvaW50ZXI7cGFkZGluZzo0cHggOHB4fQoudG90e2Rpc3BsYXk6ZmxleDtqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2Vlbjtmb250LXNpemU6MTdweDtmb250LXdlaWdodDo5MDA7Y29sb3I6dmFyKC0tb3JhKTtwYWRkaW5nLXRvcDoxMHB4fQoubm90YXtmb250LXNpemU6MTAuNXB4O2NvbG9yOnZhcigtLXR4dDMpO3RleHQtYWxpZ246Y2VudGVyO21hcmdpbjoxMHB4IDAgMjRweH0KLmNoa3tkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDo4cHg7bWFyZ2luLXRvcDo4cHg7Zm9udC1zaXplOjEzLjVweDtmb250LXdlaWdodDo2MDA7Y29sb3I6dmFyKC0tdHh0Mil9Ci5jaGsgaW5wdXR7d2lkdGg6YXV0bzt0cmFuc2Zvcm06c2NhbGUoMS4zKX0KLmF2aXNve2JhY2tncm91bmQ6cmdiYSgyNDUsMTY2LDM1LC4xKTtib3JkZXI6MXB4IHNvbGlkIHJnYmEoMjQ1LDE2NiwzNSwuNCk7Y29sb3I6dmFyKC0tb3JhKTtib3JkZXItcmFkaXVzOjlweDtwYWRkaW5nOjhweCAxMHB4O2ZvbnQtc2l6ZToxMnB4O21hcmdpbi10b3A6OHB4O2Rpc3BsYXk6bm9uZX0KCgo6cm9vdHtjb2xvci1zY2hlbWU6ZGFya30KaW5wdXQ6OnBsYWNlaG9sZGVye2NvbG9yOiM2NDc0OEJ9CnNlbGVjdCBvcHRpb24sc2VsZWN0IG9wdGdyb3Vwe2JhY2tncm91bmQ6IzFFMjkzQjtjb2xvcjojRTJFOEYwfQoKCkBtZWRpYSAobWF4LXdpZHRoOjM4MHB4KXsKICAucjN7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAxZnIgMWZyO2dhcDo2cHh9CiAgLnIzIGxhYmVse2ZvbnQtc2l6ZToxMHB4fQogIC5wcmVjaW8tZ3tmb250LXNpemU6MjJweH0KfQoKI3ByaW50LXNoZWV0e2Rpc3BsYXk6bm9uZX0KQG1lZGlhIHByaW50ewogIGJvZHkgKnt2aXNpYmlsaXR5OmhpZGRlbn0KICAjcHJpbnQtc2hlZXQsI3ByaW50LXNoZWV0ICp7dmlzaWJpbGl0eTp2aXNpYmxlfQogICNwcmludC1zaGVldHtkaXNwbGF5OmJsb2NrIWltcG9ydGFudDtwb3NpdGlvbjphYnNvbHV0ZTtsZWZ0OjA7dG9wOjA7d2lkdGg6MTAwJTtwYWRkaW5nOjA7bWFyZ2luOjA7YmFja2dyb3VuZDojZmZmO2NvbG9yOiMxMTF9CiAgQHBhZ2V7bWFyZ2luOjE0bW0gMTJtbX0KfQoucHMtaGVhZHtkaXNwbGF5OmZsZXg7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47YWxpZ24taXRlbXM6ZmxleC1zdGFydDtib3JkZXItYm90dG9tOjJweCBzb2xpZCAjMWExYTFhO3BhZGRpbmctYm90dG9tOjEwcHg7bWFyZ2luLWJvdHRvbToxNHB4fQoucHMtYnJhbmR7Zm9udC1zaXplOjE5cHg7Zm9udC13ZWlnaHQ6OTAwO2NvbG9yOiMxMTF9Ci5wcy1icmFuZCBzcGFue2NvbG9yOiMxRDRFRDh9Ci5wcy1zdWJ7Zm9udC1zaXplOjExcHg7Y29sb3I6IzU1NTttYXJnaW4tdG9wOjJweH0KLnBzLWRhdG9ze3RleHQtYWxpZ246cmlnaHQ7Zm9udC1zaXplOjEycHg7Y29sb3I6IzMzM30KLnBzLXRhYmxle3dpZHRoOjEwMCU7Ym9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlO2ZvbnQtc2l6ZToxMS41cHg7bWFyZ2luLWJvdHRvbToxNHB4fQoucHMtdGFibGUgdGh7YmFja2dyb3VuZDojMWExYTFhO2NvbG9yOiNmZmY7cGFkZGluZzo2cHggOHB4O3RleHQtYWxpZ246bGVmdDtmb250LXdlaWdodDo3MDB9Ci5wcy10YWJsZSB0ZHtwYWRkaW5nOjZweCA4cHg7Ym9yZGVyLWJvdHRvbToxcHggc29saWQgI2RkZDtjb2xvcjojMTExfQoucHMtdGFibGUgdGQuciwucHMtdGFibGUgdGgucnt0ZXh0LWFsaWduOnJpZ2h0fQoucHMtdGFibGUgdHI6bnRoLWNoaWxkKGV2ZW4pIHRke2JhY2tncm91bmQ6I2Y3ZjdmN30KLnBzLXRvdHt3aWR0aDoyNjBweDttYXJnaW4tbGVmdDphdXRvO2ZvbnQtc2l6ZToxMi41cHh9Ci5wcy10b3QgZGl2e2Rpc3BsYXk6ZmxleDtqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2VlbjtwYWRkaW5nOjRweCAwO2NvbG9yOiMzMzN9Ci5wcy10b3QgLmZpbntib3JkZXItdG9wOjJweCBzb2xpZCAjMWExYTFhO21hcmdpbi10b3A6NXB4O3BhZGRpbmctdG9wOjhweDtmb250LXNpemU6MTZweDtmb250LXdlaWdodDo5MDA7Y29sb3I6IzExMX0KLnBzLWludHttYXJnaW4tdG9wOjE2cHg7Ym9yZGVyOjEuNXB4IGRhc2hlZCAjMUQ0RUQ4O2JvcmRlci1yYWRpdXM6OHB4O3BhZGRpbmc6MTBweCAxMnB4O2JhY2tncm91bmQ6I0VGRjZGRn0KLnBzLWludC10dGx7Zm9udC1zaXplOjExcHg7Zm9udC13ZWlnaHQ6OTAwO2NvbG9yOiMxRDRFRDg7bWFyZ2luLWJvdHRvbTo2cHg7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlfQoucHMtZm9vdHttYXJnaW4tdG9wOjIycHg7Zm9udC1zaXplOjEwcHg7Y29sb3I6Izg4ODt0ZXh0LWFsaWduOmNlbnRlcn0KLnBzLXRvZ2dsZXtkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDo3cHg7Zm9udC1zaXplOjEyLjVweDtjb2xvcjp2YXIoLS10eHQyKTttYXJnaW46NnB4IDAgMH0KLnBzLXRvZ2dsZSBpbnB1dHt3aWR0aDphdXRvfQo8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgoKPGRpdiBjbGFzcz0iY2FyZCI+CiAgPGRpdiBjbGFzcz0idHRsIj7wn5SyIENhbGN1bGFyIGNyaXN0YWw8L2Rpdj4KICA8ZGl2IGNsYXNzPSJjaGlwcyIgaWQ9Im1vZG8iPgogICAgPHNwYW4gY2xhc3M9ImNoaXAgb24iIGRhdGEtbT0iY2FtYXJhIiBvbmNsaWNrPSJzZXRNb2RvKHRoaXMpIj5Dw6FtYXJhIChkb2JsZSk8L3NwYW4+CiAgICA8c3BhbiBjbGFzcz0iY2hpcCIgZGF0YS1tPSJzdWVsdG8iIG9uY2xpY2s9InNldE1vZG8odGhpcykiPlZpZHJpbyBzdWVsdG88L3NwYW4+CiAgPC9kaXY+CgogIDxkaXYgaWQ9InAtY2FtYXJhIj4KICAgIDxsYWJlbD5CYXNlIGRlbCBkb2JsZSBhY3Jpc3RhbGFtaWVudG88L2xhYmVsPgogICAgPHNlbGVjdCBpZD0iYmFzZSI+PC9zZWxlY3Q+CiAgICA8bGFiZWw+THVuYSBleHRlcmlvcjwvbGFiZWw+CiAgICA8c2VsZWN0IGlkPSJsdW5hMSI+PC9zZWxlY3Q+CiAgICA8bGFiZWw+THVuYSBpbnRlcmlvcjwvbGFiZWw+CiAgICA8c2VsZWN0IGlkPSJsdW5hMiI+PC9zZWxlY3Q+CiAgPC9kaXY+CgogIDxkaXYgaWQ9InAtc3VlbHRvIiBzdHlsZT0iZGlzcGxheTpub25lIj4KICAgIDxsYWJlbD5WaWRyaW88L2xhYmVsPgogICAgPHNlbGVjdCBpZD0idnN1ZWx0byI+PC9zZWxlY3Q+CiAgICA8ZGl2IGNsYXNzPSJjaGsiPjxpbnB1dCB0eXBlPSJjaGVja2JveCIgaWQ9InRlbXBsYWRvIiBvbmNoYW5nZT0iY2FsYygpIj48c3Bhbj5UZW1wbGFkbzwvc3Bhbj48L2Rpdj4KICA8L2Rpdj4KCiAgPGRpdiBjbGFzcz0icjMiPgogICAgPGRpdj48bGFiZWw+QW5jaG8gKG1tKTwvbGFiZWw+PGlucHV0IGlkPSJhbmNobyIgdHlwZT0ibnVtYmVyIiBpbnB1dG1vZGU9Im51bWVyaWMiIHBsYWNlaG9sZGVyPSIxMDAwIiBvbmlucHV0PSJjYWxjKCkiPjwvZGl2PgogICAgPGRpdj48bGFiZWw+QWx0byAobW0pPC9sYWJlbD48aW5wdXQgaWQ9ImFsdG8iIHR5cGU9Im51bWJlciIgaW5wdXRtb2RlPSJudW1lcmljIiBwbGFjZWhvbGRlcj0iMTIwMCIgb25pbnB1dD0iY2FsYygpIj48L2Rpdj4KICAgIDxkaXY+PGxhYmVsPlVuaWRhZGVzPC9sYWJlbD48aW5wdXQgaWQ9InVkcyIgdHlwZT0ibnVtYmVyIiBpbnB1dG1vZGU9Im51bWVyaWMiIHZhbHVlPSIxIiBtaW49IjEiIG9uaW5wdXQ9ImNhbGMoKSI+PC9kaXY+CiAgPC9kaXY+CgogIDxsYWJlbCBzdHlsZT0ibWFyZ2luLXRvcDoxMHB4Ij5NdWx0aXBsaWNhZG9yIGRlbCB2aWRyaW8gKG1hcmdlbiBwb3Igcm90dXJhKTwvbGFiZWw+CiAgPGRpdiBjbGFzcz0iY2hpcHMiIGlkPSJtdWx0IiBzdHlsZT0ibWFyZ2luLWJvdHRvbTo0cHgiPgogICAgPHNwYW4gY2xhc3M9ImNoaXAiIGRhdGEteD0iMSIgb25jbGljaz0ic2V0TXVsdCh0aGlzKSI+w5cxIChjb3N0ZSk8L3NwYW4+CiAgICA8c3BhbiBjbGFzcz0iY2hpcCBvbiIgZGF0YS14PSIyIiBvbmNsaWNrPSJzZXRNdWx0KHRoaXMpIj7DlzIgKG5vcm1hbCk8L3NwYW4+CiAgICA8c3BhbiBjbGFzcz0iY2hpcCIgZGF0YS14PSIzIiBvbmNsaWNrPSJzZXRNdWx0KHRoaXMpIj7DlzM8L3NwYW4+CiAgPC9kaXY+CgogIDxkaXYgY2xhc3M9InIyIj4KICAgIDxkaXY+PGxhYmVsPkhvcmFzIGRlIG1vbnRhamUgKGzDrW5lYSk8L2xhYmVsPjxpbnB1dCBpZD0iaG9yYXMiIHR5cGU9Im51bWJlciIgaW5wdXRtb2RlPSJkZWNpbWFsIiBzdGVwPSIwLjUiIG1pbj0iMCIgdmFsdWU9IjAiIG9uaW5wdXQ9ImNhbGMoKSI+PC9kaXY+CiAgICA8ZGl2PjxsYWJlbD5QcmVjaW8gaG9yYSAo4oKsL2gpPC9sYWJlbD48aW5wdXQgaWQ9InBoIiB0eXBlPSJudW1iZXIiIGlucHV0bW9kZT0ibnVtZXJpYyIgbWluPSIwIiBwbGFjZWhvbGRlcj0iRWo6IDQ1IiBvbmlucHV0PSJzZXRQSCh0aGlzLnZhbHVlKSI+PC9kaXY+CiAgPC9kaXY+CgogIDxkaXYgY2xhc3M9ImF2aXNvIiBpZD0iYXZpc28tbWluIj5TZSBhcGxpY2EgZWwgbcOtbmltbyBkZSBmYWN0dXJhY2nDs24gZGUgMCw1MCBtwrIgcG9yIHBpZXphLjwvZGl2PgoKICA8ZGl2IGNsYXNzPSJwcmVjaW8tYm94Ij4KICAgIDxkaXYgY2xhc3M9InByZWNpby1nIiBpZD0icC10b3RhbCI+4oCUPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJwcmVjaW8tZCIgaWQ9InAtZGV0YWxsZSI+RWxpZ2UgY29tcG9zaWNpw7NuIHkgbWVkaWRhczwvZGl2PgogIDwvZGl2PgogIDxidXR0b24gY2xhc3M9ImJ0biBidG4tYWRkIiBvbmNsaWNrPSJhZGRMaW5lYSgpIj7inpUgQcOxYWRpciBhbCBwcmVzdXB1ZXN0bzwvYnV0dG9uPgo8L2Rpdj4KCjxkaXYgY2xhc3M9ImNhcmQiPgogIDxkaXYgY2xhc3M9InR0bCI+8J+TiyBQcmVzdXB1ZXN0bzwvZGl2PgogIDxkaXYgaWQ9ImxpbmVhcyI+PC9kaXY+CiAgPGRpdiBjbGFzcz0idG90Ij48c3Bhbj5UT1RBTDwvc3Bhbj48c3BhbiBpZD0idG90YWwiPjAsMDAg4oKsPC9zcGFuPjwvZGl2PgogIDxidXR0b24gY2xhc3M9ImJ0biBidG4tYWRkIiBvbmNsaWNrPSJpbXByaW1pckNyaXN0YWxlcyhkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY2hrLWludC1jcmlzJykuY2hlY2tlZCkiPvCflqjvuI8gR3VhcmRhciAvIEltcHJpbWlyIFBERjwvYnV0dG9uPgogIDxkaXYgY2xhc3M9InBzLXRvZ2dsZSI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBpZD0iY2hrLWludC1jcmlzIj48bGFiZWwgZm9yPSJjaGstaW50LWNyaXMiPkluY2x1aXIgbWkgY29zdGUgeSBtYXJnZW4gKHVzbyBpbnRlcm5vKTwvbGFiZWw+PC9kaXY+CiAgPGJ1dHRvbiBjbGFzcz0iYnRuIiBzdHlsZT0iYmFja2dyb3VuZDojMUUyOTNCO2NvbG9yOiNGODcxNzEiIG9uY2xpY2s9ImJvcnJhclRvZG8oKSI+8J+XkSBWYWNpYXIgcHJlc3VwdWVzdG88L2J1dHRvbj4KPC9kaXY+CjxkaXYgaWQ9InByaW50LXNoZWV0Ij48L2Rpdj4KCjxkaXYgY2xhc3M9Im5vdGEiPlRhcmlmYSBDUklTVEFMRVLDjUEgVEFNQSBBQlJJTC0yNSDCtyBQcmVjaW9zIHNpbiBJVkEgwrcgTcOtbmltbyAwLDUwIG3Csi9waWV6YSDCtyBObyBpbmNsdXllIGNhbnRvcywgZm9ybWFzLCB0YWxhZHJvcyBuaSBwb3J0ZXM8L2Rpdj4KCjxzY3JpcHQ+CnZhciBUQU1BPXsiZmVjaGEiOiAiYWJyaWwtMjUiLCAibWluaW1vTTIiOiAwLjUsICJkb2JsZUJhc2UiOiBbeyJpZCI6ICJhaXJlIiwgImwiOiAiQWlyZSAoVFBTIDE2KSIsICJwIjogMzAuMH0sIHsiaWQiOiAiYXJnb24iLCAibCI6ICJBcmfDs24gKFRQUyAxNikiLCAicCI6IDMyLjV9LCB7ImlkIjogImFsdW1pbmlvIiwgImwiOiAiQWx1bWluaW8gcGxhdGEtbmVncm8gMTYiLCAicCI6IDM2Ljk1fV0sICJ2aWRyaW9zIjogW3siZyI6ICJGTE9BVCIsICJuIjogIkZMT0FUIElOQ09MT1JPIDMgTU0iLCAibWYiOiAyMi40NiwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRkxPQVQiLCAibiI6ICJGTE9BVCBJTkNPTE9STyA0IE1NIiwgIm1mIjogMTYuOSwgInN1c3QiOiBudWxsLCAidGVtcCI6IDM4LjAxfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gNSBNTSIsICJtZiI6IDE4LjAxLCAic3VzdCI6IDEwLjQ1LCAidGVtcCI6IDQ3LjM2fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gNiBNTSIsICJtZiI6IDIxLjc1LCAic3VzdCI6IDEyLjE1LCAidGVtcCI6IDU2Ljk1fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gOCBNTSIsICJtZiI6IDMxLjE1LCAic3VzdCI6IDI5LjE1LCAidGVtcCI6IDc2LjAyfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gMTAgTU0iLCAibWYiOiAzOS4wNSwgInN1c3QiOiA0Mi4zLCAidGVtcCI6IDk1LjA5fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gMTIgTU0iLCAibWYiOiAxMTIuNDcsICJzdXN0IjogMTA5LjAyLCAidGVtcCI6IDE0NS44MX0sIHsiZyI6ICJGTE9BVCIsICJuIjogIkZMT0FUIElOQ09MT1JPIDE1IE1NIiwgIm1mIjogMTQ1LjA5LCAic3VzdCI6IDE0MS42MywgInRlbXAiOiAxNzcuMjh9LCB7ImciOiAiRkxPQVQiLCAibiI6ICJGTE9BVCBJTkNPTE9STyAxOSBNTSIsICJtZiI6IDI4NS45MywgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRkxPQVQiLCAibiI6ICJGTE9BVCBFWFRSQUNMQVJPIDQgTU0iLCAibWYiOiA0OC44NSwgInN1c3QiOiA0OC44NSwgInRlbXAiOiA3MS40N30sIHsiZyI6ICJGTE9BVCIsICJuIjogIkZMT0FUIEVYVFJBQ0xBUk8gNSBNTSIsICJtZiI6IDU1LjU4LCAic3VzdCI6IDU1LjU4LCAidGVtcCI6IDg1LjkyfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgRVhUUkFDTEFSTyA2IE1NIiwgIm1mIjogNjguODksICJzdXN0IjogNjguODksICJ0ZW1wIjogMTA1LjU2fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgRVhUUkFDTEFSTyA4IE1NIiwgIm1mIjogOTIuMzYsICJzdXN0IjogOTIuMzYsICJ0ZW1wIjogMTQyLjQ1fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgRVhUUkFDTEFSTyAxMCBNTSIsICJtZiI6IDExOC4zMSwgInN1c3QiOiAxMTguMzEsICJ0ZW1wIjogMTc5Ljk0fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiUEFSU09MIEJST05DRSAvIEdSSVMgNCBNTSIsICJtZiI6IDM2LjE4LCAic3VzdCI6IDM2LjE4LCAidGVtcCI6IDYxLjkxfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiUEFSU09MIEJST05DRSAvIEdSSVMgNSBNTSIsICJtZiI6IDQ1LjQsICJzdXN0IjogNDUuNSwgInRlbXAiOiA3NS45Nn0sIHsiZyI6ICJGTE9BVCIsICJuIjogIlBBUlNPTCBCUk9OQ0UgLyBHUklTIDYgTU0iLCAibWYiOiA1NC40MywgInN1c3QiOiA1NC40MywgInRlbXAiOiA5Mi44MX0sIHsiZyI6ICJGTE9BVCIsICJuIjogIlBBUlNPTCBCUk9OQ0UgLyBHUklTIDEwIE1NIiwgIm1mIjogMTQ0LjUyLCAic3VzdCI6IG51bGwsICJ0ZW1wIjogMTQyLjIzfSwgeyJnIjogIklNUFJFU09TIiwgIm4iOiAiQ0FSR0xBUyA0IE1NIiwgIm1mIjogMjEuOSwgInN1c3QiOiAyMS4wNSwgInRlbXAiOiA0Mi42OX0sIHsiZyI6ICJJTVBSRVNPUyIsICJuIjogIkNBUkdMQVMgNiBNTSIsICJtZiI6IDU1LjM2LCAic3VzdCI6IDUxLjkxLCAidGVtcCI6IDc3LjU3fSwgeyJnIjogIklNUFJFU09TIiwgIm4iOiAiQ0FSR0xBUyAxMCBNTSIsICJtZiI6IDExNi4zOCwgInN1c3QiOiAxMTAuMjYsICJ0ZW1wIjogMTE0Ljl9LCB7ImciOiAiSU1QUkVTT1MiLCAibiI6ICJDQVJHTEFTIE5FVyA0IE1NIiwgIm1mIjogMjMuOSwgInN1c3QiOiAyMi45LCAidGVtcCI6IDQyLjY5fSwgeyJnIjogIklNUFJFU09TIiwgIm4iOiAiQVJNQURPIENBUkdMQVMgNiBNTSIsICJtZiI6IDUwLjE4LCAic3VzdCI6IDUwLjE4LCAidGVtcCI6IG51bGx9LCB7ImciOiAiSU1QUkVTT1MiLCAibiI6ICJCQUxET1NJTExBIEFSTUFEQSA2IE1NIiwgIm1mIjogNjguNDMsICJzdXN0IjogNjguNDMsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJNQVRFIEFDSURPIiwgIm4iOiAiTUFURSBBQ0lETyA0IE1NIiwgIm1mIjogMjYuMTQsICJzdXN0IjogMTguOTUsICJ0ZW1wIjogNzguNTd9LCB7ImciOiAiTUFURSBBQ0lETyIsICJuIjogIk1BVEUgQUNJRE8gNU1NIiwgIm1mIjogMjcuODUsICJzdXN0IjogMjEuMCwgInRlbXAiOiA4OC45Mn0sIHsiZyI6ICJNQVRFIEFDSURPIiwgIm4iOiAiTUFURSBBQ0lETyA2IE1NIiwgIm1mIjogMzIuOCwgInN1c3QiOiAyNC4wLCAidGVtcCI6IDk2LjE1fSwgeyJnIjogIk1BVEUgQUNJRE8iLCAibiI6ICJNQVRFIEFDSURPIDggTU0iLCAibWYiOiA0My4xMiwgInN1c3QiOiA0My4xMiwgInRlbXAiOiAxMTQuOTR9LCB7ImciOiAiTUFURSBBQ0lETyIsICJuIjogIk1BVEUgQUNJRE8gMTAgTU0iLCAibWYiOiA1MS40MiwgInN1c3QiOiA1MS40MiwgInRlbXAiOiAxMjguOH0sIHsiZyI6ICJNQVRFIEFDSURPIiwgIm4iOiAiTUFEUkFTIElOQ09MT1JPIDQgTU0iLCAibWYiOiAxODUuNDIsICJzdXN0IjogMTg1LjQyLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIFBMQVRBIDMgTU0iLCAibWYiOiAyNi45OCwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIFBMQVRBIDQgTU0iLCAibWYiOiAyOS41NiwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIFBMQVRBIDUgTU0iLCAibWYiOiAzMS4yNSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIEdSSVMgNSBNTSIsICJtZiI6IDc4LjU1LCAic3VzdCI6IG51bGwsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJFU1BFSk8iLCAibiI6ICJFU1BFSk8gQlJPTkNFIDUgTU0iLCAibWYiOiA3OC41NSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIEVOVkVKRUNJRE8gNSBNTSIsICJtZiI6IDE2NS40NSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUNJQUxFUyIsICJuIjogIlZFTEdMQVMiLCAibWYiOiAzNS4xOCwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUNJQUxFUyIsICJuIjogIk5FT0NFUkFNIDQgTU0iLCAibWYiOiA0MjUuNzUsICJzdXN0IjogbnVsbCwgInRlbXAiOiBudWxsfSwgeyJnIjogIkVTUEVDSUFMRVMiLCAibiI6ICJEUkFWRUwiLCAibWYiOiAzMzguOSwgInN1c3QiOiAzMzguOSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkVTUEVDSUFMRVMiLCAibiI6ICJVIEdMQVNTIFNJTiBBUk1BUiIsICJtZiI6IDE2Mi43MSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUNJQUxFUyIsICJuIjogIlUgR0xBU1MgQVJNQURPIiwgIm1mIjogMTc0LjExLCAic3VzdCI6IG51bGwsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiAyKzIuMSBQMUEvMkIyIiwgIm1mIjogMzguOSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBJTkNPTE9STyIsICJuIjogIkxBTUlOQVIgMyszLjEgUDFBLzJCMiIsICJtZiI6IDMwLjEyLCAic3VzdCI6IDI0LjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBJTkNPTE9STyIsICJuIjogIkxBTUlOQVIgNCs0LjEgUDFBLzJCMiIsICJtZiI6IDMzLjc1LCAic3VzdCI6IDI5Ljc1LCAidGVtcCI6IDE2NC4xNX0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiA1KzUuMSBQMUEvMUIxIiwgIm1mIjogNDAuNSwgInN1c3QiOiAzNS41LCAidGVtcCI6IDE4MS40NH0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiA2KzYuMSBQMUEvMUIxIiwgIm1mIjogNDcuNSwgInN1c3QiOiA0Mi41LCAidGVtcCI6IDE5Ni4xNH0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiA4KzguMSBQMUEvMUIxIiwgIm1mIjogNjUuNSwgInN1c3QiOiA2NS41LCAidGVtcCI6IDIyNy44NX0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiAxMCsxMC4yIFAyQS8xQjEiLCAibWYiOiA4NS4xNSwgInN1c3QiOiA4NS4xNSwgInRlbXAiOiAyNzMuMDd9LCB7ImciOiAiTEFNSU5BUiBNQVRFIiwgIm4iOiAiTEFNSU5BUiAyKzIuMSBNQVRFIFAxQS8yQjIiLCAibWYiOiA0NS44LCAic3VzdCI6IG51bGwsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIE1BVEUiLCAibiI6ICJMQU1JTkFSIDMrMy4xIE1BVEUgUDFBLzJCMiIsICJtZiI6IDQyLjEyLCAic3VzdCI6IDM3LjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBNQVRFIiwgIm4iOiAiTEFNSU5BUiA0KzQuMSBNQVRFIFAxQS8yQjIiLCAibWYiOiA0NS43NSwgInN1c3QiOiA0Mi43NSwgInRlbXAiOiAxODMuNzV9LCB7ImciOiAiTEFNSU5BUiBNQVRFIiwgIm4iOiAiTEFNSU5BUiA1KzUuMSBNQVRFIFAxQS8xQjEiLCAibWYiOiA1NS41LCAic3VzdCI6IDQ5LjUsICJ0ZW1wIjogMjAxLjA0fSwgeyJnIjogIkxBTUlOQVIgTUFURSIsICJuIjogIkxBTUlOQVIgNis2LjEgTUFURSBQMUEvMUIxIiwgIm1mIjogNjIuNSwgInN1c3QiOiA1Ni41LCAidGVtcCI6IDIxNS43NH0sIHsiZyI6ICJMQU1JTkFSIE1BVEUiLCAibiI6ICJMQU1JTkFSIDgrOC4xIE1BVEUgUDFBLzFCMSIsICJtZiI6IDExNS41LCAic3VzdCI6IDExNS41LCAidGVtcCI6IDI0Ny40NX0sIHsiZyI6ICJMQU1JTkFSIE1BVEUiLCAibiI6ICJMQU1JTkFSIDEwKzEwLjIgTUFURSBQMkEvMUIxIiwgIm1mIjogMTI1LjE1LCAic3VzdCI6IDEyNS4xNSwgInRlbXAiOiAyOTIuNjd9LCB7ImciOiAiTEFNSU5BUiBDT0xPUiIsICJuIjogIkxBTUlOQVIgMyszLjEgQ09MT1IgUDFBLzJCMiIsICJtZiI6IDQ4LjYyLCAic3VzdCI6IDQ2LjksICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIENPTE9SIiwgIm4iOiAiTEFNSU5BUiA0KzQuMSBDT0xPUiBQMUEvMkIyIiwgIm1mIjogNTIuMjUsICJzdXN0IjogNTUuODcsICJ0ZW1wIjogMTgzLjc1fSwgeyJnIjogIkxBTUlOQVIgQ09MT1IiLCAibiI6ICJMQU1JTkFSIDUrNS4xIENPTE9SIFAxQS8xQjEiLCAibWYiOiA2NC4wLCAic3VzdCI6IDY2LjIyLCAidGVtcCI6IDIwMS4wNH0sIHsiZyI6ICJMQU1JTkFSIENPTE9SIiwgIm4iOiAiTEFNSU5BUiA2KzYuMSBDT0xPUiBQMUEvMUIxIiwgIm1mIjogNzEuMCwgInN1c3QiOiA3Ni44NCwgInRlbXAiOiAyMTUuNzR9LCB7ImciOiAiTEFNSU5BUiBBQ1VTVElDTyIsICJuIjogIkxBTUlOQVIgMyszLjEgQUNVU1RJQ08gUDFBLzJCMiIsICJtZiI6IDQxLjEyLCAic3VzdCI6IDM1LjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBQ1VTVElDTyIsICJuIjogIkxBTUlOQVIgNCs0LjEgQUNVU1RJQ08gUDFBLzJCMiIsICJtZiI6IDQ0Ljc1LCAic3VzdCI6IDQwLjc1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBQ1VTVElDTyIsICJuIjogIkxBTUlOQVIgNSs1LjEgQUNVU1RJQ08gUDFBLzFCMSIsICJtZiI6IDU0LjUsICJzdXN0IjogNDkuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQUNVU1RJQ08iLCAibiI6ICJMQU1JTkFSIDYrNi4xIEFDVVNUSUNPIFAxQS8xQjEiLCAibWYiOiA2MS41LCAic3VzdCI6IDU2LjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIERPQkxFIEJVVElSQUwiLCAibiI6ICJMQU1JTkFSIDMrMy4yIFAyQS8yQjIiLCAibWYiOiAzNy45NSwgInN1c3QiOiAzNy45NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgRE9CTEUgQlVUSVJBTCIsICJuIjogIkxBTUlOQVIgNCs0LjIgUDJBLzJCMiIsICJtZiI6IDQ2LjcsICJzdXN0IjogNDYuNywgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgRE9CTEUgQlVUSVJBTCIsICJuIjogIkxBTUlOQVIgNSs1LjIgUDJBLzJCMiIsICJtZiI6IDYwLjE1LCAic3VzdCI6IDYwLjE1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBET0JMRSBCVVRJUkFMIiwgIm4iOiAiTEFNSU5BUiA2KzYuMiBQMkEvMkIyIiwgIm1mIjogNjkuOSwgInN1c3QiOiA2OS45LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBET0JMRSBCVVRJUkFMIiwgIm4iOiAiTEFNSU5BUiAxMCsxMC4yIFAyQS8yQjIiLCAibWYiOiA4NS4xNSwgInN1c3QiOiA4NS4xNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQUzkgNCs0LjQgKDksNTAgbW0pIFA0QSIsICJtZiI6IDY4LjUsICJzdXN0IjogNjguNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQNUEgNCs0LjYgKDEwLDI4IG1tKSBQNUEiLCAibWYiOiA4MC4xNiwgInN1c3QiOiA4MC4xNiwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQUzEzIDYrNi40ICgxMyw1MCBtbSkgUDRBIiwgIm1mIjogODkuNSwgInN1c3QiOiA4OS41LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBTlRJUlJPQk8iLCAibiI6ICJMQU1JTkFSIFA1QSA2KzYuNiAoMTQsMjggbW0pIFA1QSIsICJtZiI6IDk3LjUsICJzdXN0IjogOTcuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQNkIgNis2LjggKDE1LDA0IG1tKSBQNkIiLCAibWYiOiAxMTIuMzUsICJzdXN0IjogMTEyLjM1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBTlRJQkFMQSIsICJuIjogIkxBTUlOQVIgQU5USUJBTEEgKDIwIG1tKSBCUjJTIiwgIm1mIjogNDQ3Ljc1LCAic3VzdCI6IDQ0Ny43NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USUJBTEEiLCAibiI6ICJMQU1JTkFSIEFOVElCQUxBICgyNiBtbSkgQlIzUyIsICJtZiI6IDUzMS43LCAic3VzdCI6IDUzMS43LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBPVFJPUyIsICJuIjogIkxBTUlOQVIgQU5USURFU0xJWkFOVEUgMTArMTAuMiIsICJtZiI6IDI4OC45NCwgInN1c3QiOiAyODguOTQsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIE9UUk9TIiwgIm4iOiAiTEFNSU5BUiBBTlRJREVTTElaQU5URSAxMCsxMC4yIE1BVEUiLCAibWYiOiAzMzMuOTQsICJzdXN0IjogMzMzLjk0LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBPVFJPUyIsICJuIjogIkxBTUlOQVIgRVNQSUEgNCs0LjEiLCAibWYiOiAxNzIuNDUsICJzdXN0IjogMTcyLjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkFKTyBFTUlTSVZPIiwgIm4iOiAiQkFKTyBFTUlTSVZPIDQgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDExLjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkFKTyBFTUlTSVZPIiwgIm4iOiAiQkFKTyBFTUlTSVZPIDYgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDE2LjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkFKTyBFTUlTSVZPIiwgIm4iOiAiQkFKTyBFTUlTSVZPIDMrMy4xIE1NIiwgIm1mIjogbnVsbCwgInN1c3QiOiAzMC43NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA0KzQuMSBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogMzEuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA0KzQuMiBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogNDIuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA0KzQuMSBNTSBBQ1VTVElDTyIsICJtZiI6IG51bGwsICJzdXN0IjogNDYuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA2KzYuMSBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogNjUuMTUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNCBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogMTIuNjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNiBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogMjIuMzIsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNCs0LjEgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDMzLjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkUgKyBDT05UUk9MIFNPTEFSIiwgIm4iOiAiR1VBUkRJQU4gU1VOIDQrNC4yIE1NIiwgIm1mIjogbnVsbCwgInN1c3QiOiA0NC4yNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJFICsgQ09OVFJPTCBTT0xBUiIsICJuIjogIkdVQVJESUFOIFNVTiA0KzQuMSBNTSBBQ1VTVElDTyIsICJtZiI6IG51bGwsICJzdXN0IjogNDguMjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNis2LjEgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDY3LjEsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJTVU5HVUFSRCBTTlggNjAgNiBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogNDYuNzgsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJTVU5HVUFSRCBTTlggNjAgNCs0LjEiLCAibWYiOiBudWxsLCAic3VzdCI6IDYyLjgsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJDT05UUk9MIFNPTEFSIiwgIm4iOiAiU1RPUFNPTCBDTEFTU0lDIE5FVVRSTyA0IE1NIiwgIm1mIjogNDMuNSwgInN1c3QiOiA0My41LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgQ0xBU1NJQyBORVVUUk8gNSBNTSIsICJtZiI6IDQ1LjI1LCAic3VzdCI6IDQ1LjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgU1VQRVJTSUxWRVIgSU5DLiA2IE1NIiwgIm1mIjogOTguNDYsICJzdXN0IjogOTguNDYsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJDT05UUk9MIFNPTEFSIiwgIm4iOiAiU1RPUFNPTCBTVVBFUlNJTFZFUiBHUklTIDYgTU0iLCAibWYiOiAxMDMuMjUsICJzdXN0IjogMTAzLjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgU1VQRVJTSUxWRVIgQVpVTCA2IE1NIiwgIm1mIjogMTAzLjI1LCAic3VzdCI6IDEwMy4yNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIENMQVNTSUMgTkVVVFJPIDQrNCBNTSIsICJtZiI6IDEwMy4yNSwgInN1c3QiOiAxMDMuMjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJDT05UUk9MIFNPTEFSIiwgIm4iOiAiU1RPUFNPTCBDTEFTU0lDIE5FVVRSTyA1KzUgTU0iLCAibWYiOiAxMzIuNjYsICJzdXN0IjogMTMyLjY2LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgQ0xBU1NJQyBORVVUUk8gNis2IE1NIiwgIm1mIjogMTU0Ljg1LCAic3VzdCI6IDE1NC44NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIFNVUEVSU0lMVkVSIElOQy4gNis2IE1NIiwgIm1mIjogMTkzLjU3LCAic3VzdCI6IDE5My41NywgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIFNVUEVSU0lMVkVSIEdSSVMgNis2IE1NIiwgIm1mIjogMTkzLjU3LCAic3VzdCI6IDE5My41NywgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIFNVUEVSU0lMVkVSIEFaVUwgNis2IE1NIiwgIm1mIjogMTkzLjU3LCAic3VzdCI6IDE5My41NywgInRlbXAiOiBudWxsfV19Owp2YXIgTElORUFTPVtdOwp0cnl7TElORUFTPUpTT04ucGFyc2UobG9jYWxTdG9yYWdlLmdldEl0ZW0oJ1RBTUFfTElORUFTJykpfHxbXTt9Y2F0Y2goZSl7TElORUFTPVtdO30KZnVuY3Rpb24gc0woKXt0cnl7bG9jYWxTdG9yYWdlLnNldEl0ZW0oJ1RBTUFfTElORUFTJyxKU09OLnN0cmluZ2lmeShMSU5FQVMpKTt9Y2F0Y2goZSl7fX0KLy8gTXVsdGlwbGljYWRvciBkZWwgdmlkcmlvICjDlzIgcG9yIGRlZmVjdG86IG1hcmdlbiBoYWJpdHVhbCBwb3Igcm90dXJhKSB5IHByZWNpby9ob3JhLCBwZXJzaXN0ZW50ZXMKdmFyIE1VTFQ9MjsKdHJ5e01VTFQ9cGFyc2VJbnQobG9jYWxTdG9yYWdlLmdldEl0ZW0oJ1RBTUFfTVVMVCcpKXx8Mjt9Y2F0Y2goZSl7TVVMVD0yO30KdmFyIFBIPTA7CnRyeXtQSD1wYXJzZUZsb2F0KGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdUQU1BX1BIJykpfHwwO31jYXRjaChlKXtQSD0wO30KZnVuY3Rpb24gc2V0TXVsdChlbCl7CiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnI211bHQgLmNoaXAnKS5mb3JFYWNoKGZ1bmN0aW9uKGMpe2MuY2xhc3NMaXN0LnRvZ2dsZSgnb24nLGM9PT1lbCk7fSk7CiAgTVVMVD1wYXJzZUludChlbC5kYXRhc2V0LngpfHwxOwogIHRyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgnVEFNQV9NVUxUJyxNVUxUKTt9Y2F0Y2goZSl7fQogIGNhbGMoKTsKfQpmdW5jdGlvbiBzZXRQSCh2KXsKICBQSD1wYXJzZUZsb2F0KHYpfHwwOwogIHRyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgnVEFNQV9QSCcsUEgpO31jYXRjaChlKXt9CiAgY2FsYygpOwp9CmZ1bmN0aW9uIGV1cih4KXtyZXR1cm4geC50b0ZpeGVkKDIpLnJlcGxhY2UoJy4nLCcsJykrJyDigqwnO30KZnVuY3Rpb24gbTJ0eHQoeCl7cmV0dXJuIHgudG9GaXhlZCgyKS5yZXBsYWNlKCcuJywnLCcpO30KCi8vIOKUgOKUgCBzZWxlY3RvcmVzIOKUgOKUgApmdW5jdGlvbiBwb2JsYXIoKXsKICB2YXIgYj1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYmFzZScpOwogIFRBTUEuZG9ibGVCYXNlLmZvckVhY2goZnVuY3Rpb24oZCxpKXsKICAgIHZhciBvPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGlvbicpO28udmFsdWU9aTsKICAgIG8udGV4dENvbnRlbnQ9ZC5sKycg4oCUICcrZXVyKGQucCkrJy9twrInO2IuYXBwZW5kQ2hpbGQobyk7CiAgfSk7CiAgLy8gTHVuYXM6IEZMT0FUIDQgYmFzZSAoc2luIHN1cGxlbWVudG8pICsgdG9kbyB2aWRyaW8gY29uIHByZWNpbyBkZSBzdXN0aXR1Y2nDs24KICBbJ2x1bmExJywnbHVuYTInXS5mb3JFYWNoKGZ1bmN0aW9uKGlkKXsKICAgIHZhciBzPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKGlkKTsKICAgIHZhciBvMD1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdvcHRpb24nKTtvMC52YWx1ZT0nLTEnO28wLnRleHRDb250ZW50PSdGTE9BVCBJTkNPTE9STyA0IE1NIChiYXNlLCArMCwwMCknO3MuYXBwZW5kQ2hpbGQobzApOwogICAgdmFyIGdydXBvQWN0PW51bGwsb2c9bnVsbDsKICAgIFRBTUEudmlkcmlvcy5mb3JFYWNoKGZ1bmN0aW9uKHYsaSl7CiAgICAgIGlmKHYuc3VzdD09PW51bGwpcmV0dXJuOwogICAgICBpZih2LmchPT1ncnVwb0FjdCl7Z3J1cG9BY3Q9di5nO29nPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGdyb3VwJyk7b2cubGFiZWw9di5nO3MuYXBwZW5kQ2hpbGQob2cpO30KICAgICAgdmFyIG89ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnb3B0aW9uJyk7by52YWx1ZT1pOwogICAgICBvLnRleHRDb250ZW50PXYubisnIOKAlCArJytldXIodi5zdXN0KSsnL23Csic7b2cuYXBwZW5kQ2hpbGQobyk7CiAgICB9KTsKICAgIHMub25jaGFuZ2U9Y2FsYzsKICB9KTsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYmFzZScpLm9uY2hhbmdlPWNhbGM7CiAgLy8gVmlkcmlvIHN1ZWx0bzogdG9kbyBjb24gcHJlY2lvIE1GCiAgdmFyIHMyPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd2c3VlbHRvJyk7CiAgdmFyIGdydXBvQWN0Mj1udWxsLG9nMj1udWxsOwogIFRBTUEudmlkcmlvcy5mb3JFYWNoKGZ1bmN0aW9uKHYsaSl7CiAgICBpZih2Lm1mPT09bnVsbClyZXR1cm47CiAgICBpZih2LmchPT1ncnVwb0FjdDIpe2dydXBvQWN0Mj12Lmc7b2cyPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGdyb3VwJyk7b2cyLmxhYmVsPXYuZztzMi5hcHBlbmRDaGlsZChvZzIpO30KICAgIHZhciBvPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGlvbicpO28udmFsdWU9aTsKICAgIG8udGV4dENvbnRlbnQ9di5uKycg4oCUICcrZXVyKHYubWYpKycvbcKyJztvZzIuYXBwZW5kQ2hpbGQobyk7CiAgfSk7CiAgczIub25jaGFuZ2U9ZnVuY3Rpb24oKXthY3RUZW1wbGFkbygpO2NhbGMoKTt9OwogIGFjdFRlbXBsYWRvKCk7Cn0KZnVuY3Rpb24gYWN0VGVtcGxhZG8oKXsKICB2YXIgdj1UQU1BLnZpZHJpb3NbcGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3ZzdWVsdG8nKS52YWx1ZSl8fDBdOwogIHZhciBjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0ZW1wbGFkbycpOwogIHZhciBoYXk9diYmdi50ZW1wIT09bnVsbDsKICBjLmRpc2FibGVkPSFoYXk7CiAgaWYoIWhheSljLmNoZWNrZWQ9ZmFsc2U7CiAgYy5wYXJlbnROb2RlLnN0eWxlLm9wYWNpdHk9aGF5PycxJzonMC40JzsKfQp2YXIgTU9ETz0nY2FtYXJhJzsKZnVuY3Rpb24gc2V0TW9kbyhlbCl7CiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnI21vZG8gLmNoaXAnKS5mb3JFYWNoKGZ1bmN0aW9uKGMpe2MuY2xhc3NMaXN0LnRvZ2dsZSgnb24nLGM9PT1lbCk7fSk7CiAgTU9ETz1lbC5kYXRhc2V0Lm07CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3AtY2FtYXJhJykuc3R5bGUuZGlzcGxheT1NT0RPPT09J2NhbWFyYSc/J2Jsb2NrJzonbm9uZSc7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Atc3VlbHRvJykuc3R5bGUuZGlzcGxheT1NT0RPPT09J3N1ZWx0byc/J2Jsb2NrJzonbm9uZSc7CiAgY2FsYygpOwp9CgovLyDilIDilIAgY8OhbGN1bG8g4pSA4pSACmZ1bmN0aW9uIGNhbGNBY3R1YWwoKXsKICB2YXIgYW49cGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2FuY2hvJykudmFsdWUpfHwwOwogIHZhciBhbD1wYXJzZUludChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYWx0bycpLnZhbHVlKXx8MDsKICB2YXIgdWRzPU1hdGgubWF4KDEscGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3VkcycpLnZhbHVlKXx8MSk7CiAgaWYoYW48PTB8fGFsPD0wKXJldHVybiBudWxsOwogIHZhciBtMnJlYWw9YW4vMTAwMCphbC8xMDAwOwogIHZhciBtMmZhY3Q9TWF0aC5tYXgobTJyZWFsLFRBTUEubWluaW1vTTIpOwogIHZhciBwTTIsIGRlc2MsIGRldGFsbGU7CiAgaWYoTU9ETz09PSdjYW1hcmEnKXsKICAgIHZhciBiYXNlPVRBTUEuZG9ibGVCYXNlW3BhcnNlSW50KGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdiYXNlJykudmFsdWUpfHwwXTsKICAgIHZhciBpMT1wYXJzZUludChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnbHVuYTEnKS52YWx1ZSk7CiAgICB2YXIgaTI9cGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2x1bmEyJykudmFsdWUpOwogICAgdmFyIHYxPWkxPj0wP1RBTUEudmlkcmlvc1tpMV06bnVsbDsKICAgIHZhciB2Mj1pMj49MD9UQU1BLnZpZHJpb3NbaTJdOm51bGw7CiAgICB2YXIgczE9djE/djEuc3VzdDowLCBzMnY9djI/djIuc3VzdDowOwogICAgcE0yPWJhc2UucCtzMStzMnY7CiAgICB2YXIgbjE9djE/djEubjonRkxPQVQgNCcsIG4yPXYyP3YyLm46J0ZMT0FUIDQnOwogICAgZGVzYz0nRG9ibGUgJytiYXNlLmwrJyDCtyAnK24xKycgLyAnK24yOwogICAgZGV0YWxsZT0nQmFzZSAnK2V1cihiYXNlLnApKyh2MT8nICsgJytldXIoczEpKycgKCcrbjErJyknOicnKSsodjI/JyArICcrZXVyKHMydikrJyAoJytuMisnKSc6JycpKycgPSA8Yj4nK2V1cihwTTIpKycvbcKyPC9iPic7CiAgfSBlbHNlIHsKICAgIHZhciB2PVRBTUEudmlkcmlvc1twYXJzZUludChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgndnN1ZWx0bycpLnZhbHVlKXx8MF07CiAgICBpZighdilyZXR1cm4gbnVsbDsKICAgIHZhciB0cGw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3RlbXBsYWRvJykuY2hlY2tlZCYmdi50ZW1wIT09bnVsbDsKICAgIHBNMj10cGw/di50ZW1wOnYubWY7CiAgICBkZXNjPXYubisodHBsPycgVEVNUExBRE8nOicnKTsKICAgIGRldGFsbGU9JzxiPicrZXVyKHBNMikrJy9twrI8L2I+JysodHBsPycgKHRlbXBsYWRvKSc6JycpOwogIH0KICB2YXIgaG9yYXM9TWF0aC5tYXgoMCxwYXJzZUZsb2F0KGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdob3JhcycpLnZhbHVlKXx8MCk7CiAgdmFyIHBVZENvc3RlPXBNMiptMmZhY3Q7ICAgICAgICAgIC8vIGNvc3RlIHRhcmlmYSBkZWwgdmlkcmlvIHBvciB1bmlkYWQKICB2YXIgcFVkPXBVZENvc3RlKk1VTFQ7ICAgICAgICAgICAgLy8gcHJlY2lvIGRlIHZlbnRhIGRlbCB2aWRyaW8gKGNvbiBtYXJnZW4gcG9yIHJvdHVyYSkKICB2YXIgbW9udGFqZT1ob3JhcypQSDsgICAgICAgICAgICAgLy8gbWFubyBkZSBvYnJhIGRlIGxhIGzDrW5lYQogIHZhciB0b3RhbD1wVWQqdWRzK21vbnRhamU7CiAgcmV0dXJuIHtkZXNjOmRlc2MsZGV0YWxsZTpkZXRhbGxlLGFuOmFuLGFsOmFsLHVkczp1ZHMsbTJyZWFsOm0ycmVhbCxtMmZhY3Q6bTJmYWN0LAogICAgcE0yOnBNMixtdWx0Ok1VTFQsaG9yYXM6aG9yYXMscGg6UEgsbW9udGFqZTptb250YWplLAogICAgcFVkQ29zdGU6cFVkQ29zdGUscFVkOnBVZCx0b3RhbDp0b3RhbCxtaW5pbW86bTJmYWN0Pm0ycmVhbCsxZS05fTsKfQpmdW5jdGlvbiBjYWxjKCl7CiAgdmFyIHI9Y2FsY0FjdHVhbCgpOwogIHZhciBhdj1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYXZpc28tbWluJyk7CiAgaWYoIXIpewogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3AtdG90YWwnKS50ZXh0Q29udGVudD0n4oCUJzsKICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwLWRldGFsbGUnKS50ZXh0Q29udGVudD0nRWxpZ2UgY29tcG9zaWNpw7NuIHkgbWVkaWRhcyc7CiAgICBhdi5zdHlsZS5kaXNwbGF5PSdub25lJztyZXR1cm47CiAgfQogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwLXRvdGFsJykudGV4dENvbnRlbnQ9ZXVyKHIudG90YWwpKyhyLnVkcz4xPycgKCcrci51ZHMrJyB1ZHMpJzonJyk7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3AtZGV0YWxsZScpLmlubmVySFRNTD1yLmRldGFsbGUKICAgICsnPGJyPicrci5hbisnw5cnK3IuYWwrJyBtbSA9ICcrbTJ0eHQoci5tMnJlYWwpKycgbcKyJwogICAgKyhyLm1pbmltbz8nIOKGkiBmYWN0dXJhICcrbTJ0eHQoci5tMmZhY3QpKycgbcKyJzonJykKICAgICsnPGJyPlZpZHJpbzogJytldXIoci5wVWRDb3N0ZSkrJyDDlycrci5tdWx0KycgPSA8Yj4nK2V1cihyLnBVZCkrJy91ZDwvYj4nCiAgICArKHIubW9udGFqZT4wPycgwrcgTW9udGFqZTogJytyLmhvcmFzKycgaCDDlyAnK2V1cihyLnBoKSsnID0gPGI+JytldXIoci5tb250YWplKSsnPC9iPic6JycpOwogIGF2LnN0eWxlLmRpc3BsYXk9ci5taW5pbW8/J2Jsb2NrJzonbm9uZSc7Cn0KZnVuY3Rpb24gYWRkTGluZWEoKXsKICB2YXIgcj1jYWxjQWN0dWFsKCk7CiAgaWYoIXIpe2FsZXJ0KCdQb24gbWVkaWRhcyB2w6FsaWRhcyBwcmltZXJvLicpO3JldHVybjt9CiAgTElORUFTLnB1c2gocik7c0woKTtyZW5kZXJMaW5lYXMoKTsKfQpmdW5jdGlvbiBkZWxMaW5lYShpKXtMSU5FQVMuc3BsaWNlKGksMSk7c0woKTtyZW5kZXJMaW5lYXMoKTt9CmZ1bmN0aW9uIGJvcnJhclRvZG8oKXtpZighTElORUFTLmxlbmd0aClyZXR1cm47aWYoY29uZmlybSgnwr9WYWNpYXIgZWwgcHJlc3VwdWVzdG8/Jykpe0xJTkVBUz1bXTtzTCgpO3JlbmRlckxpbmVhcygpO319CgovLyDilZDilZDilZDilZDilZDilZAgSU1QUkVTScOTTiAvIEdVQVJEQVIgUERGIChkb2N1bWVudG8gZGUgY2xpZW50ZSwgc2luIGNvc3RlIHBvciBkZWZlY3RvKSDilZDilZDilZDilZDilZDilZAKZnVuY3Rpb24gaW1wcmltaXJDcmlzdGFsZXMoaW5jbHVpckNvc3Rlcyl7CiAgaWYoIUxJTkVBUy5sZW5ndGgpe2FsZXJ0KCdObyBoYXkgbMOtbmVhcyBlbiBlbCBwcmVzdXB1ZXN0by4nKTtyZXR1cm47fQogIHZhciB0b3RDbGllbnRlPTAsIHRvdENvc3RlPTA7CiAgdmFyIGh0bWxSb3dzPScnOwogIExJTkVBUy5mb3JFYWNoKGZ1bmN0aW9uKGwpewogICAgdG90Q2xpZW50ZSs9bC50b3RhbDsKICAgIHRvdENvc3RlKz1sLnBVZENvc3RlKmwudWRzKyAobC5tb250YWplfHwwKTsKICAgIGh0bWxSb3dzKz0nPHRyPjx0ZD4nK2wuZGVzYysnPC90ZD4nCiAgICAgICsnPHRkIGNsYXNzPSJyIj4nK2wuYW4rJ8OXJytsLmFsKycgbW08L3RkPicKICAgICAgKyc8dGQgY2xhc3M9InIiPicrbTJ0eHQobC5tMmZhY3QpKyc8L3RkPicKICAgICAgKyc8dGQgY2xhc3M9InIiPicrbC51ZHMrJzwvdGQ+JwogICAgICArJzx0ZCBjbGFzcz0iciI+JytldXIobC5wVWQpKyhsLm1vbnRhamU+MD8nIDxzcGFuIHN0eWxlPSJjb2xvcjojODg4O2ZvbnQtc2l6ZToxMHB4Ij4rIG1vbnRhamU8L3NwYW4+JzonJykrJzwvdGQ+JwogICAgICArJzx0ZCBjbGFzcz0iciI+PGI+JytldXIobC50b3RhbCkrJzwvYj48L3RkPjwvdHI+JzsKICB9KTsKICB2YXIgdG90QmVuZWY9dG90Q2xpZW50ZS10b3RDb3N0ZTsKCiAgdmFyIGludGVybm89Jyc7CiAgaWYoaW5jbHVpckNvc3Rlcyl7CiAgICB2YXIgcm93c0ludD0nJzsKICAgIExJTkVBUy5mb3JFYWNoKGZ1bmN0aW9uKGwpewogICAgICB2YXIgY29zdGVMPWwucFVkQ29zdGUqbC51ZHMrKGwubW9udGFqZXx8MCk7CiAgICAgIHJvd3NJbnQrPSc8dHI+PHRkPicrbC5kZXNjKyc8L3RkPjx0ZCBjbGFzcz0iciI+JytldXIobC5wVWRDb3N0ZSkrJy91ZCAow5cnKyhsLm11bHR8fDEpKycpPC90ZD48dGQgY2xhc3M9InIiPicrZXVyKGNvc3RlTCkrJzwvdGQ+PHRkIGNsYXNzPSJyIj48Yj4nK2V1cihsLnRvdGFsLWNvc3RlTCkrJzwvYj48L3RkPjwvdHI+JzsKICAgIH0pOwogICAgaW50ZXJubz0nPGRpdiBjbGFzcz0icHMtaW50Ij48ZGl2IGNsYXNzPSJwcy1pbnQtdHRsIj7imqAgVXNvIGludGVybm8g4oCUIE5PIGVudHJlZ2FyIGFsIGNsaWVudGU8L2Rpdj4nCiAgICAgICsnPHRhYmxlIGNsYXNzPSJwcy10YWJsZSI+PHRoZWFkPjx0cj48dGg+TMOtbmVhPC90aD48dGggY2xhc3M9InIiPkNvc3RlIHRhcmlmYSBUYW1hPC90aD48dGggY2xhc3M9InIiPkNvc3RlIHRvdGFsIGzDrW5lYTwvdGg+PHRoIGNsYXNzPSJyIj5CZW5lZmljaW88L3RoPjwvdHI+PC90aGVhZD48dGJvZHk+JwogICAgICArcm93c0ludCsnPC90Ym9keT48L3RhYmxlPicKICAgICAgKyc8ZGl2IGNsYXNzPSJwcy10b3QiPjxkaXY+PHNwYW4+Q29zdGUgdG90YWw8L3NwYW4+PHNwYW4+JytldXIodG90Q29zdGUpKyc8L3NwYW4+PC9kaXY+JwogICAgICArJzxkaXYgY2xhc3M9ImZpbiI+PHNwYW4+QmVuZWZpY2lvIGJydXRvPC9zcGFuPjxzcGFuPicrZXVyKHRvdEJlbmVmKSsnICgnKyh0b3RDbGllbnRlPjA/KHRvdEJlbmVmL3RvdENsaWVudGUqMTAwKS50b0ZpeGVkKDEpOicwJykrJyUpPC9zcGFuPjwvZGl2PjwvZGl2PjwvZGl2Pic7CiAgfQoKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncHJpbnQtc2hlZXQnKS5pbm5lckhUTUw9CiAgICAnPGRpdiBjbGFzcz0icHMtaGVhZCI+PGRpdj48ZGl2IGNsYXNzPSJwcy1icmFuZCI+TUFSRVZBIDxzcGFuPkFMVU1JTklPUzwvc3Bhbj48L2Rpdj48ZGl2IGNsYXNzPSJwcy1zdWIiPlByZXN1cHVlc3RvIGRlIGNyaXN0YWxlczwvZGl2PjwvZGl2PicKICAgICsnPGRpdiBjbGFzcz0icHMtZGF0b3MiPkZlY2hhOiA8Yj4nK25ldyBEYXRlKCkudG9Mb2NhbGVEYXRlU3RyaW5nKCdlcy1FUycpKyc8L2I+PC9kaXY+PC9kaXY+JwogICAgKyc8dGFibGUgY2xhc3M9InBzLXRhYmxlIj48dGhlYWQ+PHRyPjx0aD5Db21wb3NpY2nDs248L3RoPjx0aCBjbGFzcz0iciI+TWVkaWRhPC90aD48dGggY2xhc3M9InIiPm3CsiBmYWN0LjwvdGg+PHRoIGNsYXNzPSJyIj5VZC48L3RoPjx0aCBjbGFzcz0iciI+UHJlY2lvL3VkPC90aD48dGggY2xhc3M9InIiPlRvdGFsPC90aD48L3RyPjwvdGhlYWQ+PHRib2R5PicKICAgICtodG1sUm93cysnPC90Ym9keT48L3RhYmxlPicKICAgICsnPGRpdiBjbGFzcz0icHMtdG90Ij48ZGl2IGNsYXNzPSJmaW4iPjxzcGFuPlRPVEFMIChzaW4gSVZBKTwvc3Bhbj48c3Bhbj4nK2V1cih0b3RDbGllbnRlKSsnPC9zcGFuPjwvZGl2PjwvZGl2PicKICAgICtpbnRlcm5vCiAgICArJzxkaXYgY2xhc3M9InBzLWZvb3QiPlByZXN1cHVlc3RvIHNpbiB2YWxpZGV6IGNvbnRyYWN0dWFsIGhhc3RhIGNvbmZpcm1hY2nDs24gwrcgVGFyaWZhIENyaXN0YWxlcsOtYSBUYW1hIGFicmlsLTI1PC9kaXY+JzsKCiAgc2V0VGltZW91dChmdW5jdGlvbigpeyB3aW5kb3cucHJpbnQoKTsgfSw4MCk7Cn0KCmZ1bmN0aW9uIHJlbmRlckxpbmVhcygpewogIHZhciBjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsaW5lYXMnKSx0PTAsaHRtbD0nJzsKICBMSU5FQVMuZm9yRWFjaChmdW5jdGlvbihsLGkpewogICAgdCs9bC50b3RhbDsKICAgIGh0bWwrPSc8ZGl2IGNsYXNzPSJsaW5lYSI+PGRpdj48Yj4nK2wuZGVzYysnPC9iPjxicj48c3BhbiBzdHlsZT0iY29sb3I6IzY0NzQ4QiI+JwogICAgICArbC5hbisnw5cnK2wuYWwrJyBtbSDCtyAnK20ydHh0KGwubTJmYWN0KSsnIG3CsiBmYWN0LiDCtyAnK2wudWRzKycgdWQnKyhsLnVkcz4xPydzJzonJykKICAgICAgKycgwrcgJytldXIobC5wTTIpKycvbcKyJysobC5tdWx0JiZsLm11bHQ+MT8nIMOXJytsLm11bHQ6JycpCiAgICAgICsobC5tb250YWplPjA/JyDCtyArJytldXIobC5tb250YWplKSsnIG1vbnRhamUgKCcrbC5ob3JhcysnIGgpJzonJykrJzwvc3Bhbj48L2Rpdj4nCiAgICAgICsnPGRpdiBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDt3aGl0ZS1zcGFjZTpub3dyYXAiPjxiPicrZXVyKGwudG90YWwpKyc8L2I+PHNwYW4gY2xhc3M9IngiIG9uY2xpY2s9ImRlbExpbmVhKCcraSsnKSI+4pyVPC9zcGFuPjwvZGl2PjwvZGl2Pic7CiAgfSk7CiAgYy5pbm5lckhUTUw9aHRtbHx8JzxkaXYgc3R5bGU9ImZvbnQtc2l6ZToxMi41cHg7Y29sb3I6Izk0QTNCODtwYWRkaW5nOjZweCAwIj5TaW4gbMOtbmVhcyB0b2RhdsOtYS48L2Rpdj4nOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0b3RhbCcpLnRleHRDb250ZW50PWV1cih0KTsKfQpwb2JsYXIoKTsKZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnI211bHQgLmNoaXAnKS5mb3JFYWNoKGZ1bmN0aW9uKGMpe2MuY2xhc3NMaXN0LnRvZ2dsZSgnb24nLHBhcnNlSW50KGMuZGF0YXNldC54KT09PU1VTFQpO30pOwppZihQSD4wKWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwaCcpLnZhbHVlPVBIOwpyZW5kZXJMaW5lYXMoKTtjYWxjKCk7Cjwvc2NyaXB0Pgo8L2JvZHk+CjwvaHRtbD4=';
