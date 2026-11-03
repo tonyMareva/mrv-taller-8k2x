@@ -379,7 +379,12 @@ select option{background:var(--bg2);color:var(--txt)}
         <span class="chip sm" data-v="motor" onclick="selAc('mini','motor')">Motor</span>
       </div>
       <div id="sub-mini-mando" style="display:none;margin-top:.5rem">
-        <div class="sub-ttl">Mando</div>
+        <div class="sub-ttl">Marca del motor</div>
+        <div class="chips" id="ch-mini-marca">
+          <span class="chip sm on" data-v="somfy" onclick="selMotorMarca('mini','somfy')">Somfy</span>
+          <span class="chip sm" data-v="cherubini" onclick="selMotorMarca('mini','cherubini')">Cherubini</span>
+        </div>
+        <div class="sub-ttl" style="margin-top:.4rem">Mando</div>
         <div class="chips" id="ch-mini-mando">
           <span class="chip sm on" data-v="mando" onclick="selMando('mini','mando')">Mando a distancia</span>
           <span class="chip sm" data-v="pulsador" onclick="selMando('mini','pulsador')">Pulsador</span>
@@ -422,7 +427,12 @@ select option{background:var(--bg2);color:var(--txt)}
         <span class="chip sm" data-v="motor" onclick="selAc('obra','motor')">Motor</span>
       </div>
       <div id="sub-obra-mando" style="display:none;margin-top:.5rem">
-        <div class="sub-ttl">Mando</div>
+        <div class="sub-ttl">Marca del motor</div>
+        <div class="chips" id="ch-obra-marca">
+          <span class="chip sm on" data-v="somfy" onclick="selMotorMarca('obra','somfy')">Somfy</span>
+          <span class="chip sm" data-v="cherubini" onclick="selMotorMarca('obra','cherubini')">Cherubini</span>
+        </div>
+        <div class="sub-ttl" style="margin-top:.4rem">Mando</div>
         <div class="chips" id="ch-obra-mando">
           <span class="chip sm on" data-v="mando" onclick="selMando('obra','mando')">Mando a distancia</span>
           <span class="chip sm" data-v="pulsador" onclick="selMando('obra','pulsador')">Pulsador</span>
@@ -766,6 +776,22 @@ select option{background:var(--bg2);color:var(--txt)}
   </div>
 </div>
 
+<div class="sec" id="sec-trabajos">
+  <div class="card">
+    <div class="card-head"><span class="bdg" style="background:#0891B2">🔧</span><span class="card-ttl">Trabajos sueltos del proyecto</span></div>
+    <div class="card-body">
+      <div style="font-size:11px;color:#64748B;margin-bottom:.6rem">Una persiana sola, un cristal, un arreglo o una nota. Se guardan con el proyecto y salen en el PDF.</div>
+      <div class="btn-row">
+        <button class="btn" onclick="trAnadir('persiana')">🪟 + Persiana</button>
+        <button class="btn" onclick="trAnadir('cristal')">🔲 + Cristal</button>
+        <button class="btn" onclick="trAnadir('arreglo')">🔧 + Arreglo</button>
+        <button class="btn" onclick="trAnadir('nota')">📝 + Nota</button>
+      </div>
+    </div>
+  </div>
+  <div id="tr-lista" style="margin-top:.7rem"></div>
+</div>
+
 <div class="sec" id="sec-proyectos">
   <div class="card">
     <div class="card-head">
@@ -799,6 +825,9 @@ select option{background:var(--bg2);color:var(--txt)}
   </button>
   <button class="nav-btn" id="nav-resumen" onclick="irA('resumen')">
     <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Pedido
+  </button>
+  <button class="nav-btn" id="nav-trabajos" onclick="irA('trabajos')">
+    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>Trabajos
   </button>
   <button class="nav-btn" id="nav-proyectos" onclick="irA('proyectos')">
     <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Proyectos
@@ -1014,6 +1043,7 @@ function vN(n){
     color:'BLANCO',mp:[0,0,0,0],h3:0,h5:0,h7:0,foto:null,guardada:false,nombre:'Ventana '+(n||1)};
 }
 var VS=[vN(1)],IDX=0,sCr='4/16/4 Incoloro',sCrBase='aire',sCl='BLANCO',RPT='fria',MP=[0,0,0,0],H3=0,H5=0,H7=0,EXP=null;
+var TRS=[]; // trabajos sueltos del proyecto (persiana sola, cristal solo, arreglos, notas)
 var _prevTipoCat=null; // 'corredera' o 'hoja' — para no heredar nº de hojas al cambiar de categoría (ver onTipo)
 
 // ── PRECIOS DE MOTORES CHERUBINI (privado — NUNCA usar en el Medidor del taller) ──
@@ -1043,6 +1073,12 @@ var PRECIOS_PERSIANAS_B64='eyJtZXRhIjogeyJmdWVudGUiOiAiVGFyaWZhIFBlcnNpdGVjIDIwM
 // tarifa — sustituir en cuanto tengamos el precio real del pulsador mecánico.
 // Para leerlo: var pm = JSON.parse(atob(PRECIOS_MOTORES_PERSITEC_B64));
 var PRECIOS_MOTORES_PERSITEC_B64='eyJtZXRhIjogeyJmdWVudGUiOiAiVGFyaWZhIFBlcnNpdGVjIDIwMjYsIHDDoWdpbmEgMzggKG1vdG9yZXMgQ0hFUlVCSU5JKSwgYXJjaGl2byBzdWJpZG8gcG9yIFRvbmkiLCAiZmVjaGFfZGF0b3MiOiAiMjAyNi0wOCIsICJub3RhX21lY2FuaWNvIjogIk9KTzogQ2hlcnViaW5pIGVuIGVzdGEgdGFyaWZhIFNPTE8gdGllbmUgbW90b3JlcyBkZSBSQURJTyAobWFuZG8gYSBkaXN0YW5jaWEpLiBFbCBtb3RvciBNRUPDgU5JQ08gKHB1bHNhZG9yKSBubyBlc3TDoSBlbiBsYSB0YXJpZmEg4oCUIFRvbmkgcGlkacOzIGVzdGltYXJsbyBhIHVuIDEwJSBtZW5vcyBxdWUgZWwgZGUgcmFkaW8gaGFzdGEgdGVuZXIgZWwgcHJlY2lvIHJlYWwuIE1hcmNhZG8gY29tbyBFU1RJTUFETywgc3VzdGl0dWlyIGVuIGN1YW50byBUb25pIGNvbnNpZ2EgZWwgcHJlY2lvIHJlYWwuIiwgInVuaWRhZCI6ICLigqwvdWQiLCAicHJlY2lvSW5jbHV5ZUNvcm9uYVlTb3BvcnRlIjogIlNvbG8gc2kgJ1ByZWNpbyBBY29tcGHDsWFkbyBkZSBQZXJzaWFuYScg4oCUIHNpIGVsIG1vdG9yIHNlIHZlbmRlIHN1ZWx0byBOTyBpbmNsdXllIGNvcm9uYXMgbmkgc29wb3J0ZXMgKG5vdGEgbGl0ZXJhbCBkZSBsYSB0YXJpZmEpIiwgIm5vdGFfbWFuZG9zIjogIk1hbmRvcyBkZSBtYW5vIENoZXJ1YmluaSwgdGFyaWZhIFBlcnNpdGVjIDIwMjYgcMOhZy4zOS4gJ21hbmRvTm9ybWFsJz1QT1AgMSBjYW5hbCwgJ21hbmRvTXVsdGljYW5hbCc9UE9QIFBsdXMgNyBjYW5hbGVzIChwYXJhIG1hbmVqYXIgdmFyaWFzIHBlcnNpYW5hcyBkZXNkZSB1biBtaXNtbyBtYW5kbykuIFNlIHN1bWFuIGF1dG9tw6F0aWNhbWVudGUgY3VhbmRvIGxhIHBlcnNpYW5hIGxsZXZhIG1vdG9yIGNvbiBhY2Npb25hbWllbnRvICdtYW5kbycgKHJhZGlvKSDigJQgY29uIHB1bHNhZG9yIG1lY8OhbmljbyBubyBoYWNlIGZhbHRhIG1hbmRvLiJ9LCAibW90b3Jlc1JhZGlvIjogW3sibW9kZWxvIjogIk9QRU4gV1JYIDEwLzE3IiwgIm5tIjogMTAsICJycG0iOiAxNywgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDE0OC4xNiwgInByZWNpb0NvblBlcnNpYW5hIjogMTU3LjA0fSwgeyJtb2RlbG8iOiAiT1BFTiBXUlggMjUvMTciLCAibm0iOiAyNSwgInJwbSI6IDE3LCAiZWplIjogNjAsICJwcmVjaW9Tb2xvIjogMTUyLjIsICJwcmVjaW9Db25QZXJzaWFuYSI6IDE2NS41Mn0sIHsibW9kZWxvIjogIk9QRU4gV1JYIDMyLzE3IiwgIm5tIjogMzIsICJycG0iOiAxNywgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDE1NC4yMywgInByZWNpb0NvblBlcnNpYW5hIjogMTY3LjcyfSwgeyJtb2RlbG8iOiAiT1BFTiBXUlggNDAvMTciLCAibm0iOiA0MCwgInJwbSI6IDE3LCAiZWplIjogNjAsICJwcmVjaW9Tb2xvIjogMTg4LjI3LCAicHJlY2lvQ29uUGVyc2lhbmEiOiAyMDUuNzJ9LCB7Im1vZGVsbyI6ICJPUEVOIFdSWCA1MC8xMiIsICJubSI6IDUwLCAicnBtIjogMTIsICJlamUiOiA2MCwgInByZWNpb1NvbG8iOiAxOTAuMywgInByZWNpb0NvblBlcnNpYW5hIjogMjA3Ljl9LCB7Im1vZGVsbyI6ICJPUEVOIFdSWCA4NS8xNyIsICJubSI6IDg1LCAicnBtIjogMTcsICJlamUiOiA3MCwgInByZWNpb1NvbG8iOiAzMjIuNTcsICJwcmVjaW9Db25QZXJzaWFuYSI6IDM0Ni4xNn0sIHsibW9kZWxvIjogIk9QRU4gV1JYIDEyMC8xMSIsICJubSI6IDEyMCwgInJwbSI6IDExLCAiZWplIjogNzAsICJwcmVjaW9Tb2xvIjogMzY3Ljg5LCAicHJlY2lvQ29uUGVyc2lhbmEiOiAzOTQuMn1dLCAibW90b3Jlc01lY2FuaWNvRXN0aW1hZG8iOiBbeyJtb2RlbG8iOiAiT1BFTiBXUlggMTAvMTcgTUVDIChlc3QuKSIsICJubSI6IDEwLCAicnBtIjogMTcsICJlamUiOiA2MCwgInByZWNpb1NvbG8iOiAxMzMuMzQsICJwcmVjaW9Db25QZXJzaWFuYSI6IDE0MS4zNCwgImVzdGltYWRvIjogdHJ1ZX0sIHsibW9kZWxvIjogIk9QRU4gV1JYIDI1LzE3IE1FQyAoZXN0LikiLCAibm0iOiAyNSwgInJwbSI6IDE3LCAiZWplIjogNjAsICJwcmVjaW9Tb2xvIjogMTM2Ljk4LCAicHJlY2lvQ29uUGVyc2lhbmEiOiAxNDguOTcsICJlc3RpbWFkbyI6IHRydWV9LCB7Im1vZGVsbyI6ICJPUEVOIFdSWCAzMi8xNyBNRUMgKGVzdC4pIiwgIm5tIjogMzIsICJycG0iOiAxNywgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDEzOC44MSwgInByZWNpb0NvblBlcnNpYW5hIjogMTUwLjk1LCAiZXN0aW1hZG8iOiB0cnVlfSwgeyJtb2RlbG8iOiAiT1BFTiBXUlggNDAvMTcgTUVDIChlc3QuKSIsICJubSI6IDQwLCAicnBtIjogMTcsICJlamUiOiA2MCwgInByZWNpb1NvbG8iOiAxNjkuNDQsICJwcmVjaW9Db25QZXJzaWFuYSI6IDE4NS4xNSwgImVzdGltYWRvIjogdHJ1ZX0sIHsibW9kZWxvIjogIk9QRU4gV1JYIDUwLzEyIE1FQyAoZXN0LikiLCAibm0iOiA1MCwgInJwbSI6IDEyLCAiZWplIjogNjAsICJwcmVjaW9Tb2xvIjogMTcxLjI3LCAicHJlY2lvQ29uUGVyc2lhbmEiOiAxODcuMTEsICJlc3RpbWFkbyI6IHRydWV9LCB7Im1vZGVsbyI6ICJPUEVOIFdSWCA4NS8xNyBNRUMgKGVzdC4pIiwgIm5tIjogODUsICJycG0iOiAxNywgImVqZSI6IDcwLCAicHJlY2lvU29sbyI6IDI5MC4zMSwgInByZWNpb0NvblBlcnNpYW5hIjogMzExLjU0LCAiZXN0aW1hZG8iOiB0cnVlfSwgeyJtb2RlbG8iOiAiT1BFTiBXUlggMTIwLzExIE1FQyAoZXN0LikiLCAibm0iOiAxMjAsICJycG0iOiAxMSwgImVqZSI6IDcwLCAicHJlY2lvU29sbyI6IDMzMS4xLCAicHJlY2lvQ29uUGVyc2lhbmEiOiAzNTQuNzgsICJlc3RpbWFkbyI6IHRydWV9XSwgImFjY2Vzb3Jpb3MiOiB7InNvcG9ydGVPYnJhIjogNC42NCwgInNvcG9ydGVVbml2ZXJzYWwiOiA1LjE2LCAic29wb3J0ZU9wdGltZTEzNyI6IDQuMjIsICJzb3BvcnRlT3B0aW1lMTY1IjogNC43NCwgInNvcG9ydGVPcHRpbWUxODAiOiA1LjM0LCAic29wb3J0ZU9wdGltZTIwNSI6IDUuNzgsICJjb3JvbmFSdWVkYUVqZTYwIjogNS4wMiwgImNvcm9uYVJ1ZWRhRWplNzAiOiA1LjY0fSwgInByZWNpb3MiOiB7Im1hbmRvTm9ybWFsIjogNTIuNjIsICJtYW5kb011bHRpY2FuYWwiOiA5MS45M30sICJyZWZlcmVuY2lhcyI6IHsibWFuZG9Ob3JtYWwiOiB7InJlZiI6ICJQT1AiLCAibm9tYnJlIjogIk1hbmRvIENoZXJ1YmluaSBQT1AgKDEgY2FuYWwsIG5vcm1hbCkifSwgIm1hbmRvTXVsdGljYW5hbCI6IHsicmVmIjogIlBPUCBQbHVzIiwgIm5vbWJyZSI6ICJNYW5kbyBDaGVydWJpbmkgUE9QIFBsdXMgKDcgY2FuYWxlcywgbXVsdGljYW5hbCkifX19';
+
+// ── PRECIOS DE MOTORES SOMFY · Persitec 2026 (privado — NUNCA usar en el Medidor del taller) ──
+// A diferencia de Cherubini, estos precios YA incluyen el descuento de fábrica
+// que tiene Toni (ver meta.nota del propio catálogo). Para leerlo:
+//   var pm = JSON.parse(atob(PRECIOS_MOTORES_SOMFY_B64));
+var PRECIOS_MOTORES_SOMFY_B64='eyJtZXRhIjogeyJmdWVudGUiOiAiVGFyaWZhIFBlcnNpdGVjIDIwMjYgKFBlcnNpYW5hXzI2LTEwX3Byby5wZGYpLCBww6FnaW5hIGRlIE1vdG9yaXphY2nDs24g4oCUIG1vdG9yZXMgU09NRlksIGFyY2hpdm8gc3ViaWRvIHBvciBUb25pIGVsIDI5LzA5LzIwMjYiLCAiZmVjaGFfZGF0b3MiOiAiMjAyNi0xMCIsICJub3RhIjogIkxvcyBwcmVjaW9zIGRlIGVzdGUgY2F0w6Fsb2dvIFlBIHNvbiBlbCBuZXRvIHF1ZSBwYWdhIFRvbmkgKGNvbiBzdSBkZXNjdWVudG8gaGFiaXR1YWwgZGUgZsOhYnJpY2Egc29icmUgZWwgUFZQIHDDumJsaWNvIGRlIFNvbWZ5LCBxdWUgbm8gYXBhcmVjZSBlbiBlc3RhIHRhcmlmYSkuIEVsIGNhbXBvICdkZXNjdWVudG9GYWJyaWNhUGN0JyBkZSBBanVzdGVzIChwb3IgZGVmZWN0byA1MCUpIGVzIHNvbG8gcGFyYSBNT1NUUkFSIGEgY3XDoW50byBzYWxkcsOtYSBzaW4gZXNlIGRlc2N1ZW50byDigJQgbm8gc2UgcmVzdGEgb3RyYSB2ZXogZGVsIHByZWNpby4iLCAiY29sdW1uYXMiOiAicHJlY2lvU29sbyA9IG1vdG9yIHN1ZWx0bywgc2luIGNvcm9uYSBuaSBzb3BvcnRlLiBwcmVjaW9Db25QZXJzaWFuYSA9IG1vdG9yICsgY29yb25hICsgc29wb3J0ZSBpbmNsdWlkb3MgKHRhbCBjb21vIHZpZW5lIGVuIGxhIHRhcmlmYSBjdWFuZG8gc2UgY29tcHJhIGp1bnRvIGNvbiB1bmEgcGVyc2lhbmEgbnVldmEpLiJ9LCAibW90b3Jlc01lY2FuaWNvIjogW3sibW9kZWxvIjogIkpFVCAxMC8xMiIsICJubSI6IDEwLCAicnBtIjogMTIsICJlamUiOiA2MCwgInByZWNpb1NvbG8iOiAzNy41NywgInByZWNpb0NvblBlcnNpYW5hIjogNDEuMDR9LCB7Im1vZGVsbyI6ICJBVExBUyAxNS8xMiIsICJubSI6IDE1LCAicnBtIjogMTIsICJlamUiOiA2MCwgInByZWNpb1NvbG8iOiA0MS43MywgInByZWNpb0NvblBlcnNpYW5hIjogNDUuNTh9LCB7Im1vZGVsbyI6ICJNRVRFT1IgMjAvMTIiLCAibm0iOiAyMCwgInJwbSI6IDEyLCAiZWplIjogNjAsICJwcmVjaW9Tb2xvIjogNDYuMDIsICJwcmVjaW9Db25QZXJzaWFuYSI6IDUwLjI3fSwgeyJtb2RlbG8iOiAiSEVMSU9TIDMwLzEyIiwgIm5tIjogMzAsICJycG0iOiAxMiwgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDUzLjU2LCAicHJlY2lvQ29uUGVyc2lhbmEiOiA1OC41fSwgeyJtb2RlbG8iOiAiTUFSSU5FUiA0MC8xMiIsICJubSI6IDQwLCAicnBtIjogMTIsICJlamUiOiA2MCwgInByZWNpb1NvbG8iOiA2MC41OCwgInByZWNpb0NvblBlcnNpYW5hIjogNjYuMTd9XSwgIm1vdG9yZXNSYWRpb0FMVFVTIjogW3sibW9kZWxvIjogIkFMVFVTIFJTIDEwLzEyIElPIiwgIm5tIjogMTAsICJycG0iOiAxMiwgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDY4LjA0LCAicHJlY2lvQ29uUGVyc2lhbmEiOiA3Ni42OH0sIHsibW9kZWxvIjogIkFMVFVTIFJTIDIwLzEyIElPIiwgIm5tIjogMjAsICJycG0iOiAxMiwgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDc3LjY0LCAicHJlY2lvQ29uUGVyc2lhbmEiOiA5MS44N30sIHsibW9kZWxvIjogIkFMVFVTIFJTIDMwLzEyIElPIiwgIm5tIjogMzAsICJycG0iOiAxMiwgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDg5LjI0LCAicHJlY2lvQ29uUGVyc2lhbmEiOiA5OS42OH0sIHsibW9kZWxvIjogIkFMVFVTIFJTIDQwLzEyIElPIiwgIm5tIjogNDAsICJycG0iOiAxMiwgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDkzLjYsICJwcmVjaW9Db25QZXJzaWFuYSI6IDExMC43Nn0sIHsibW9kZWxvIjogIkFMVFVTIFJTIDUwLzEyIElPIiwgIm5tIjogNTAsICJycG0iOiAxMiwgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDEwMC40NCwgInByZWNpb0NvblBlcnNpYW5hIjogMTE4Ljg1fV0sICJtb3RvcmVzUmFkaW9SUzEwMCI6IFt7Im1vZGVsbyI6ICJSUyAxMDAgNi8xNyBJTyIsICJubSI6IDYsICJycG0iOiAxNywgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDExOS45NywgInByZWNpb0NvblBlcnNpYW5hIjogMTI1LjQyfSwgeyJtb2RlbG8iOiAiUlMgMTAwIDEwLzE3IElPIiwgIm5tIjogMTAsICJycG0iOiAxNywgImVqZSI6IDYwLCAicHJlY2lvU29sbyI6IDEyOC43NSwgInByZWNpb0NvblBlcnNpYW5hIjogMTM0LjZ9LCB7Im1vZGVsbyI6ICJSUyAxMDAgMTUvMTcgSU8iLCAibm0iOiAxNSwgInJwbSI6IDE3LCAiZWplIjogNjAsICJwcmVjaW9Tb2xvIjogMTM0LjYsICJwcmVjaW9Db25QZXJzaWFuYSI6IDE0MC43Mn0sIHsibW9kZWxvIjogIlJTIDEwMCAyMC8xNyBJTyIsICJubSI6IDIwLCAicnBtIjogMTcsICJlamUiOiA2MCwgInByZWNpb1NvbG8iOiAxNDMuMzgsICJwcmVjaW9Db25QZXJzaWFuYSI6IDE0OS44OX1dLCAiYWNjZXNvcmlvcyI6IHsic29wb3J0ZVVuaXZlcnNhbCI6IDIuNTgsICJjb3JvbmFSdWVkYUVqZTYwIjogMi44Mn19';
 
 // Claves de PERFIL FÍSICO: perfil + carpintería + serie (S60 y S70 son barras distintas)
 var PERFIL_DEFS=[
@@ -1735,6 +1771,46 @@ function getPreciosMotoresPersitec(){
   }
   return _preciosMotoresPersCache;
 }
+var _preciosMotoresSomfyCache=null;
+function getPreciosMotoresSomfy(){
+  if(_preciosMotoresSomfyCache)return _preciosMotoresSomfyCache;
+  try{ _preciosMotoresSomfyCache=JSON.parse(decodeB64Utf8(PRECIOS_MOTORES_SOMFY_B64)); }catch(e){ _preciosMotoresSomfyCache=null; }
+  if(_preciosMotoresSomfyCache){
+    var pm=_preciosMotoresSomfyCache;
+    pm.precios={}; pm.referencias={};
+    function link(key,nombre,ref,getFn,setFn){
+      pm.referencias[key]={nombre:nombre,ref:ref||'—'};
+      Object.defineProperty(pm.precios,key,{enumerable:true,configurable:true,get:getFn,set:setFn});
+    }
+    [['motoresMecanico','Mecánico'],['motoresRadioALTUS','Radio ALTUS'],['motoresRadioRS100','Radio RS100']].forEach(function(par){
+      var lista=pm[par[0]]||[];
+      lista.forEach(function(m,i){
+        link(par[0]+'_'+m.nm,'Motor Somfy '+m.modelo+' ('+par[1]+', solo)',m.nm+'Nm',
+          function(){return lista[i].precioSolo;}, function(v){lista[i].precioSolo=v;});
+        link(par[0]+'cp_'+m.nm,'Motor Somfy '+m.modelo+' ('+par[1]+', con persiana)',m.nm+'Nm',
+          function(){return lista[i].precioConPersiana;}, function(v){lista[i].precioConPersiana=v;});
+      });
+    });
+    var NOMBRES_ACC_S={soporteUniversal:'Soporte universal Somfy',coronaRuedaEje60:'Corona rueda eje 60 Somfy'};
+    Object.keys(pm.accesorios||{}).forEach(function(k){
+      link('acc_'+k,NOMBRES_ACC_S[k]||k,'—',
+        function(){return pm.accesorios[k];}, function(v){pm.accesorios[k]=v;});
+    });
+    aplicarOverridesPrecios(_preciosMotoresSomfyCache,'mareva_ov_motores_somfy');
+  }
+  return _preciosMotoresSomfyCache;
+}
+// Elige el motor Somfy más pequeño (de la línea elegida) que aguante los Nm
+// necesarios. linea: 'motoresMecanico' | 'motoresRadioALTUS' | 'motoresRadioRS100'.
+function seleccionarMotorSomfy(nmNecesario,linea){
+  var pm=getPreciosMotoresSomfy(); if(!pm)return null;
+  var lista=pm[linea]||[];
+  var ordenada=lista.slice().sort(function(a,b){return a.nm-b.nm;});
+  for(var i=0;i<ordenada.length;i++){if(ordenada[i].nm>=nmNecesario)return ordenada[i];}
+  var mayor=ordenada[ordenada.length-1];
+  if(!mayor)return null;
+  return Object.assign({},mayor,{aviso:'Nm necesarios ('+nmNecesario.toFixed(1)+') superan el motor más grande de esta línea ('+mayor.modelo+') — revisar a mano'});
+}
 // Elige el cajón más pequeño (137→250) cuya altura máxima (según tabla de
 // enrollamientos real de Persitec) sea suficiente para el alto pedido.
 // Si ninguno llega, devuelve el más grande disponible con aviso.
@@ -1793,14 +1869,35 @@ function grupoColorPorProducto(productoKey,color){
 // el motor solo mueve esa mitad, o el ANCHO TOTAL si un único motor grande
 // tiene que mover las dos mitades juntas.
 function costeMotorPersiana(v,anchoNW,alto,pesoM2,mando,cajonParaSoporte,etiqueta){
-  var pm=getPreciosMotoresPersitec();
-  var descMot=(DATOS_PRECIO_VENTANA.descuentoMotores||0)/100;
+  var marca=v.persMotorMarca||'somfy';
   var nw=calcularNWNecesario(anchoNW,alto,pesoM2);
   var mecanico=(mando==='pulsador');
-  var motorSel=seleccionarMotorCherubini(nw,mecanico);
   var avisos=[], detalle=[], total=0, motorInfo=null;
   var pref=etiqueta?(etiqueta+' · '):'';
   var pre=etiqueta?(etiqueta+': '):'';
+  if(marca==='somfy'){
+    var pmS=getPreciosMotoresSomfy();
+    var linea=mecanico?'motoresMecanico':'motoresRadioALTUS';
+    var motorSel=seleccionarMotorSomfy(nw,linea);
+    if(motorSel&&pmS){
+      if(motorSel.aviso)avisos.push(pre+motorSel.aviso);
+      var eje=motorSel.eje;
+      var cSoporte=pmS.accesorios.soporteUniversal||0;
+      var cCorona=pmS.accesorios.coronaRuedaEje60||0;
+      var cMotorPrecio=motorSel.precioSolo;
+      total=cMotorPrecio+cSoporte+cCorona;
+      detalle.push({concepto:pref+'Motor Somfy '+motorSel.modelo+(mecanico?' (mecánico)':' (radio ALTUS)'),coste:cMotorPrecio});
+      detalle.push({concepto:pref+'Soporte universal',coste:cSoporte});
+      detalle.push({concepto:pref+'Corona y rueda eje '+eje,coste:cCorona});
+      if(!mecanico)avisos.push(pre+'Mando a distancia Somfy: precio no cargado todavía en la tarifa — añádelo a mano si hace falta');
+      motorInfo={modelo:motorSel.modelo,nw:nw,eje:eje,total:total,estimado:false};
+    }
+    return {total:total,detalle:detalle,avisos:avisos,motorInfo:motorInfo};
+  }
+  // marca==='cherubini' — comportamiento de siempre
+  var pm=getPreciosMotoresPersitec();
+  var descMot=(DATOS_PRECIO_VENTANA.descuentoMotores||0)/100;
+  var motorSel=seleccionarMotorCherubini(nw,mecanico);
   if(motorSel&&pm){
     if(motorSel.aviso)avisos.push(pre+motorSel.aviso);
     if(mecanico)avisos.push(pre+'⚠ Motor MECÁNICO (pulsador) con precio ESTIMADO (-10% del de radio) — pendiente de precio real de Cherubini');
@@ -1815,8 +1912,6 @@ function costeMotorPersiana(v,anchoNW,alto,pesoM2,mando,cajonParaSoporte,etiquet
     detalle.push({concepto:pref+'Motor Cherubini '+motorSel.modelo+(mecanico?' (mecánico, estimado)':' (radio)'),coste:cMotorPrecio});
     detalle.push({concepto:pref+'Soporte ('+soporteKey+')',coste:cSoporte});
     detalle.push({concepto:pref+'Corona y rueda eje '+eje,coste:cCorona});
-    // El mando físico solo hace falta con motor de RADIO (mando a distancia).
-    // Con pulsador (mecánico) no hay mando que comprar.
     if(!mecanico){
       var mandoKey=(v.persMandoTipo==='multicanal')?'mandoMulticanal':'mandoNormal';
       var precioMando=pm.precios&&pm.precios[mandoKey];
@@ -1830,6 +1925,18 @@ function costeMotorPersiana(v,anchoNW,alto,pesoM2,mando,cajonParaSoporte,etiquet
     motorInfo={modelo:motorSel.modelo,nw:nw,eje:eje,total:total,estimado:mecanico};
   }
   return {total:total,detalle:detalle,avisos:avisos,motorInfo:motorInfo};
+}
+// Coste de SOLO el motor de una persiana (sin lama ni cajón) — para cuando el
+// cliente solo quiere cambiar el motor de una persiana que ya tiene. Sigue
+// necesitando el peso/m² de una lama típica para calcular los Nw necesarios,
+// así que usa la lama que tocaría por ese ancho (misma regla que siempre).
+function costeSoloMotorPersiana(persCat,ancho,alto,mando,marca,mandoTipo){
+  var pp=getPreciosPersianas();
+  var lamaInfo=lamaParaVentana({ancho:ancho,persAutoblock:false});
+  var lamaKey=lamaInfo.key;
+  var pesoM2=pp?((persCat==='obra'?pp.obra.peso_kg_m2[lamaKey]:pp.mini.peso_kg_m2[lamaKey])||3.3):3.3;
+  var vTmp={persCat:persCat,persMotorMarca:marca,persMandoTipo:mandoTipo||'normal'};
+  return costeMotorPersiana(vTmp,ancho,alto,pesoM2,mando,null,null);
 }
 // Material de una unidad de persiana (lama+cajón/guías+montaje), SIN el motor.
 // incluirMotorPropio=true además calcula y añade su propio motor (caso normal:
@@ -1965,7 +2072,7 @@ function costePersianaVentana(v){
 
 // ── DATOS CONFIGURABLES (precio/hora, descuento mosquitera para este cálculo) ──
 var DATOS_PRECIO_VENTANA_KEY='mareva_datos_precio_ventana';
-var DATOS_PRECIO_VENTANA={precioHoraFab:0, precioHoraMontaje:0, descuentoMosquitera:55, precioHoraMontajeMosq:90, margenPct:0, descuentoPersianas:0, descuentoMotores:0, descuentoAluminio:0, precioHoraMontajePersiana:0};
+var DATOS_PRECIO_VENTANA={precioHoraFab:0, precioHoraMontaje:0, descuentoMosquitera:55, precioHoraMontajeMosq:90, margenPct:0, descuentoPersianas:0, descuentoMotores:0, descuentoAluminio:0, precioHoraMontajePersiana:0, descuentoFabricaSomfy:50};
 try{
   var _dpv=JSON.parse(localStorage.getItem(DATOS_PRECIO_VENTANA_KEY));
   if(_dpv)DATOS_PRECIO_VENTANA=Object.assign(DATOS_PRECIO_VENTANA,_dpv);
@@ -2199,7 +2306,9 @@ var CATALOGO_MATERIALES=[
   {tab:'materiales', categoria:'① Ventana — Aluminio: perfiles y tapetas (Aluminios Barcelona)', unidad:'€/ml', overridesKey:'mareva_ov_alu', claves:CLAVES_PERFILES_ALU, obtener:function(){return getPreciosAlu();}, resetCache:function(){_preciosAluCache=null;}},
   {tab:'materiales', categoria:'② Persiana — Lamas y cajones (tarifa Persitec)', unidad:'€/m² o €/ud', overridesKey:'mareva_ov_persianas', obtener:function(){return getPreciosPersianasFlat();}, resetCache:function(){_preciosPersCache=null;}},
   {tab:'materiales', categoria:'② Persiana — Motores, mandos y soportes (Cherubini)', unidad:'€/ud', overridesKey:'mareva_ov_motores', obtener:function(){return getPreciosMotoresPersitec();}, resetCache:function(){_preciosMotoresPersCache=null;}},
+  {tab:'materiales', categoria:'④ Persiana — Motores Somfy (ya con tu descuento de fábrica)', unidad:'€/ud', overridesKey:'mareva_ov_motores_somfy', obtener:function(){return getPreciosMotoresSomfy();}, resetCache:function(){_preciosMotoresSomfyCache=null;}},
   {tab:'materiales', categoria:'③ Techos de aluminio (Persitec)', unidad:'€/m²', overridesKey:'mareva_ov_techos', obtener:function(){return getPreciosTechosFlat();}, resetCache:function(){resetTechosAluminio();}},
+  {tab:'materiales', categoria:'⑤ Cerramientos IronLux — lucernarios, panel sándwich (SW), cubierta estándar y remates', unidad:'€/m², €/ud o €/ml', overridesKey:'mareva_ov_ironlux', obtener:function(){return getPreciosIronluxFlat();}, resetCache:function(){resetIronlux();}},
   {tab:'accesorios', categoria:'Kits de corredera · cruce panorámico (herraje)', unidad:'€/kit', overridesKey:'mareva_ov_alu', claves:CLAVES_KITS_CORREDERA, obtener:function(){return getPreciosAlu();}, resetCache:function(){_preciosAluCache=null;}},
   {tab:'accesorios', categoria:'Herraje practicable/oscilobatiente (por ventana)', unidad:'€/ud', overridesKey:'mareva_ov_herraje_practicable', obtener:function(){return getPreciosHerrajePracticable();}, resetCache:function(){_herrajePracticableCache=null;}}
 ];
@@ -2262,7 +2371,7 @@ function abrirPrecioVentanas(){
 function cerrarPrecioVentanas(){document.getElementById('precio-wrap').style.display='none';}
 
 // ── PRESUPUESTO DE PERSIANA SUELTA (sin medir una ventana completa) ──
-var PP={persCat:'mini',persAc:'cinta',persMando:'mando',persMandoTipo:'normal',persAutoblock:false,persPartida:false,persPartidaMotores:2,color:'BLANCO'};
+var PP={modo:'completa',persCat:'mini',persAc:'cinta',persMando:'mando',persMandoTipo:'normal',persMotorMarca:'somfy',persAutoblock:false,persPartida:false,persPartidaMotores:2,color:'BLANCO'};
 
 // ══════════════════════════════════════════════════════════════════════
 // HISTORIAL DE CONSULTAS — guarda resultados de las calculadoras sueltas
@@ -2393,6 +2502,278 @@ function calcTechoAluminio(anchoMm,altoMm,acabado,lama,conListon){
 }
 
 // ══════════════════════════════════════════════════════════════════════
+// CERRAMIENTOS IRONLUX — Tarifa 2026, Almacén Barcelona, V3 (vigente desde
+// 20/07/2026). Cubre solo lo pedido: lucernarios de policarbonato (celular
+// estándar pág.64-65, perfilado bajo pedido pág.69, curvo pág.73), panel
+// sándwich de policarbonato ("SW" = SandWich, pág.70-72), panel cubierta
+// estándar de aluminio GMPANEL TAPAJUNTAS (pág.10-12) y sus remates: los
+// propios de la Cubierta Estándar (pág.12-14) y los accesorios del
+// policarbonato (pág.66). Precios SIN IVA.
+// ══════════════════════════════════════════════════════════════════════
+var IRONLUX_DEFAULT={
+  celular:{
+    6:{incoloro:17.15,hielo:18.20},
+    10:{incoloro:22.45,hielo:23.75},
+    16:{incoloro:35.65,hielo:37.75},
+    25:{incoloro:42.50,hielo:45.00},
+    32:{incoloro:54.35,hielo:57.50}
+  },
+  perfilado:{
+    'GM Sispol Greca 4':{10:{incoloro:34.90,hielo:36.90},16:{incoloro:41.95,hielo:44.30}},
+    'GM Sispol Greca 5':{10:{incoloro:32.20,hielo:34.10},16:{incoloro:39.30,hielo:41.60},20:{incoloro:47.50,hielo:50.20}},
+    'GM Sispol Maxi Greca':{12:{incoloro:38.10,hielo:40.30},16:{incoloro:43.60,hielo:46.10},20:{incoloro:53.30,hielo:56.50}}
+  },
+  curvo:{16:{hielo:46.20}},
+  panelSandwich:{
+    'GM Sispol 30mm Multipanel (1000)':{30:48.10,40:53.40,50:55.30},
+    'GM Sispol 30mm Multipanel (1150)':{30:48.10},
+    'GM Sispol Greca Llena':{30:50.10,40:52.90}
+  },
+  cubiertaEstandar:{
+    'Tapajuntas 30 Blanco Pirineo':{precio:33.10},
+    'Tapajuntas 30 Rojo Teja':{precio:35.20},
+    'Tapajuntas 30 Gris':{precio:41.75},
+    'Tapajuntas 30 Verde Navarra':{precio:35.20},
+    'Tapajuntas 40 Blanco Pirineo':{precio:39.15},
+    'Tapajuntas 50 Espuma PIR Blanco':{precio:45.25},
+    'Tapajuntas 2G 80 Blanco Pirineo':{precio:52.90}
+  },
+  accesPolicarbonato:{
+    'Perfil Tapeta Aluminio (€/ml)':6.00,
+    'Perfil Universal Aluminio (€/ml)':8.35,
+    'Goma Uña Aleta (€/ml)':1.15,
+    'Goma Base Estándar (€/ml)':2.95,
+    'Perfil Cierre en U 6mm (€/ml)':1.25,
+    'Perfil Cierre en U 10mm (€/ml)':1.40,
+    'Perfil Cierre en U 16mm (€/ml)':2.00,
+    'Perfil Cierre en U 25mm (€/ml)':3.35,
+    'Perfil Unión en H 6mm (€/ml)':3.05,
+    'Perfil Unión en H 10mm (€/ml)':4.05,
+    'Perfil Unión en H 16mm (€/ml)':6.50,
+    'Perfil Unión en H 16mm Opal (€/ml)':7.55,
+    'Perfil Unión en H 25mm (€/ml)':8.15,
+    'Tapón Polipropileno (€/ud)':1.00,
+    'GM Sombrero Aluminio (€/ud)':1.00,
+    'Cinta Microperforada 25mm (€/ud)':20.15,
+    'Cinta Microperforada 38mm (€/ud)':31.70,
+    'Cinta Microperforada 60mm (€/ud)':47.75,
+    'Cinta Ciega 25mm (€/ud)':5.40,
+    'Cinta Ciega 38mm (€/ud)':10.60,
+    'Cinta Ciega 60mm (€/ud)':12.10,
+    'Cumbrera de Acero Blanco Pirineo 3000mm (€/ud)':18.05
+  },
+  rematesCubiertaEstandar:{
+    'Remate Canalón 3000mm':52.30,
+    'Remate Tapa Canalón (pareja)':31.45,
+    'Remate Collarín Canalón (ud)':9.95,
+    'Tubo 75Ø 1000mm':15.20,
+    'Codo 45º Extensión 400mm':29.20,
+    'Codos 45º/90º':16.25,
+    'Abrazadera':3.55,
+    'Boca Bajante 75Ø':9.30,
+    'Remate Trasera Troquelada TPJ 2100mm':25.25,
+    'Remate Entrega Lateral a Pared 1500mm':9.05,
+    'Remate Entrega Lateral a Pared 3000mm':18.10,
+    'Remate Cumbrera Simple 1500mm':21.55,
+    'Remate Cumbrera Simple 3000mm':43.10,
+    'Remate Cumbrera Troquelada 2100mm':49.35,
+    'Remate Lateral 30 · 1500mm':11.20,
+    'Remate Lateral 30 · 3000mm':22.40,
+    'Remate Lateral 40 · 1500mm':13.15,
+    'Remate Lateral 40 · 3000mm':26.30,
+    'Remate Lateral 50 · 1500mm':13.15,
+    'Remate Lateral 50 · 3000mm':26.30,
+    'Remate Lateral 80 · 1500mm':13.15,
+    'Remate Lateral 80 · 3000mm':26.30,
+    'Remate Frontal/Trasero Simple 30 · 1500mm':11.20,
+    'Remate Frontal/Trasero Simple 30 · 3000mm':22.40,
+    'Remate Frontal/Trasero Simple 40/50 · 1500mm':11.20,
+    'Remate Frontal/Trasero Simple 40/50 · 3000mm':22.40,
+    'Remate Frontal/Trasero Simple 80 · 1500mm':13.15,
+    'Remate Frontal/Trasero Simple 80 · 3000mm':26.30,
+    'Remate Tapa Frontal 30/40/50/80 · 1000mm':10.15
+  }
+};
+var IRONLUX=JSON.parse(JSON.stringify(IRONLUX_DEFAULT));
+function _ilCamino(obj,partes){
+  var o=obj;
+  for(var i=0;i<partes.length-1;i++){ if(!o)return null; o=o[partes[i]]; }
+  return o;
+}
+function aplicarOverridesIronlux(){
+  var ov=getOverridesPrecios('mareva_ov_ironlux');
+  Object.keys(ov).forEach(function(key){
+    var partes=key.split('§');
+    var o=_ilCamino(IRONLUX,partes), last=partes[partes.length-1];
+    if(o&&(last in o))o[last]=ov[key];
+  });
+}
+aplicarOverridesIronlux();
+function resetIronlux(){ IRONLUX=JSON.parse(JSON.stringify(IRONLUX_DEFAULT)); aplicarOverridesIronlux(); }
+function getPreciosIronluxFlat(){
+  var precios={}, referencias={};
+  function hoja(etiqueta,unidad){ return unidad? etiqueta+' ('+unidad+')': etiqueta; }
+  function walk(obj,partes,etiquetaBase,unidad){
+    Object.keys(obj).forEach(function(k){
+      var v=obj[k], nuevaEtiqueta=etiquetaBase?etiquetaBase+' · '+k:k, nuevasPartes=partes.concat([k]);
+      if(v&&typeof v==='object'){ walk(v,nuevasPartes,nuevaEtiqueta,unidad); return; }
+      var key=nuevasPartes.join('§');
+      referencias[key]={nombre:hoja(nuevaEtiqueta,unidad),ref:'—'};
+      Object.defineProperty(precios,key,{enumerable:true,configurable:true,
+        get:function(){var o=_ilCamino(IRONLUX,nuevasPartes);return o?o[nuevasPartes[nuevasPartes.length-1]]:null;},
+        set:function(val){var o=_ilCamino(IRONLUX,nuevasPartes);if(o)o[nuevasPartes[nuevasPartes.length-1]]=val;}});
+    });
+  }
+  walk(IRONLUX.celular,['celular'],'Lucernario policarbonato celular','€/m²');
+  walk(IRONLUX.perfilado,['perfilado'],'Lucernario policarbonato perfilado','€/m²');
+  walk(IRONLUX.curvo,['curvo'],'Lucernario policarbonato curvo','€/m²');
+  walk(IRONLUX.panelSandwich,['panelSandwich'],'Panel sándwich policarbonato (SW)','€/m²');
+  walk(IRONLUX.cubiertaEstandar,['cubiertaEstandar'],'Panel cubierta estándar (aluminio)','€/m²');
+  walk(IRONLUX.accesPolicarbonato,['accesPolicarbonato'],'Accesorio policarbonato','');
+  walk(IRONLUX.rematesCubiertaEstandar,['rematesCubiertaEstandar'],'Remate cubierta estándar','€/ud');
+  return {precios:precios,referencias:referencias};
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CALCULADORA CERRAMIENTOS IRONLUX — lucernarios, panel sándwich (SW) y
+// cubierta estándar, con remates y accesorios añadidos aparte.
+// ══════════════════════════════════════════════════════════════════════
+var IL={producto:'celular',espesor:'6',color:'incoloro',modelo:null,remates:[]};
+function abrirIronlux(){
+  selILProducto(IL.producto);
+  ilPintarSelectRemates();
+  document.getElementById('ironlux-wrap').style.display='flex';
+}
+function cerrarIronlux(){document.getElementById('ironlux-wrap').style.display='none';}
+function selILProducto(p){
+  IL.producto=p;
+  document.querySelectorAll('#il-ch-producto .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===p);});
+  ilPintarOpciones();
+  calcIronlux();
+}
+function ilSelectHtml(id,label,opciones,valorActual,onchange){
+  return '<label style="margin-top:.4rem;display:block">'+label+'</label>'
+    +'<select id="'+id+'" onchange="'+onchange+'" style="width:100%;background:#0F172A;color:#E2E8F0;border:1px solid var(--brd);border-radius:8px;padding:8px;font-size:12.5px">'
+    +opciones.map(function(o){return '<option value="'+o.v+'"'+(o.v===String(valorActual)?' selected':'')+'>'+o.t+'</option>';}).join('')
+    +'</select>';
+}
+function ilPintarOpciones(){
+  var cont=document.getElementById('il-opciones'), html='';
+  if(IL.producto==='celular'){
+    var esp=Object.keys(IRONLUX.celular);
+    if(esp.indexOf(IL.espesor)<0)IL.espesor=esp[0];
+    html+=ilSelectHtml('il-espesor','Espesor',esp.map(function(e){return {v:e,t:e+' mm'};}),IL.espesor,'ilCambiaEspesor(this.value)');
+    var col=Object.keys(IRONLUX.celular[IL.espesor]);
+    if(col.indexOf(IL.color)<0)IL.color=col[0];
+    html+=ilSelectHtml('il-color','Color',col.map(function(c){return {v:c,t:c};}),IL.color,'ilCambiaColor(this.value)');
+  } else if(IL.producto==='perfilado'){
+    var mod=Object.keys(IRONLUX.perfilado);
+    if(mod.indexOf(IL.modelo)<0)IL.modelo=mod[0];
+    html+=ilSelectHtml('il-modelo','Modelo',mod.map(function(m){return {v:m,t:m};}),IL.modelo,'ilCambiaModelo(this.value)');
+    var esp2=Object.keys(IRONLUX.perfilado[IL.modelo]);
+    if(esp2.indexOf(IL.espesor)<0)IL.espesor=esp2[0];
+    html+=ilSelectHtml('il-espesor','Espesor',esp2.map(function(e){return {v:e,t:e+' mm'};}),IL.espesor,'ilCambiaEspesor(this.value)');
+    var col2=Object.keys(IRONLUX.perfilado[IL.modelo][IL.espesor]);
+    if(col2.indexOf(IL.color)<0)IL.color=col2[0];
+    html+=ilSelectHtml('il-color','Color',col2.map(function(c){return {v:c,t:c};}),IL.color,'ilCambiaColor(this.value)');
+  } else if(IL.producto==='curvo'){
+    var esp3=Object.keys(IRONLUX.curvo);
+    if(esp3.indexOf(IL.espesor)<0)IL.espesor=esp3[0];
+    html+=ilSelectHtml('il-espesor','Espesor',esp3.map(function(e){return {v:e,t:e+' mm'};}),IL.espesor,'ilCambiaEspesor(this.value)');
+    var col3=Object.keys(IRONLUX.curvo[IL.espesor]);
+    if(col3.indexOf(IL.color)<0)IL.color=col3[0];
+    html+=ilSelectHtml('il-color','Color',col3.map(function(c){return {v:c,t:c};}),IL.color,'ilCambiaColor(this.value)');
+  } else if(IL.producto==='panelSandwich'){
+    var mod2=Object.keys(IRONLUX.panelSandwich);
+    if(mod2.indexOf(IL.modelo)<0)IL.modelo=mod2[0];
+    html+=ilSelectHtml('il-modelo','Modelo',mod2.map(function(m){return {v:m,t:m};}),IL.modelo,'ilCambiaModelo(this.value)');
+    var esp4=Object.keys(IRONLUX.panelSandwich[IL.modelo]);
+    if(esp4.indexOf(IL.espesor)<0)IL.espesor=esp4[0];
+    html+=ilSelectHtml('il-espesor','Espesor',esp4.map(function(e){return {v:e,t:e+' mm'};}),IL.espesor,'ilCambiaEspesor(this.value)');
+  } else if(IL.producto==='cubiertaEstandar'){
+    var mod3=Object.keys(IRONLUX.cubiertaEstandar);
+    if(mod3.indexOf(IL.modelo)<0)IL.modelo=mod3[0];
+    html+=ilSelectHtml('il-modelo','Modelo / color',mod3.map(function(m){return {v:m,t:m};}),IL.modelo,'ilCambiaModelo(this.value)');
+  }
+  document.getElementById('il-opciones').innerHTML=html;
+}
+function ilCambiaEspesor(v){IL.espesor=v;ilPintarOpciones();calcIronlux();}
+function ilCambiaColor(v){IL.color=v;calcIronlux();}
+function ilCambiaModelo(v){IL.modelo=v;ilPintarOpciones();calcIronlux();}
+function ilPrecioM2(){
+  if(IL.producto==='celular')return (IRONLUX.celular[IL.espesor]||{})[IL.color];
+  if(IL.producto==='perfilado')return (((IRONLUX.perfilado[IL.modelo]||{})[IL.espesor])||{})[IL.color];
+  if(IL.producto==='curvo')return (IRONLUX.curvo[IL.espesor]||{})[IL.color];
+  if(IL.producto==='panelSandwich')return (IRONLUX.panelSandwich[IL.modelo]||{})[IL.espesor];
+  if(IL.producto==='cubiertaEstandar')return (IRONLUX.cubiertaEstandar[IL.modelo]||{}).precio;
+  return null;
+}
+function ilNombreProducto(){
+  var nombres={celular:'Lucernario policarbonato celular',perfilado:'Lucernario policarbonato perfilado',curvo:'Lucernario policarbonato curvo',panelSandwich:'Panel sándwich policarbonato (SW)',cubiertaEstandar:'Panel cubierta estándar (aluminio)'};
+  var base=nombres[IL.producto]||'';
+  if(IL.modelo)base+=' · '+IL.modelo;
+  if(IL.espesor)base+=' · '+IL.espesor+'mm';
+  if(IL.color)base+=' · '+IL.color;
+  return base;
+}
+function ilPintarSelectRemates(){
+  var sel=document.getElementById('il-sel-remate'), opciones=[];
+  Object.keys(IRONLUX.rematesCubiertaEstandar).forEach(function(k){opciones.push({t:k+' — '+eur2(IRONLUX.rematesCubiertaEstandar[k])+'/ud',v:'rematesCubiertaEstandar|'+k});});
+  Object.keys(IRONLUX.accesPolicarbonato).forEach(function(k){opciones.push({t:k+' — '+eur2(IRONLUX.accesPolicarbonato[k]),v:'accesPolicarbonato|'+k});});
+  sel.innerHTML=opciones.map(function(o){return '<option value="'+o.v+'">'+o.t+'</option>';}).join('');
+}
+function ilAgregarRemate(){
+  var sel=document.getElementById('il-sel-remate');
+  var cant=parseFloat(document.getElementById('il-remate-cant').value)||1;
+  if(!sel.value)return;
+  var partes=sel.value.split('|'), precio=IRONLUX[partes[0]][partes[1]];
+  var nombre=sel.options[sel.selectedIndex].text.split(' — ')[0];
+  IL.remates.push({nombre:nombre,precio:precio,cantidad:cant});
+  ilRenderRemates();
+  calcIronlux();
+}
+function ilQuitarRemate(idx){IL.remates.splice(idx,1);ilRenderRemates();calcIronlux();}
+function ilRenderRemates(){
+  var cont=document.getElementById('il-lista-remates');
+  if(!IL.remates.length){cont.innerHTML='';return;}
+  cont.innerHTML=IL.remates.map(function(r,i){
+    return '<div class="pv-linea" style="padding:4px 0"><span>'+r.cantidad+'× '+r.nombre+'</span>'
+      +'<span><b>'+eur2(r.precio*r.cantidad)+'</b> <button onclick="ilQuitarRemate('+i+')" style="background:none;border:none;color:#F87171;cursor:pointer;font-size:13px;margin-left:6px">✕</button></span></div>';
+  }).join('');
+}
+var _ilUltimoResultado=null;
+function calcIronlux(){
+  var ancho=parseFloat(document.getElementById('il-ancho').value)||0;
+  var alto=parseFloat(document.getElementById('il-alto').value)||0;
+  var cont=document.getElementById('il-resultado');
+  var precioM2=ilPrecioM2();
+  var subtotalRemates=IL.remates.reduce(function(s,r){return s+r.precio*r.cantidad;},0);
+  if(precioM2==null){
+    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#F87171;padding:1.5rem">Esa combinación no existe en la tarifa.</div></div>';
+    _ilUltimoResultado=null;return;
+  }
+  if((!ancho||!alto)&&!subtotalRemates){
+    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el ancho y el alto para calcular el panel (o añade solo remates).</div></div>';
+    _ilUltimoResultado=null;return;
+  }
+  var areaM2=(ancho/1000)*(alto/1000);
+  var subtotalPanel=(ancho&&alto)?areaM2*precioM2:0;
+  var total=subtotalPanel+subtotalRemates;
+  var resumen=ilNombreProducto()+(ancho&&alto?' · '+ancho+'×'+alto+'mm':'');
+  _ilUltimoResultado={tipo:'Cerramientos IronLux',icono:'🏭',resumen:resumen,total:total};
+  cont.innerHTML='<div class="card" style="border-color:#F59E0B"><div class="card-body">'
+    +(ancho&&alto?'<div class="pv-linea"><span>'+areaM2.toFixed(2)+' m² × '+eur2(precioM2)+'/m²</span><b>'+eur2(subtotalPanel)+'</b></div>':'')
+    +(subtotalRemates?'<div class="pv-linea"><span>Remates y accesorios</span><b>'+eur2(subtotalRemates)+'</b></div>':'')
+    +'<div class="pv-total" style="font-size:15px;border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.5rem"><span>TOTAL</span><span>'+eur2(total)+'</span></div>'
+    +'<div class="btn-row" style="margin-top:.6rem"><button class="btn drk" onclick="guardarIronlux()">💾 Guardar en historial</button></div>'
+    +'</div></div>';
+}
+function guardarIronlux(){
+  if(!_ilUltimoResultado){toast('⚠️ No hay nada que guardar todavía');return;}
+  guardarEnHistorial(_ilUltimoResultado.tipo,_ilUltimoResultado.icono,_ilUltimoResultado.resumen,_ilUltimoResultado.total);
+}
+
+// ══════════════════════════════════════════════════════════════════════
 // CALCULADORAS RÁPIDAS: Mosquitera suelta / Cristal suelto / Techo aluminio
 // Reutilizan exactamente la misma lógica de precio que ya usa el medidor
 // (costeMosquiteraVentana, precioCristalM2, calcTechoAluminio) — no hay
@@ -2448,7 +2829,14 @@ function guardarPersianaSuelta(){
   if(!ancho||!alto){toast('⚠️ Pon ancho y alto primero');return;}
   var horasMontaje=parseFloat(document.getElementById('pp-horas-montaje').value)||0;
   var precioHora=parseFloat(document.getElementById('pp-precio-hora').value)||0;
-  var input={persCat:PP.persCat,persAc:PP.persAc,persMando:PP.persMando,persMandoTipo:PP.persMandoTipo,
+  if(PP.modo==='motor'){
+    var rm=costeSoloMotorPersiana(PP.persCat,ancho,alto,PP.persMando,PP.persMotorMarca,PP.persMandoTipo);
+    var total=rm.total+(horasMontaje*precioHora);
+    var resumen='Motor '+(PP.persMotorMarca==='somfy'?'Somfy':'Cherubini')+' '+ancho+'×'+alto+'mm';
+    guardarEnHistorial('Cambio de motor','🔌',resumen,total);
+    return;
+  }
+  var input={persCat:PP.persCat,persAc:PP.persAc,persMando:PP.persMando,persMandoTipo:PP.persMandoTipo,persMotorMarca:PP.persMotorMarca,
     persCos:'cosida',persAutoblock:PP.persAutoblock,persPartida:PP.persPartida,persPartidaMotores:PP.persPartidaMotores,
     ancho:ancho,alto:alto,color:PP.color};
   var persiana=costePersianaVentana(input);
@@ -2490,6 +2878,21 @@ function guardarPHMontajePersiana(val){
   guardarDatosPrecioVentana();
   calcPresupers();
 }
+// "Persiana completa" o "Solo el motor" (sin comprar lama/cajón). En modo
+// "motor" se oculta todo lo que solo aplica a material (lama, partida,
+// accionamiento) y el motor+mando quedan siempre visibles.
+function selPPModo(val){
+  document.querySelectorAll('#pp-ch-modo .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===val);});
+  PP.modo=val;
+  document.getElementById('pp-bloque-material').style.display=(val==='motor')?'none':'block';
+  document.getElementById('pp-sub-mando').style.display=(val==='motor'||PP.persAc==='motor')?'block':'none';
+  calcPresupers();
+}
+function selPPMotorMarca(val){
+  document.querySelectorAll('#pp-ch-marca .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===val);});
+  PP.persMotorMarca=val;
+  calcPresupers();
+}
 function selPPCat(val){
   document.querySelectorAll('#pp-ch-cat .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===val);});
   PP.persCat=val;
@@ -2520,7 +2923,7 @@ function selPPAc(val){
     return;
   }
   document.querySelectorAll('#pp-ch-ac .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===val);});
-  document.getElementById('pp-sub-mando').style.display=val==='motor'?'block':'none';
+  document.getElementById('pp-sub-mando').style.display=(val==='motor'||PP.modo==='motor')?'block':'none';
   document.getElementById('pp-sub-partida-motores').style.display=(val==='motor'&&PP.persPartida)?'block':'none';
   document.getElementById('pp-sub-mandotipo').style.display=(val==='motor'&&PP.persMando==='mando')?'block':'none';
   PP.persAc=val;
@@ -2543,8 +2946,38 @@ function calcPresupers(){
     cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el ancho y el alto de la persiana para calcular.</div></div>';
     return;
   }
+  if(PP.modo==='motor'){
+    var rm=costeSoloMotorPersiana(PP.persCat,ancho,alto,PP.persMando,PP.persMotorMarca,PP.persMandoTipo);
+    var costeMontajeM=horasMontaje*precioHora;
+    var totalM=rm.total+costeMontajeM;
+    var htmlM='<div class="card" style="border-color:#A78BFA"><div class="card-body">';
+    htmlM+='<div class="pv-linea" style="margin-top:.2rem"><span>🔌 <b>SOLO MOTOR</b></span></div>';
+    rm.detalle.forEach(function(d){htmlM+='<div class="pv-linea" style="padding-left:8px"><span>· '+d.concepto+'</span><b>'+eur2(d.coste)+'</b></div>';});
+    if(rm.avisos&&rm.avisos.length)rm.avisos.forEach(function(a){htmlM+='<div class="pv-aviso">⚠ '+a+'</div>';});
+    if(PP.persMotorMarca==='somfy'){
+      var descF=DATOS_PRECIO_VENTANA.descuentoFabricaSomfy;
+      if(descF==null)descF=50;
+      if(descF>0&&descF<100){
+        htmlM+='<div class="pv-nota" style="padding-left:8px">Precio de tarifa sin tu descuento de fábrica ('+descF+'%): <b>'+eur2(rm.total/(1-descF/100))+'</b></div>';
+      }
+    }
+    if(horasMontaje>0)htmlM+='<div class="pv-linea"><span>🔧 Montaje ('+horasMontaje+' h × '+eur2(precioHora)+')</span><b>'+eur2(costeMontajeM)+'</b></div>';
+    htmlM+='<div class="pv-total" style="font-size:15px;border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.5rem"><span>TU COSTE</span><span>'+eur2(totalM)+'</span></div>';
+    var margenM=DATOS_PRECIO_VENTANA.margenPct||0;
+    if(margenM>0){
+      var pventaM=totalM*(1+margenM/100);
+      htmlM+='<div class="pv-linea" style="color:#34D399;margin-top:.4rem"><span>Precio de venta (+'+margenM+'%)</span><b>'+eur2(pventaM)+'</b></div>';
+      htmlM+='<div class="pv-linea" style="color:#34D399;font-weight:700"><span>💰 Beneficio</span><b>'+eur2(pventaM-totalM)+'</b></div>';
+    } else {
+      htmlM+='<div class="pv-nota" style="margin-top:.4rem">Pon un margen en Ajustes ⚙️ para ver precio de venta y beneficio.</div>';
+    }
+    htmlM+='<div class="btn-row" style="margin-top:.6rem"><button class="btn drk" onclick="guardarPersianaSuelta()">💾 Guardar en historial</button></div>';
+    htmlM+='</div></div>';
+    cont.innerHTML=htmlM;
+    return;
+  }
   var input={
-    persCat:PP.persCat, persAc:PP.persAc, persMando:PP.persMando, persMandoTipo:PP.persMandoTipo,
+    persCat:PP.persCat, persAc:PP.persAc, persMando:PP.persMando, persMandoTipo:PP.persMandoTipo, persMotorMarca:PP.persMotorMarca,
     persCos:'cosida', persAutoblock:PP.persAutoblock, persPartida:PP.persPartida, persPartidaMotores:PP.persPartidaMotores,
     ancho:ancho, alto:alto, color:PP.color
   };
@@ -2780,7 +3213,7 @@ function irA(s){
   document.querySelectorAll('.nav-btn').forEach(function(x){x.classList.remove('on');});
   document.getElementById('sec-'+s).classList.add('on');
   document.getElementById('nav-'+s).classList.add('on');
-  if(s==='resumen'){renderRes();}if(s==='proyectos')renderProyectos();if(s==='estructura'){asegurarEsts();rEstTabs();cargarFormEst();}
+  if(s==='trabajos')trRender();if(s==='resumen'){renderRes();}if(s==='proyectos')renderProyectos();if(s==='estructura'){asegurarEsts();rEstTabs();cargarFormEst();}
   window.scrollTo(0,0);
 }
 
@@ -2899,6 +3332,11 @@ function selMando(tipo,val){
   document.querySelectorAll('#ch-'+tipo+'-mando .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===val);});
   document.getElementById('sub-'+tipo+'-mandotipo').style.display=(val==='mando')?'block':'none';
   VS[IDX].persMando=val;
+  draw();
+}
+function selMotorMarca(tipo,val){
+  document.querySelectorAll('#ch-'+tipo+'-marca .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===val);});
+  VS[IDX].persMotorMarca=val;
   draw();
 }
 function selMandoTipo(tipo,val){
@@ -3205,6 +3643,7 @@ function leer(){
   v.persCat=gC('ch-pers')||'ninguna';
   if(v.persCat==='mini'){
     v.persAc=gC('ch-mini-ac')||'cinta';
+    v.persMotorMarca=gC('ch-mini-marca')||'somfy';
     v.persMando=(v.persAc==='motor')?(gC('ch-mini-mando')||'mando'):'mando';
     v.persMandoTipo=(v.persAc==='motor'&&v.persMando==='mando')?(gC('ch-mini-mandotipo')||'normal'):'normal';
     v.persCos=(v.persAc==='motor')?'cosida':(gC('ch-mini-cos')||'cosida');
@@ -3213,13 +3652,14 @@ function leer(){
     v.persPartidaMotores=parseInt(gC('ch-mini-partida-motores'))||2;
   } else if(v.persCat==='obra'){
     v.persAc=gC('ch-obra-ac')||'cinta';
+    v.persMotorMarca=gC('ch-obra-marca')||'somfy';
     v.persMando=(v.persAc==='motor')?(gC('ch-obra-mando')||'mando'):'mando';
     v.persMandoTipo=(v.persAc==='motor'&&v.persMando==='mando')?(gC('ch-obra-mandotipo')||'normal'):'normal';
     v.persCos=(v.persAc==='motor')?'cosida':(gC('ch-obra-cos')||'cosida');
     v.persAutoblock=(gC('ch-obra-autoblock')==='si');
     v.persPartida=(gC('ch-obra-partida')==='si');
     v.persPartidaMotores=parseInt(gC('ch-obra-partida-motores'))||2;
-  } else {v.persAc='cinta';v.persMando='mando';v.persMandoTipo='normal';v.persCos='cosida';v.persAutoblock=false;v.persPartida=false;v.persPartidaMotores=2;}
+  } else {v.persAc='cinta';v.persMotorMarca='somfy';v.persMando='mando';v.persMandoTipo='normal';v.persCos='cosida';v.persAutoblock=false;v.persPartida=false;v.persPartidaMotores=2;}
   v.forroAlto=gV('forro-alto');
   v.altMan=gV('alt-man');
   v.mosqTipo=gC('ch-mosq')||'sin';
@@ -3306,6 +3746,9 @@ function cargar(){
   // Tipo de mando (normal/multicanal)
   document.querySelectorAll('#ch-mini-mandotipo .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.persMandoTipo||'normal'));});
   document.querySelectorAll('#ch-obra-mandotipo .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.persMandoTipo||'normal'));});
+  // Marca del motor (Somfy por defecto)
+  document.querySelectorAll('#ch-mini-marca .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.persMotorMarca||'somfy'));});
+  document.querySelectorAll('#ch-obra-marca .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.persMotorMarca||'somfy'));});
   document.getElementById('sub-mini-mandotipo').style.display=(v.persAc==='motor'&&v.persMando==='mando'&&v.persCat==='mini')?'block':'none';
   document.getElementById('sub-obra-mandotipo').style.display=(v.persAc==='motor'&&v.persMando==='mando'&&v.persCat==='obra')?'block':'none';
   // Mini
@@ -3589,7 +4032,7 @@ function guardarTodo(){
 function sLocal(){
   try{
     localStorage.setItem('mareva2',JSON.stringify({
-      VS:VS,ESTS:ESTS,
+      VS:VS,ESTS:ESTS,TRS:TRS,
       ref:gV('cli-ref'),tel:gV('cli-tel'),dir:gV('cli-dir'),noc:gV('notas-cli')
     }));
     return true;
@@ -3615,6 +4058,7 @@ function lLocal(){
       EIDX=0;
       EST=ESTS[0];
     }
+    if(Array.isArray(d.TRS))TRS=d.TRS;
     if(d.ref||d.cli_ref)document.getElementById('cli-ref').value=d.ref||d.cli_ref||'';
     if(d.tel||d.cli_tel)document.getElementById('cli-tel').value=d.tel||d.cli_tel||'';
     if(d.dir||d.cli_dir)document.getElementById('cli-dir').value=d.dir||d.cli_dir||'';
@@ -3818,7 +4262,7 @@ function imprimirEtiquetaCEVentana(){
   setTimeout(function(){ window.print(); },80);
 }
 
-function nuevoPedido(){if(!confirm('¿Borrar todo el pedido y empezar de nuevo?'))return;localStorage.removeItem('mareva2');localStorage.removeItem('mareva');VS=[vN(1)];IDX=0;ESTS=[nuevaEstObj()];EIDX=0;EST=ESTS[0];RPT='fria';MP=[0,0,0,0];H3=0;H5=0;H7=0;sCr='4/16/4 Incoloro';sCrBase='aire';sCl='BLANCO';_prevTipoCat=null;EXP=null;proyActualId=null;['cli-ref','cli-tel','cli-dir','notas-cli'].forEach(function(id){document.getElementById(id).value='';});rTabs();cargar();sLocal();toast('🗑 Pedido borrado');}
+function nuevoPedido(){if(!confirm('¿Borrar todo el pedido y empezar de nuevo?'))return;localStorage.removeItem('mareva2');localStorage.removeItem('mareva');VS=[vN(1)];IDX=0;ESTS=[nuevaEstObj()];EIDX=0;EST=ESTS[0];RPT='fria';MP=[0,0,0,0];H3=0;H5=0;H7=0;sCr='4/16/4 Incoloro';sCrBase='aire';sCl='BLANCO';_prevTipoCat=null;EXP=null;proyActualId=null;TRS=[];['cli-ref','cli-tel','cli-dir','notas-cli'].forEach(function(id){document.getElementById(id).value='';});rTabs();cargar();sLocal();toast('🗑 Pedido borrado');}
 
 // ════════════════════════════════════════
 // TEXTOS
@@ -5162,7 +5606,8 @@ function construirDocPDF(){
   // Construye el documento del PDF y lo devuelve; lo usan verPDF (imprimir) y compartirPDF.
   var gs=VS.filter(function(v){return v.guardada;});
   var ges=ESTS.filter(function(e){return e.guardada;});
-  if(!gs.length&&!ges.length){toast('⚠️ Guarda al menos una ventana o estructura');return null;}
+  var hayTrs=TRS.some(trTieneContenido);
+  if(!gs.length&&!ges.length&&!hayTrs){toast('⚠️ Guarda al menos una ventana, estructura o trabajo');return null;}
   var ref=gV('cli-ref'),tel=gV('cli-tel'),dir=gV('cli-dir'),notas=gV('notas-cli');
   var fecha=new Date().toLocaleDateString('es-ES');
   var idxOrig=IDX;
@@ -5331,6 +5776,9 @@ function construirDocPDF(){
       console.error('Error generando página de estructura',ie+1,errEst);
     }
   });
+
+  // Trabajos sueltos (persiana sola, cristal solo, arreglos, notas)
+  if(hayTrs)pags+=trHtmlPaginas(ref,tel,dir,fecha);
 
   // Página de resumen de material — añadir ANTES de construir el html
   var matHTML = htmlMaterial();
@@ -5520,6 +5968,97 @@ function verPDF(){
     toast('❌ Error al generar PDF: '+err.message.slice(0,50));
     console.error('verPDF error:',err);
   }
+}
+
+
+// ════════════════════════════════════════════════════════════════════
+// TRABAJOS SUELTOS DEL PROYECTO — persiana sola, cristal solo, arreglos
+// (cambio de cinta, etc.) y notas, dentro del mismo proyecto que las
+// ventanas. Aditivo: no toca VS ni ESTS. Se guarda junto al pedido
+// (clave 'mareva2'), en cada proyecto guardado y en la copia de seguridad.
+// ════════════════════════════════════════════════════════════════════
+var TR_TIPOS={
+  persiana:{ico:'🪟',nom:'Solo persiana',med:true},
+  cristal:{ico:'🔲',nom:'Solo cristal',med:true},
+  arreglo:{ico:'🔧',nom:'Arreglo',med:false},
+  nota:{ico:'📝',nom:'Nota',med:false}
+};
+var TR_MAX_FOTOS=3;
+var _trTimer=null;
+function trNuevo(tipo){return {id:'tr'+Date.now()+Math.floor(Math.random()*1000),tipo:TR_TIPOS[tipo]?tipo:'nota',titulo:'',ancho:'',alto:'',notas:'',fotos:[]};}
+function trAnadir(tipo){TRS.push(trNuevo(tipo));sLocal();trRender();toast('➕ '+TR_TIPOS[tipo].nom+' añadido');}
+function trBorrar(i){if(!TRS[i])return;if(!confirm('¿Quitar este trabajo del proyecto?'))return;TRS.splice(i,1);sLocal();trRender();}
+function trCambio(i,campo,val){
+  if(!TRS[i])return;
+  TRS[i][campo]=val;
+  clearTimeout(_trTimer);
+  _trTimer=setTimeout(function(){_trTimer=null;sLocal();},500);
+}
+function trTipo(i,t){if(!TRS[i]||!TR_TIPOS[t])return;TRS[i].tipo=t;sLocal();trRender();}
+function trFoto(i,inp){
+  var f=inp.files&&inp.files[0],t=TRS[i];
+  if(!f||!t)return;
+  if((t.fotos||[]).length>=TR_MAX_FOTOS){toast('⚠️ Máximo '+TR_MAX_FOTOS+' fotos por trabajo');inp.value='';return;}
+  var id=t.id;
+  tlComprimir(f,function(jpg){
+    var tt=TRS.filter(function(x){return x.id===id;})[0];
+    if(!tt)return;
+    if(!jpg){toast('⚠️ No se pudo leer la foto');return;}
+    if(!Array.isArray(tt.fotos))tt.fotos=[];
+    if(tt.fotos.length>=TR_MAX_FOTOS)return;
+    tt.fotos.push(jpg);
+    sLocal();trRender();toast('📷 Foto añadida');
+  });
+  inp.value='';
+}
+function trDelFoto(i,k){if(!TRS[i]||!TRS[i].fotos)return;TRS[i].fotos.splice(k,1);sLocal();trRender();}
+function trTieneContenido(t){return !!(t&&(t.titulo||t.ancho||t.alto||t.notas||(t.fotos&&t.fotos.length)));}
+function trRender(){
+  var cont=document.getElementById('tr-lista');
+  if(!cont)return;
+  if(!TRS.length){cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Todavía no hay trabajos sueltos en este proyecto.</div></div>';return;}
+  cont.innerHTML=TRS.map(function(t,i){
+    var T=TR_TIPOS[t.tipo]||TR_TIPOS.nota;
+    var chips=Object.keys(TR_TIPOS).map(function(k){
+      return '<span class="chip sm'+(k===t.tipo?' on':'')+'" onclick="trTipo('+i+',\''+k+'\')">'+TR_TIPOS[k].ico+' '+TR_TIPOS[k].nom+'</span>';
+    }).join('');
+    var fotos=(t.fotos||[]).map(function(src,k){
+      return '<div style="position:relative;display:inline-block;margin:0 6px 6px 0"><img src="'+src+'" style="width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--brd)">'
+        +'<button onclick="trDelFoto('+i+','+k+')" style="position:absolute;top:-6px;right:-6px;background:#EF4444;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer">✕</button></div>';
+    }).join('');
+    var puedeFoto=(t.fotos||[]).length<TR_MAX_FOTOS;
+    return '<div class="card" style="margin-bottom:.7rem">'
+      +'<div class="card-head"><span class="bdg" style="background:#0891B2">'+(i+1)+'</span><span class="card-ttl">'+T.ico+' '+T.nom+'</span>'
+      +'<button onclick="trBorrar('+i+')" style="margin-left:auto;background:none;border:none;color:#F87171;font-size:13px;font-weight:700;cursor:pointer">🗑 Quitar</button></div>'
+      +'<div class="card-body">'
+      +'<div class="chips">'+chips+'</div>'
+      +'<div class="f"><label>Título corto</label><input type="text" value="'+escT(t.titulo)+'" placeholder="Ej: Cinta persiana salón" oninput="trCambio('+i+',\'titulo\',this.value)"></div>'
+      +(T.med?'<div class="row3" style="margin-top:.5rem"><div class="f"><label>Ancho (mm)</label><input type="number" inputmode="numeric" value="'+escT(t.ancho)+'" oninput="trCambio('+i+',\'ancho\',this.value)"></div>'
+        +'<div class="f"><label>Alto (mm)</label><input type="number" inputmode="numeric" value="'+escT(t.alto)+'" oninput="trCambio('+i+',\'alto\',this.value)"></div></div>':'')
+      +'<div class="f" style="margin-top:.5rem"><label>Notas</label><textarea rows="3" placeholder="Detalles del trabajo…" oninput="trCambio('+i+',\'notas\',this.value)">'+escT(t.notas)+'</textarea></div>'
+      +'<div style="margin-top:.5rem">'+fotos
+      +(puedeFoto?'<label class="btn drk" style="display:inline-block;cursor:pointer;margin:0">📷 Añadir foto<input type="file" accept="image/*" style="display:none" onchange="trFoto('+i+',this)"></label>':'')
+      +'</div>'
+      +'</div></div>';
+  }).join('');
+}
+// No perder lo último escrito si el móvil pausa o cierra la app
+document.addEventListener('visibilitychange',function(){if(document.hidden&&_trTimer){clearTimeout(_trTimer);_trTimer=null;sLocal();}});
+function trHtmlPaginas(ref,tel,dir,fecha){
+  var lista=TRS.filter(trTieneContenido),out='';
+  lista.forEach(function(t,i){
+    var T=TR_TIPOS[t.tipo]||TR_TIPOS.nota;
+    var fotos=(t.fotos||[]).map(function(src){return '<img src="'+src+'" style="max-width:62mm;max-height:62mm;object-fit:contain;border:0.5pt solid #cbd5e1">';}).join('');
+    out+='<div class="pagina">'
+      +'<div class="cab"><b class="m1">MAREVA</b><b class="m2"> ALUMINIOS</b><div class="csub">Ref: '+escT(ref||'-')+' | Tel: '+escT(tel||'-')+' | '+escT(dir||'-')+' | '+fecha+'</div></div>'
+      +'<div class="vtit">'+T.ico+' '+T.nom.toUpperCase()+' '+(i+1)+(t.titulo?' &mdash; '+escT(t.titulo):'')+'</div>'
+      +((T.med&&(t.ancho||t.alto))?'<div class="g3"><div class="cel"><div class="lbl">ALTO</div><div class="val">'+(t.alto?escT(t.alto)+' mm':'—')+'</div></div><div class="cel"><div class="lbl">ANCHO</div><div class="val">'+(t.ancho?escT(t.ancho)+' mm':'—')+'</div></div></div>':'')
+      +(t.notas?'<div class="bam" style="white-space:pre-wrap"><b>NOTAS:</b> '+escT(t.notas)+'</div>':'')
+      +(fotos?'<div style="display:flex;flex-wrap:wrap;gap:2mm;margin-top:1mm">'+fotos+'</div>':'')
+      +'<div class="pie">Trabajo '+(i+1)+'/'+lista.length+' | Ref: '+escT(ref||'-')+' | '+fecha+'</div>'
+      +'</div>';
+  });
+  return out;
 }
 
 // ════════════════════════════════════════
@@ -5901,7 +6440,7 @@ function exportarCopia(){
     fecha:new Date().toISOString(),
     proyectos:getProyectos(),
     hojasTaller:getTaller(),
-    pedidoActual:{vs:VS, ests:ESTS, ref:gV('cli-ref'), tel:gV('cli-tel'), dir:gV('cli-dir')}
+    pedidoActual:{vs:VS, ests:ESTS, trs:TRS, ref:gV('cli-ref'), tel:gV('cli-tel'), dir:gV('cli-dir')}
   };
   var blob=new Blob([JSON.stringify(datos)],{type:'application/json'});
   var a=document.createElement('a');
@@ -5938,6 +6477,7 @@ function importarCopia(){
           if(confirm('La copia incluye un pedido EN CURSO ('+d.pedidoActual.vs.length+' ventanas).\n\n¿Reemplazar el pedido actual por el de la copia? (lo que tengas ahora sin guardar como proyecto se perdería)')){
             VS=d.pedidoActual.vs;
             ESTS=d.pedidoActual.ests||[];
+            TRS=Array.isArray(d.pedidoActual.trs)?d.pedidoActual.trs:[];
             IDX=0;
             var eR=document.getElementById('cli-ref');if(eR)eR.value=d.pedidoActual.ref||'';
             var eT=document.getElementById('cli-tel');if(eT)eT.value=d.pedidoActual.tel||'';
@@ -5947,6 +6487,7 @@ function importarCopia(){
           }
         }
         renderProyectos();renderRes();
+        try{tlRenderLista();}catch(e2){}
         alert('Copia importada:\n· '+nuevos+' proyecto(s) nuevos añadidos'+(Array.isArray(d.hojasTaller)?'\n· '+nuevasHojas+' hoja(s) de taller añadidas':'')+pedidoTxt);
       }catch(e){alert('No se pudo leer la copia: '+e.message);}
     };
@@ -5998,6 +6539,7 @@ function guardarProyecto() {
   var snap = {
     ventanas: JSON.parse(JSON.stringify(VS)),
     estructuras: JSON.parse(JSON.stringify(ESTS)),
+    trabajos: JSON.parse(JSON.stringify(TRS)),
     ref: gV('cli-ref'),
     tel: gV('cli-tel'),
     dir: dir,
@@ -6065,6 +6607,7 @@ function abrirProyecto(id) {
     ESTS=[nuevaEstObj()];
   }
   EIDX=0;EST=ESTS[0];
+  TRS = Array.isArray(s.trabajos) ? s.trabajos : [];
   document.getElementById('cli-ref').value = s.ref || '';
   document.getElementById('cli-tel').value = s.tel || '';
   document.getElementById('cli-dir').value = s.dir || '';
@@ -7231,6 +7774,7 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
     <div style="font-size:28px;font-weight:900;color:#fff;letter-spacing:.5px">MAREVA <span style="color:#F5A623">ALUMINIOS</span></div>
     <div style="color:#64748B;font-size:13px;margin-top:6px">¿Qué quieres hacer?</div>
   </div>
+<div id="inicio-main" style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%">
   <button onclick="elegirModo('medidor')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid #334155;border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
     <span style="font-size:34px">📐</span>
     <span>
@@ -7238,6 +7782,44 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
       <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Medir, croquis, estructuras, despieces y PDF de taller</span>
     </span>
   </button>
+  <button onclick="abrirMenuPrecios()" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(245,166,35,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
+    <span style="font-size:34px">💶</span>
+    <span>
+      <span style="display:block;color:#F5A623;font-weight:800;font-size:17px">Precios y presupuestos</span>
+      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Persianas, mosquiteras, cristales, techos, IronLux y presupuesto de ventana</span>
+    </span>
+  </button>
+  <button onclick="elegirModo('taller')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(34,211,238,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
+    <span style="font-size:34px">🔧</span>
+    <span>
+      <span style="display:block;color:#22D3EE;font-weight:800;font-size:17px">Hoja de taller</span>
+      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Cambiar un cristal, poner una chapa, arreglos — con datos del cliente y fotos</span>
+    </span>
+  </button>
+  <button onclick="elegirModo('historial')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid #334155;border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
+    <span style="font-size:34px">📋</span>
+    <span>
+      <span style="display:block;color:#CBD5E1;font-weight:800;font-size:17px">Historial de consultas</span>
+      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Persianas sueltas y techos que has guardado</span>
+    </span>
+  </button>
+  <div style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(14,165,233,.5);border-radius:16px;padding:16px 18px;box-sizing:border-box">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <span style="font-size:30px">💾</span>
+      <span>
+        <span style="display:block;color:#38BDF8;font-weight:800;font-size:17px">Copia de seguridad</span>
+        <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Proyectos, pedido en curso y hojas de taller, todo junto</span>
+      </span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="exportarCopia()" style="flex:1;background:#0EA5E9;color:#fff;border:none;border-radius:10px;padding:11px 8px;font-weight:700;font-size:13px;cursor:pointer">📤 Exportar todo</button>
+      <button onclick="importarCopia()" style="flex:1;background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:10px;padding:11px 8px;font-weight:700;font-size:13px;cursor:pointer">📥 Importar todo</button>
+    </div>
+  </div>
+</div>
+<div id="inicio-precios" style="flex-direction:column;align-items:center;gap:16px;width:100%;display:none">
+  <button onclick="cerrarMenuPrecios()" style="width:100%;max-width:420px;background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:12px;padding:12px 14px;font-weight:700;font-size:14px;cursor:pointer;text-align:left">← Volver</button>
+  <div style="color:#F5A623;font-weight:800;font-size:18px">💶 Precios y presupuestos</div>
   <button onclick="elegirModo('presupers')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(167,139,250,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
     <span style="font-size:34px">🪟</span>
     <span>
@@ -7266,6 +7848,13 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
       <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Tarifa Persitec 2026 — lamas 100/200/300mm (nuevo)</span>
     </span>
   </button>
+  <button onclick="elegirModo('ironlux')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(245,158,11,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
+    <span style="font-size:34px">🏭</span>
+    <span>
+      <span style="display:block;color:#F59E0B;font-weight:800;font-size:17px">Cerramientos IronLux</span>
+      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Lucernarios, panel sándwich (SW), cubierta estándar y remates — tarifa 2026 (nuevo)</span>
+    </span>
+  </button>
   <button onclick="elegirModo('precio')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(52,211,153,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
     <span style="font-size:34px">💰</span>
     <span>
@@ -7273,20 +7862,7 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
       <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Carga un proyecto guardado y mira su precio</span>
     </span>
   </button>
-  <button onclick="elegirModo('taller')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(34,211,238,.5);border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
-    <span style="font-size:34px">🔧</span>
-    <span>
-      <span style="display:block;color:#22D3EE;font-weight:800;font-size:17px">Hoja de taller</span>
-      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Cambiar un cristal, poner una chapa, arreglos — con datos del cliente y fotos</span>
-    </span>
-  </button>
-  <button onclick="elegirModo('historial')" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid #334155;border-radius:16px;padding:20px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:16px">
-    <span style="font-size:34px">📋</span>
-    <span>
-      <span style="display:block;color:#CBD5E1;font-weight:800;font-size:17px">Historial de consultas</span>
-      <span style="display:block;color:#64748B;font-size:12.5px;margin-top:3px">Persianas sueltas y techos que has guardado</span>
-    </span>
-  </button>
+</div>
 </div>
 
 <!-- ══════ MODO PRESUPUESTOS ══════ -->
@@ -7339,11 +7915,17 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
     <div class="card" style="margin-top:.7rem">
       <div class="card-head"><span class="bdg" style="background:#7C3AED">🪟</span><span class="card-ttl">Tipo de persiana</span></div>
       <div class="card-body">
-        <div class="sub-ttl">Categoría</div>
+        <div class="sub-ttl">¿Qué necesitas?</div>
+        <div class="chips" id="pp-ch-modo">
+          <span class="chip sm on" data-v="completa" onclick="selPPModo('completa')">Persiana completa</span>
+          <span class="chip sm" data-v="motor" onclick="selPPModo('motor')">Solo el motor</span>
+        </div>
+        <div class="sub-ttl" style="margin-top:.5rem">Categoría</div>
         <div class="chips" id="pp-ch-cat">
           <span class="chip sm on" data-v="mini" onclick="selPPCat('mini')">Mini (cajón)</span>
           <span class="chip sm" data-v="obra" onclick="selPPCat('obra')">De obra</span>
         </div>
+        <div id="pp-bloque-material">
         <div class="sub-ttl" style="margin-top:.5rem">Lama</div>
         <div class="chips" id="pp-ch-autoblock">
           <span class="chip sm on" data-v="no" onclick="selPPChip('autoblock','no')">Normal (40C/55C automático)</span>
@@ -7366,8 +7948,14 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
           <span class="chip sm on" data-v="cinta" onclick="selPPAc('cinta')">Cinta</span>
           <span class="chip sm" data-v="motor" onclick="selPPAc('motor')">Motor</span>
         </div>
+        </div>
         <div id="pp-sub-mando" style="display:none;margin-top:.5rem">
-          <div class="sub-ttl">Mando</div>
+          <div class="sub-ttl">Marca del motor</div>
+          <div class="chips" id="pp-ch-marca">
+            <span class="chip sm on" data-v="somfy" onclick="selPPMotorMarca('somfy')">Somfy</span>
+            <span class="chip sm" data-v="cherubini" onclick="selPPMotorMarca('cherubini')">Cherubini</span>
+          </div>
+          <div class="sub-ttl" style="margin-top:.4rem">Mando</div>
           <div class="chips" id="pp-ch-mando">
             <span class="chip sm on" data-v="mando" onclick="selPPMando('mando')">Mando a distancia</span>
             <span class="chip sm" data-v="pulsador" onclick="selPPMando('pulsador')">Pulsador</span>
@@ -7438,6 +8026,48 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
   </div>
 </div>
 
+<!-- ══════ CERRAMIENTOS IRONLUX (lucernarios, panel sándwich SW, cubierta estándar) ══════ -->
+<div id="ironlux-wrap" style="display:none;position:fixed;inset:0;z-index:9999;background:#0F172A;flex-direction:column;overflow:hidden">
+  <div style="background:#1E293B;border-bottom:0.5px solid #334155;color:#E2E8F0;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap">
+    <button onclick="irInicio()" style="background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer">🏠 Inicio</button>
+    <b style="color:#F59E0B;font-size:14px">🏭 Cerramientos IronLux</b>
+    <button onclick="abrirHistorial()" title="Historial" style="background:#0F172A;color:#CBD5E1;border:0.5px solid #334155;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer">📋</button>
+    <button onclick="abrirAjustes()" title="Ajustes" style="margin-left:auto;background:#0F172A;color:#CBD5E1;border:0.5px solid #334155;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer">⚙️</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px">
+    <div class="card">
+      <div class="card-head"><span class="bdg" style="background:#F59E0B">🏭</span><span class="card-ttl">Panel o lucernario</span></div>
+      <div class="card-body">
+        <label>Tipo de producto</label>
+        <div class="chips" id="il-ch-producto">
+          <span class="chip sm on" data-v="celular" onclick="selILProducto('celular')">Lucernario celular</span>
+          <span class="chip sm" data-v="perfilado" onclick="selILProducto('perfilado')">Lucernario perfilado</span>
+          <span class="chip sm" data-v="curvo" onclick="selILProducto('curvo')">Lucernario curvo</span>
+          <span class="chip sm" data-v="panelSandwich" onclick="selILProducto('panelSandwich')">Panel sándwich (SW)</span>
+          <span class="chip sm" data-v="cubiertaEstandar" onclick="selILProducto('cubiertaEstandar')">Cubierta estándar (aluminio)</span>
+        </div>
+        <div id="il-opciones" style="margin-top:.3rem"></div>
+        <div class="row3" style="margin-top:.6rem">
+          <div class="f"><label>Ancho (mm)</label><input id="il-ancho" type="number" inputmode="numeric" placeholder="3000" oninput="calcIronlux()"></div>
+          <div class="f"><label>Alto/largo (mm)</label><input id="il-alto" type="number" inputmode="numeric" placeholder="2000" oninput="calcIronlux()"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:.7rem">
+      <div class="card-head"><span class="bdg" style="background:#F59E0B">🔩</span><span class="card-ttl">Remates y accesorios</span></div>
+      <div class="card-body">
+        <select id="il-sel-remate" style="width:100%;background:#0F172A;color:#E2E8F0;border:1px solid var(--brd);border-radius:8px;padding:8px;font-size:12.5px"></select>
+        <div class="row3" style="margin-top:.5rem">
+          <div class="f"><label>Cantidad</label><input id="il-remate-cant" type="number" inputmode="numeric" value="1" min="1"></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn drk" style="width:100%" onclick="ilAgregarRemate()">+ Añadir</button></div>
+        </div>
+        <div id="il-lista-remates" style="margin-top:.4rem"></div>
+      </div>
+    </div>
+    <div id="il-resultado" style="margin-top:.7rem"></div>
+  </div>
+</div>
+
 <!-- ══════ HISTORIAL DE CONSULTAS GUARDADAS ══════ -->
 <div id="hist-wrap" style="display:none;position:fixed;inset:0;z-index:9999;background:#0F172A;flex-direction:column;overflow:hidden">
   <div style="background:#1E293B;border-bottom:0.5px solid #334155;color:#E2E8F0;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -7446,6 +8076,7 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
   </div>
   <div style="flex:1;overflow-y:auto;padding:12px" id="hist-body"></div>
 </div>
+
 
 <!-- ══════ HOJA DE TALLER (cambiar un cristal, poner una chapa, arreglos) ══════ -->
 <div id="taller-wrap" style="display:none;position:fixed;inset:0;z-index:9999;background:#0F172A;flex-direction:column;overflow:hidden">
@@ -7561,12 +8192,15 @@ function elegirModo(m){
   if(m==='presu')abrirPresupuestos();
   if(m==='cris')abrirCristales();
   if(m==='techos')abrirRapidos();
+  if(m==='ironlux')abrirIronlux();
   if(m==='historial')abrirHistorial();
   if(m==='taller')abrirTaller();
   if(m==='precio')abrirPrecioVentanas();
   if(m==='presupers')abrirPresupers();
   if(m==='ajustes')abrirAjustes();
 }
+function abrirMenuPrecios(){document.getElementById('inicio-main').style.display='none';document.getElementById('inicio-precios').style.display='flex';document.getElementById('inicio-wrap').scrollTop=0;}
+function cerrarMenuPrecios(){document.getElementById('inicio-precios').style.display='none';document.getElementById('inicio-main').style.display='flex';}
 function irInicio(){
   cerrarPresupuestos();
   cerrarCristales();
@@ -7574,8 +8208,10 @@ function irInicio(){
   cerrarPresupers();
   cerrarAjustes();
   cerrarRapidos();
+  cerrarIronlux();
   cerrarHistorial();
   cerrarTaller();
+  cerrarMenuPrecios();
   document.getElementById('inicio-wrap').style.display='flex';
 }
 var CRIS_B64='PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVzIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCxpbml0aWFsLXNjYWxlPTEiPgo8dGl0bGU+TWFyZXZhIOKAlCBQcmVjaW9zIGNyaXN0YWxlczwvdGl0bGU+CjxzdHlsZT4KOnJvb3R7LS1iZzojMEYxNzJBOy0tYmcyOiMxRTI5M0I7LS1iZzM6IzBBMEYxRTstLWJyZDojMzM0MTU1Oy0tdHh0OiNFMkU4RjA7LS10eHQyOiM5NEEzQjg7LS10eHQzOiM2NDc0OEI7LS1ibHU6IzFENEVEODstLW9yYTojRjVBNjIzfQoqe2JveC1zaXppbmc6Ym9yZGVyLWJveDttYXJnaW46MDtwYWRkaW5nOjA7Zm9udC1mYW1pbHk6LWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsJ1NlZ29lIFVJJyxBcmlhbCxzYW5zLXNlcmlmfQpib2R5e2JhY2tncm91bmQ6dmFyKC0tYmcpO2NvbG9yOnZhcigtLXR4dCk7cGFkZGluZzoxMnB4O21heC13aWR0aDo2NDBweDttYXJnaW46MCBhdXRvfQouY2FyZHtiYWNrZ3JvdW5kOnZhcigtLWJnMik7Ym9yZGVyOjAuNXB4IHNvbGlkIHZhcigtLWJyZCk7Ym9yZGVyLXJhZGl1czoxMnB4O3BhZGRpbmc6MTRweDttYXJnaW4tYm90dG9tOjEycHh9Ci50dGx7Zm9udC1zaXplOjEzcHg7Zm9udC13ZWlnaHQ6NTAwO2NvbG9yOiNDQkQ1RTE7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlO2xldHRlci1zcGFjaW5nOi40cHg7bWFyZ2luLWJvdHRvbTo5cHh9Ci5jaGlwc3tkaXNwbGF5OmZsZXg7Z2FwOjZweDtmbGV4LXdyYXA6d3JhcDttYXJnaW4tYm90dG9tOjEwcHh9Ci5jaGlwe3BhZGRpbmc6OHB4IDE0cHg7Ym9yZGVyLXJhZGl1czoyMnB4O2JvcmRlcjowLjVweCBzb2xpZCB2YXIoLS1icmQpO2JhY2tncm91bmQ6dmFyKC0tYmcyKTtmb250LXNpemU6MTJweDtmb250LXdlaWdodDo1MDA7Y29sb3I6dmFyKC0tdHh0Mik7Y3Vyc29yOnBvaW50ZXI7dXNlci1zZWxlY3Q6bm9uZX0KLmNoaXAub257YmFja2dyb3VuZDp2YXIoLS1ibHUpO2JvcmRlci1jb2xvcjp2YXIoLS1ibHUpO2NvbG9yOiNmZmZ9CmxhYmVse2Rpc3BsYXk6YmxvY2s7Zm9udC1zaXplOjEycHg7Zm9udC13ZWlnaHQ6NzAwO2NvbG9yOnZhcigtLXR4dDMpO3RleHQtdHJhbnNmb3JtOnVwcGVyY2FzZTtsZXR0ZXItc3BhY2luZzouMDVlbTttYXJnaW46OHB4IDAgM3B4fQpzZWxlY3QsaW5wdXR7d2lkdGg6MTAwJTtwYWRkaW5nOjExcHggMTNweDtib3JkZXI6MC41cHggc29saWQgdmFyKC0tYnJkKTtib3JkZXItcmFkaXVzOjhweDtmb250LXNpemU6MTVweDtiYWNrZ3JvdW5kOnZhcigtLWJnMyk7Y29sb3I6dmFyKC0tdHh0KX0KLnIye2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmcjtnYXA6MTBweH0KLnIze2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmciAxZnI7Z2FwOjEwcHh9Ci5wcmVjaW8tYm94e2JhY2tncm91bmQ6cmdiYSgyNDUsMTY2LDM1LC4wOCk7Ym9yZGVyOjFweCBzb2xpZCByZ2JhKDI0NSwxNjYsMzUsLjQpO2JvcmRlci1yYWRpdXM6MTJweDtwYWRkaW5nOjEycHg7bWFyZ2luLXRvcDoxMnB4fQoucHJlY2lvLWd7Zm9udC1zaXplOjI2cHg7Zm9udC13ZWlnaHQ6OTAwO2NvbG9yOnZhcigtLW9yYSl9Ci5wcmVjaW8tZHtmb250LXNpemU6MTJweDtjb2xvcjp2YXIoLS10eHQyKTttYXJnaW4tdG9wOjRweDtsaW5lLWhlaWdodDoxLjV9Ci5wcmVjaW8tZCBie2NvbG9yOnZhcigtLXR4dCl9Ci5idG57d2lkdGg6MTAwJTtwYWRkaW5nOjEzcHg7Ym9yZGVyOjAuNXB4IHNvbGlkIHZhcigtLWJyZCk7Ym9yZGVyLXJhZGl1czo4cHg7Zm9udC1zaXplOjE0cHg7Zm9udC13ZWlnaHQ6NjAwO2N1cnNvcjpwb2ludGVyO21hcmdpbi10b3A6MTBweDtiYWNrZ3JvdW5kOnZhcigtLWJnMik7Y29sb3I6dmFyKC0tdHh0Mil9Ci5idG4tYWRke2JhY2tncm91bmQ6dmFyKC0tYmx1KTtib3JkZXItY29sb3I6dmFyKC0tYmx1KTtjb2xvcjojZmZmfQoubGluZWF7ZGlzcGxheTpmbGV4O2p1c3RpZnktY29udGVudDpzcGFjZS1iZXR3ZWVuO2FsaWduLWl0ZW1zOmNlbnRlcjtnYXA6OHB4O3BhZGRpbmc6OXB4IDA7Ym9yZGVyLWJvdHRvbTowLjVweCBzb2xpZCB2YXIoLS1icmQpO2ZvbnQtc2l6ZToxM3B4O2NvbG9yOnZhcigtLXR4dDIpfQoubGluZWEgYntjb2xvcjp2YXIoLS10eHQpfQoubGluZWEgLnh7Y29sb3I6I0Y4NzE3MTtmb250LXdlaWdodDo5MDA7Y3Vyc29yOnBvaW50ZXI7cGFkZGluZzo0cHggOHB4fQoudG90e2Rpc3BsYXk6ZmxleDtqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2Vlbjtmb250LXNpemU6MTdweDtmb250LXdlaWdodDo5MDA7Y29sb3I6dmFyKC0tb3JhKTtwYWRkaW5nLXRvcDoxMHB4fQoubm90YXtmb250LXNpemU6MTAuNXB4O2NvbG9yOnZhcigtLXR4dDMpO3RleHQtYWxpZ246Y2VudGVyO21hcmdpbjoxMHB4IDAgMjRweH0KLmNoa3tkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDo4cHg7bWFyZ2luLXRvcDo4cHg7Zm9udC1zaXplOjEzLjVweDtmb250LXdlaWdodDo2MDA7Y29sb3I6dmFyKC0tdHh0Mil9Ci5jaGsgaW5wdXR7d2lkdGg6YXV0bzt0cmFuc2Zvcm06c2NhbGUoMS4zKX0KLmF2aXNve2JhY2tncm91bmQ6cmdiYSgyNDUsMTY2LDM1LC4xKTtib3JkZXI6MXB4IHNvbGlkIHJnYmEoMjQ1LDE2NiwzNSwuNCk7Y29sb3I6dmFyKC0tb3JhKTtib3JkZXItcmFkaXVzOjlweDtwYWRkaW5nOjhweCAxMHB4O2ZvbnQtc2l6ZToxMnB4O21hcmdpbi10b3A6OHB4O2Rpc3BsYXk6bm9uZX0KCgo6cm9vdHtjb2xvci1zY2hlbWU6ZGFya30KaW5wdXQ6OnBsYWNlaG9sZGVye2NvbG9yOiM2NDc0OEJ9CnNlbGVjdCBvcHRpb24sc2VsZWN0IG9wdGdyb3Vwe2JhY2tncm91bmQ6IzFFMjkzQjtjb2xvcjojRTJFOEYwfQoKCkBtZWRpYSAobWF4LXdpZHRoOjM4MHB4KXsKICAucjN7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmciAxZnIgMWZyO2dhcDo2cHh9CiAgLnIzIGxhYmVse2ZvbnQtc2l6ZToxMHB4fQogIC5wcmVjaW8tZ3tmb250LXNpemU6MjJweH0KfQoKI3ByaW50LXNoZWV0e2Rpc3BsYXk6bm9uZX0KQG1lZGlhIHByaW50ewogIGJvZHkgKnt2aXNpYmlsaXR5OmhpZGRlbn0KICAjcHJpbnQtc2hlZXQsI3ByaW50LXNoZWV0ICp7dmlzaWJpbGl0eTp2aXNpYmxlfQogICNwcmludC1zaGVldHtkaXNwbGF5OmJsb2NrIWltcG9ydGFudDtwb3NpdGlvbjphYnNvbHV0ZTtsZWZ0OjA7dG9wOjA7d2lkdGg6MTAwJTtwYWRkaW5nOjA7bWFyZ2luOjA7YmFja2dyb3VuZDojZmZmO2NvbG9yOiMxMTF9CiAgQHBhZ2V7bWFyZ2luOjE0bW0gMTJtbX0KfQoucHMtaGVhZHtkaXNwbGF5OmZsZXg7anVzdGlmeS1jb250ZW50OnNwYWNlLWJldHdlZW47YWxpZ24taXRlbXM6ZmxleC1zdGFydDtib3JkZXItYm90dG9tOjJweCBzb2xpZCAjMWExYTFhO3BhZGRpbmctYm90dG9tOjEwcHg7bWFyZ2luLWJvdHRvbToxNHB4fQoucHMtYnJhbmR7Zm9udC1zaXplOjE5cHg7Zm9udC13ZWlnaHQ6OTAwO2NvbG9yOiMxMTF9Ci5wcy1icmFuZCBzcGFue2NvbG9yOiMxRDRFRDh9Ci5wcy1zdWJ7Zm9udC1zaXplOjExcHg7Y29sb3I6IzU1NTttYXJnaW4tdG9wOjJweH0KLnBzLWRhdG9ze3RleHQtYWxpZ246cmlnaHQ7Zm9udC1zaXplOjEycHg7Y29sb3I6IzMzM30KLnBzLXRhYmxle3dpZHRoOjEwMCU7Ym9yZGVyLWNvbGxhcHNlOmNvbGxhcHNlO2ZvbnQtc2l6ZToxMS41cHg7bWFyZ2luLWJvdHRvbToxNHB4fQoucHMtdGFibGUgdGh7YmFja2dyb3VuZDojMWExYTFhO2NvbG9yOiNmZmY7cGFkZGluZzo2cHggOHB4O3RleHQtYWxpZ246bGVmdDtmb250LXdlaWdodDo3MDB9Ci5wcy10YWJsZSB0ZHtwYWRkaW5nOjZweCA4cHg7Ym9yZGVyLWJvdHRvbToxcHggc29saWQgI2RkZDtjb2xvcjojMTExfQoucHMtdGFibGUgdGQuciwucHMtdGFibGUgdGgucnt0ZXh0LWFsaWduOnJpZ2h0fQoucHMtdGFibGUgdHI6bnRoLWNoaWxkKGV2ZW4pIHRke2JhY2tncm91bmQ6I2Y3ZjdmN30KLnBzLXRvdHt3aWR0aDoyNjBweDttYXJnaW4tbGVmdDphdXRvO2ZvbnQtc2l6ZToxMi41cHh9Ci5wcy10b3QgZGl2e2Rpc3BsYXk6ZmxleDtqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2VlbjtwYWRkaW5nOjRweCAwO2NvbG9yOiMzMzN9Ci5wcy10b3QgLmZpbntib3JkZXItdG9wOjJweCBzb2xpZCAjMWExYTFhO21hcmdpbi10b3A6NXB4O3BhZGRpbmctdG9wOjhweDtmb250LXNpemU6MTZweDtmb250LXdlaWdodDo5MDA7Y29sb3I6IzExMX0KLnBzLWludHttYXJnaW4tdG9wOjE2cHg7Ym9yZGVyOjEuNXB4IGRhc2hlZCAjMUQ0RUQ4O2JvcmRlci1yYWRpdXM6OHB4O3BhZGRpbmc6MTBweCAxMnB4O2JhY2tncm91bmQ6I0VGRjZGRn0KLnBzLWludC10dGx7Zm9udC1zaXplOjExcHg7Zm9udC13ZWlnaHQ6OTAwO2NvbG9yOiMxRDRFRDg7bWFyZ2luLWJvdHRvbTo2cHg7dGV4dC10cmFuc2Zvcm06dXBwZXJjYXNlfQoucHMtZm9vdHttYXJnaW4tdG9wOjIycHg7Zm9udC1zaXplOjEwcHg7Y29sb3I6Izg4ODt0ZXh0LWFsaWduOmNlbnRlcn0KLnBzLXRvZ2dsZXtkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDo3cHg7Zm9udC1zaXplOjEyLjVweDtjb2xvcjp2YXIoLS10eHQyKTttYXJnaW46NnB4IDAgMH0KLnBzLXRvZ2dsZSBpbnB1dHt3aWR0aDphdXRvfQo8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgoKPGRpdiBjbGFzcz0iY2FyZCI+CiAgPGRpdiBjbGFzcz0idHRsIj7wn5SyIENhbGN1bGFyIGNyaXN0YWw8L2Rpdj4KICA8ZGl2IGNsYXNzPSJjaGlwcyIgaWQ9Im1vZG8iPgogICAgPHNwYW4gY2xhc3M9ImNoaXAgb24iIGRhdGEtbT0iY2FtYXJhIiBvbmNsaWNrPSJzZXRNb2RvKHRoaXMpIj5Dw6FtYXJhIChkb2JsZSk8L3NwYW4+CiAgICA8c3BhbiBjbGFzcz0iY2hpcCIgZGF0YS1tPSJzdWVsdG8iIG9uY2xpY2s9InNldE1vZG8odGhpcykiPlZpZHJpbyBzdWVsdG88L3NwYW4+CiAgPC9kaXY+CgogIDxkaXYgaWQ9InAtY2FtYXJhIj4KICAgIDxsYWJlbD5CYXNlIGRlbCBkb2JsZSBhY3Jpc3RhbGFtaWVudG88L2xhYmVsPgogICAgPHNlbGVjdCBpZD0iYmFzZSI+PC9zZWxlY3Q+CiAgICA8bGFiZWw+THVuYSBleHRlcmlvcjwvbGFiZWw+CiAgICA8c2VsZWN0IGlkPSJsdW5hMSI+PC9zZWxlY3Q+CiAgICA8bGFiZWw+THVuYSBpbnRlcmlvcjwvbGFiZWw+CiAgICA8c2VsZWN0IGlkPSJsdW5hMiI+PC9zZWxlY3Q+CiAgPC9kaXY+CgogIDxkaXYgaWQ9InAtc3VlbHRvIiBzdHlsZT0iZGlzcGxheTpub25lIj4KICAgIDxsYWJlbD5WaWRyaW88L2xhYmVsPgogICAgPHNlbGVjdCBpZD0idnN1ZWx0byI+PC9zZWxlY3Q+CiAgICA8ZGl2IGNsYXNzPSJjaGsiPjxpbnB1dCB0eXBlPSJjaGVja2JveCIgaWQ9InRlbXBsYWRvIiBvbmNoYW5nZT0iY2FsYygpIj48c3Bhbj5UZW1wbGFkbzwvc3Bhbj48L2Rpdj4KICA8L2Rpdj4KCiAgPGRpdiBjbGFzcz0icjMiPgogICAgPGRpdj48bGFiZWw+QW5jaG8gKG1tKTwvbGFiZWw+PGlucHV0IGlkPSJhbmNobyIgdHlwZT0ibnVtYmVyIiBpbnB1dG1vZGU9Im51bWVyaWMiIHBsYWNlaG9sZGVyPSIxMDAwIiBvbmlucHV0PSJjYWxjKCkiPjwvZGl2PgogICAgPGRpdj48bGFiZWw+QWx0byAobW0pPC9sYWJlbD48aW5wdXQgaWQ9ImFsdG8iIHR5cGU9Im51bWJlciIgaW5wdXRtb2RlPSJudW1lcmljIiBwbGFjZWhvbGRlcj0iMTIwMCIgb25pbnB1dD0iY2FsYygpIj48L2Rpdj4KICAgIDxkaXY+PGxhYmVsPlVuaWRhZGVzPC9sYWJlbD48aW5wdXQgaWQ9InVkcyIgdHlwZT0ibnVtYmVyIiBpbnB1dG1vZGU9Im51bWVyaWMiIHZhbHVlPSIxIiBtaW49IjEiIG9uaW5wdXQ9ImNhbGMoKSI+PC9kaXY+CiAgPC9kaXY+CgogIDxsYWJlbCBzdHlsZT0ibWFyZ2luLXRvcDoxMHB4Ij5NdWx0aXBsaWNhZG9yIGRlbCB2aWRyaW8gKG1hcmdlbiBwb3Igcm90dXJhKTwvbGFiZWw+CiAgPGRpdiBjbGFzcz0iY2hpcHMiIGlkPSJtdWx0IiBzdHlsZT0ibWFyZ2luLWJvdHRvbTo0cHgiPgogICAgPHNwYW4gY2xhc3M9ImNoaXAiIGRhdGEteD0iMSIgb25jbGljaz0ic2V0TXVsdCh0aGlzKSI+w5cxIChjb3N0ZSk8L3NwYW4+CiAgICA8c3BhbiBjbGFzcz0iY2hpcCBvbiIgZGF0YS14PSIyIiBvbmNsaWNrPSJzZXRNdWx0KHRoaXMpIj7DlzIgKG5vcm1hbCk8L3NwYW4+CiAgICA8c3BhbiBjbGFzcz0iY2hpcCIgZGF0YS14PSIzIiBvbmNsaWNrPSJzZXRNdWx0KHRoaXMpIj7DlzM8L3NwYW4+CiAgPC9kaXY+CgogIDxkaXYgY2xhc3M9InIyIj4KICAgIDxkaXY+PGxhYmVsPkhvcmFzIGRlIG1vbnRhamUgKGzDrW5lYSk8L2xhYmVsPjxpbnB1dCBpZD0iaG9yYXMiIHR5cGU9Im51bWJlciIgaW5wdXRtb2RlPSJkZWNpbWFsIiBzdGVwPSIwLjUiIG1pbj0iMCIgdmFsdWU9IjAiIG9uaW5wdXQ9ImNhbGMoKSI+PC9kaXY+CiAgICA8ZGl2PjxsYWJlbD5QcmVjaW8gaG9yYSAo4oKsL2gpPC9sYWJlbD48aW5wdXQgaWQ9InBoIiB0eXBlPSJudW1iZXIiIGlucHV0bW9kZT0ibnVtZXJpYyIgbWluPSIwIiBwbGFjZWhvbGRlcj0iRWo6IDQ1IiBvbmlucHV0PSJzZXRQSCh0aGlzLnZhbHVlKSI+PC9kaXY+CiAgPC9kaXY+CgogIDxkaXYgY2xhc3M9ImF2aXNvIiBpZD0iYXZpc28tbWluIj5TZSBhcGxpY2EgZWwgbcOtbmltbyBkZSBmYWN0dXJhY2nDs24gZGUgMCw1MCBtwrIgcG9yIHBpZXphLjwvZGl2PgoKICA8ZGl2IGNsYXNzPSJwcmVjaW8tYm94Ij4KICAgIDxkaXYgY2xhc3M9InByZWNpby1nIiBpZD0icC10b3RhbCI+4oCUPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJwcmVjaW8tZCIgaWQ9InAtZGV0YWxsZSI+RWxpZ2UgY29tcG9zaWNpw7NuIHkgbWVkaWRhczwvZGl2PgogIDwvZGl2PgogIDxidXR0b24gY2xhc3M9ImJ0biBidG4tYWRkIiBvbmNsaWNrPSJhZGRMaW5lYSgpIj7inpUgQcOxYWRpciBhbCBwcmVzdXB1ZXN0bzwvYnV0dG9uPgo8L2Rpdj4KCjxkaXYgY2xhc3M9ImNhcmQiPgogIDxkaXYgY2xhc3M9InR0bCI+8J+TiyBQcmVzdXB1ZXN0bzwvZGl2PgogIDxkaXYgaWQ9ImxpbmVhcyI+PC9kaXY+CiAgPGRpdiBjbGFzcz0idG90Ij48c3Bhbj5UT1RBTDwvc3Bhbj48c3BhbiBpZD0idG90YWwiPjAsMDAg4oKsPC9zcGFuPjwvZGl2PgogIDxidXR0b24gY2xhc3M9ImJ0biBidG4tYWRkIiBvbmNsaWNrPSJpbXByaW1pckNyaXN0YWxlcyhkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY2hrLWludC1jcmlzJykuY2hlY2tlZCkiPvCflqjvuI8gR3VhcmRhciAvIEltcHJpbWlyIFBERjwvYnV0dG9uPgogIDxkaXYgY2xhc3M9InBzLXRvZ2dsZSI+PGlucHV0IHR5cGU9ImNoZWNrYm94IiBpZD0iY2hrLWludC1jcmlzIj48bGFiZWwgZm9yPSJjaGstaW50LWNyaXMiPkluY2x1aXIgbWkgY29zdGUgeSBtYXJnZW4gKHVzbyBpbnRlcm5vKTwvbGFiZWw+PC9kaXY+CiAgPGJ1dHRvbiBjbGFzcz0iYnRuIiBzdHlsZT0iYmFja2dyb3VuZDojMUUyOTNCO2NvbG9yOiNGODcxNzEiIG9uY2xpY2s9ImJvcnJhclRvZG8oKSI+8J+XkSBWYWNpYXIgcHJlc3VwdWVzdG88L2J1dHRvbj4KPC9kaXY+CjxkaXYgaWQ9InByaW50LXNoZWV0Ij48L2Rpdj4KCjxkaXYgY2xhc3M9Im5vdGEiPlRhcmlmYSBDUklTVEFMRVLDjUEgVEFNQSBBQlJJTC0yNSDCtyBQcmVjaW9zIHNpbiBJVkEgwrcgTcOtbmltbyAwLDUwIG3Csi9waWV6YSDCtyBObyBpbmNsdXllIGNhbnRvcywgZm9ybWFzLCB0YWxhZHJvcyBuaSBwb3J0ZXM8L2Rpdj4KCjxzY3JpcHQ+CnZhciBUQU1BPXsiZmVjaGEiOiAiYWJyaWwtMjUiLCAibWluaW1vTTIiOiAwLjUsICJkb2JsZUJhc2UiOiBbeyJpZCI6ICJhaXJlIiwgImwiOiAiQWlyZSAoVFBTIDE2KSIsICJwIjogMzAuMH0sIHsiaWQiOiAiYXJnb24iLCAibCI6ICJBcmfDs24gKFRQUyAxNikiLCAicCI6IDMyLjV9LCB7ImlkIjogImFsdW1pbmlvIiwgImwiOiAiQWx1bWluaW8gcGxhdGEtbmVncm8gMTYiLCAicCI6IDM2Ljk1fV0sICJ2aWRyaW9zIjogW3siZyI6ICJGTE9BVCIsICJuIjogIkZMT0FUIElOQ09MT1JPIDMgTU0iLCAibWYiOiAyMi40NiwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRkxPQVQiLCAibiI6ICJGTE9BVCBJTkNPTE9STyA0IE1NIiwgIm1mIjogMTYuOSwgInN1c3QiOiBudWxsLCAidGVtcCI6IDM4LjAxfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gNSBNTSIsICJtZiI6IDE4LjAxLCAic3VzdCI6IDEwLjQ1LCAidGVtcCI6IDQ3LjM2fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gNiBNTSIsICJtZiI6IDIxLjc1LCAic3VzdCI6IDEyLjE1LCAidGVtcCI6IDU2Ljk1fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gOCBNTSIsICJtZiI6IDMxLjE1LCAic3VzdCI6IDI5LjE1LCAidGVtcCI6IDc2LjAyfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gMTAgTU0iLCAibWYiOiAzOS4wNSwgInN1c3QiOiA0Mi4zLCAidGVtcCI6IDk1LjA5fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgSU5DT0xPUk8gMTIgTU0iLCAibWYiOiAxMTIuNDcsICJzdXN0IjogMTA5LjAyLCAidGVtcCI6IDE0NS44MX0sIHsiZyI6ICJGTE9BVCIsICJuIjogIkZMT0FUIElOQ09MT1JPIDE1IE1NIiwgIm1mIjogMTQ1LjA5LCAic3VzdCI6IDE0MS42MywgInRlbXAiOiAxNzcuMjh9LCB7ImciOiAiRkxPQVQiLCAibiI6ICJGTE9BVCBJTkNPTE9STyAxOSBNTSIsICJtZiI6IDI4NS45MywgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRkxPQVQiLCAibiI6ICJGTE9BVCBFWFRSQUNMQVJPIDQgTU0iLCAibWYiOiA0OC44NSwgInN1c3QiOiA0OC44NSwgInRlbXAiOiA3MS40N30sIHsiZyI6ICJGTE9BVCIsICJuIjogIkZMT0FUIEVYVFJBQ0xBUk8gNSBNTSIsICJtZiI6IDU1LjU4LCAic3VzdCI6IDU1LjU4LCAidGVtcCI6IDg1LjkyfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgRVhUUkFDTEFSTyA2IE1NIiwgIm1mIjogNjguODksICJzdXN0IjogNjguODksICJ0ZW1wIjogMTA1LjU2fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgRVhUUkFDTEFSTyA4IE1NIiwgIm1mIjogOTIuMzYsICJzdXN0IjogOTIuMzYsICJ0ZW1wIjogMTQyLjQ1fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiRkxPQVQgRVhUUkFDTEFSTyAxMCBNTSIsICJtZiI6IDExOC4zMSwgInN1c3QiOiAxMTguMzEsICJ0ZW1wIjogMTc5Ljk0fSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiUEFSU09MIEJST05DRSAvIEdSSVMgNCBNTSIsICJtZiI6IDM2LjE4LCAic3VzdCI6IDM2LjE4LCAidGVtcCI6IDYxLjkxfSwgeyJnIjogIkZMT0FUIiwgIm4iOiAiUEFSU09MIEJST05DRSAvIEdSSVMgNSBNTSIsICJtZiI6IDQ1LjQsICJzdXN0IjogNDUuNSwgInRlbXAiOiA3NS45Nn0sIHsiZyI6ICJGTE9BVCIsICJuIjogIlBBUlNPTCBCUk9OQ0UgLyBHUklTIDYgTU0iLCAibWYiOiA1NC40MywgInN1c3QiOiA1NC40MywgInRlbXAiOiA5Mi44MX0sIHsiZyI6ICJGTE9BVCIsICJuIjogIlBBUlNPTCBCUk9OQ0UgLyBHUklTIDEwIE1NIiwgIm1mIjogMTQ0LjUyLCAic3VzdCI6IG51bGwsICJ0ZW1wIjogMTQyLjIzfSwgeyJnIjogIklNUFJFU09TIiwgIm4iOiAiQ0FSR0xBUyA0IE1NIiwgIm1mIjogMjEuOSwgInN1c3QiOiAyMS4wNSwgInRlbXAiOiA0Mi42OX0sIHsiZyI6ICJJTVBSRVNPUyIsICJuIjogIkNBUkdMQVMgNiBNTSIsICJtZiI6IDU1LjM2LCAic3VzdCI6IDUxLjkxLCAidGVtcCI6IDc3LjU3fSwgeyJnIjogIklNUFJFU09TIiwgIm4iOiAiQ0FSR0xBUyAxMCBNTSIsICJtZiI6IDExNi4zOCwgInN1c3QiOiAxMTAuMjYsICJ0ZW1wIjogMTE0Ljl9LCB7ImciOiAiSU1QUkVTT1MiLCAibiI6ICJDQVJHTEFTIE5FVyA0IE1NIiwgIm1mIjogMjMuOSwgInN1c3QiOiAyMi45LCAidGVtcCI6IDQyLjY5fSwgeyJnIjogIklNUFJFU09TIiwgIm4iOiAiQVJNQURPIENBUkdMQVMgNiBNTSIsICJtZiI6IDUwLjE4LCAic3VzdCI6IDUwLjE4LCAidGVtcCI6IG51bGx9LCB7ImciOiAiSU1QUkVTT1MiLCAibiI6ICJCQUxET1NJTExBIEFSTUFEQSA2IE1NIiwgIm1mIjogNjguNDMsICJzdXN0IjogNjguNDMsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJNQVRFIEFDSURPIiwgIm4iOiAiTUFURSBBQ0lETyA0IE1NIiwgIm1mIjogMjYuMTQsICJzdXN0IjogMTguOTUsICJ0ZW1wIjogNzguNTd9LCB7ImciOiAiTUFURSBBQ0lETyIsICJuIjogIk1BVEUgQUNJRE8gNU1NIiwgIm1mIjogMjcuODUsICJzdXN0IjogMjEuMCwgInRlbXAiOiA4OC45Mn0sIHsiZyI6ICJNQVRFIEFDSURPIiwgIm4iOiAiTUFURSBBQ0lETyA2IE1NIiwgIm1mIjogMzIuOCwgInN1c3QiOiAyNC4wLCAidGVtcCI6IDk2LjE1fSwgeyJnIjogIk1BVEUgQUNJRE8iLCAibiI6ICJNQVRFIEFDSURPIDggTU0iLCAibWYiOiA0My4xMiwgInN1c3QiOiA0My4xMiwgInRlbXAiOiAxMTQuOTR9LCB7ImciOiAiTUFURSBBQ0lETyIsICJuIjogIk1BVEUgQUNJRE8gMTAgTU0iLCAibWYiOiA1MS40MiwgInN1c3QiOiA1MS40MiwgInRlbXAiOiAxMjguOH0sIHsiZyI6ICJNQVRFIEFDSURPIiwgIm4iOiAiTUFEUkFTIElOQ09MT1JPIDQgTU0iLCAibWYiOiAxODUuNDIsICJzdXN0IjogMTg1LjQyLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIFBMQVRBIDMgTU0iLCAibWYiOiAyNi45OCwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIFBMQVRBIDQgTU0iLCAibWYiOiAyOS41NiwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIFBMQVRBIDUgTU0iLCAibWYiOiAzMS4yNSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIEdSSVMgNSBNTSIsICJtZiI6IDc4LjU1LCAic3VzdCI6IG51bGwsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJFU1BFSk8iLCAibiI6ICJFU1BFSk8gQlJPTkNFIDUgTU0iLCAibWYiOiA3OC41NSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUpPIiwgIm4iOiAiRVNQRUpPIEVOVkVKRUNJRE8gNSBNTSIsICJtZiI6IDE2NS40NSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUNJQUxFUyIsICJuIjogIlZFTEdMQVMiLCAibWYiOiAzNS4xOCwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUNJQUxFUyIsICJuIjogIk5FT0NFUkFNIDQgTU0iLCAibWYiOiA0MjUuNzUsICJzdXN0IjogbnVsbCwgInRlbXAiOiBudWxsfSwgeyJnIjogIkVTUEVDSUFMRVMiLCAibiI6ICJEUkFWRUwiLCAibWYiOiAzMzguOSwgInN1c3QiOiAzMzguOSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkVTUEVDSUFMRVMiLCAibiI6ICJVIEdMQVNTIFNJTiBBUk1BUiIsICJtZiI6IDE2Mi43MSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiRVNQRUNJQUxFUyIsICJuIjogIlUgR0xBU1MgQVJNQURPIiwgIm1mIjogMTc0LjExLCAic3VzdCI6IG51bGwsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiAyKzIuMSBQMUEvMkIyIiwgIm1mIjogMzguOSwgInN1c3QiOiBudWxsLCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBJTkNPTE9STyIsICJuIjogIkxBTUlOQVIgMyszLjEgUDFBLzJCMiIsICJtZiI6IDMwLjEyLCAic3VzdCI6IDI0LjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBJTkNPTE9STyIsICJuIjogIkxBTUlOQVIgNCs0LjEgUDFBLzJCMiIsICJtZiI6IDMzLjc1LCAic3VzdCI6IDI5Ljc1LCAidGVtcCI6IDE2NC4xNX0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiA1KzUuMSBQMUEvMUIxIiwgIm1mIjogNDAuNSwgInN1c3QiOiAzNS41LCAidGVtcCI6IDE4MS40NH0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiA2KzYuMSBQMUEvMUIxIiwgIm1mIjogNDcuNSwgInN1c3QiOiA0Mi41LCAidGVtcCI6IDE5Ni4xNH0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiA4KzguMSBQMUEvMUIxIiwgIm1mIjogNjUuNSwgInN1c3QiOiA2NS41LCAidGVtcCI6IDIyNy44NX0sIHsiZyI6ICJMQU1JTkFSIElOQ09MT1JPIiwgIm4iOiAiTEFNSU5BUiAxMCsxMC4yIFAyQS8xQjEiLCAibWYiOiA4NS4xNSwgInN1c3QiOiA4NS4xNSwgInRlbXAiOiAyNzMuMDd9LCB7ImciOiAiTEFNSU5BUiBNQVRFIiwgIm4iOiAiTEFNSU5BUiAyKzIuMSBNQVRFIFAxQS8yQjIiLCAibWYiOiA0NS44LCAic3VzdCI6IG51bGwsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIE1BVEUiLCAibiI6ICJMQU1JTkFSIDMrMy4xIE1BVEUgUDFBLzJCMiIsICJtZiI6IDQyLjEyLCAic3VzdCI6IDM3LjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBNQVRFIiwgIm4iOiAiTEFNSU5BUiA0KzQuMSBNQVRFIFAxQS8yQjIiLCAibWYiOiA0NS43NSwgInN1c3QiOiA0Mi43NSwgInRlbXAiOiAxODMuNzV9LCB7ImciOiAiTEFNSU5BUiBNQVRFIiwgIm4iOiAiTEFNSU5BUiA1KzUuMSBNQVRFIFAxQS8xQjEiLCAibWYiOiA1NS41LCAic3VzdCI6IDQ5LjUsICJ0ZW1wIjogMjAxLjA0fSwgeyJnIjogIkxBTUlOQVIgTUFURSIsICJuIjogIkxBTUlOQVIgNis2LjEgTUFURSBQMUEvMUIxIiwgIm1mIjogNjIuNSwgInN1c3QiOiA1Ni41LCAidGVtcCI6IDIxNS43NH0sIHsiZyI6ICJMQU1JTkFSIE1BVEUiLCAibiI6ICJMQU1JTkFSIDgrOC4xIE1BVEUgUDFBLzFCMSIsICJtZiI6IDExNS41LCAic3VzdCI6IDExNS41LCAidGVtcCI6IDI0Ny40NX0sIHsiZyI6ICJMQU1JTkFSIE1BVEUiLCAibiI6ICJMQU1JTkFSIDEwKzEwLjIgTUFURSBQMkEvMUIxIiwgIm1mIjogMTI1LjE1LCAic3VzdCI6IDEyNS4xNSwgInRlbXAiOiAyOTIuNjd9LCB7ImciOiAiTEFNSU5BUiBDT0xPUiIsICJuIjogIkxBTUlOQVIgMyszLjEgQ09MT1IgUDFBLzJCMiIsICJtZiI6IDQ4LjYyLCAic3VzdCI6IDQ2LjksICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIENPTE9SIiwgIm4iOiAiTEFNSU5BUiA0KzQuMSBDT0xPUiBQMUEvMkIyIiwgIm1mIjogNTIuMjUsICJzdXN0IjogNTUuODcsICJ0ZW1wIjogMTgzLjc1fSwgeyJnIjogIkxBTUlOQVIgQ09MT1IiLCAibiI6ICJMQU1JTkFSIDUrNS4xIENPTE9SIFAxQS8xQjEiLCAibWYiOiA2NC4wLCAic3VzdCI6IDY2LjIyLCAidGVtcCI6IDIwMS4wNH0sIHsiZyI6ICJMQU1JTkFSIENPTE9SIiwgIm4iOiAiTEFNSU5BUiA2KzYuMSBDT0xPUiBQMUEvMUIxIiwgIm1mIjogNzEuMCwgInN1c3QiOiA3Ni44NCwgInRlbXAiOiAyMTUuNzR9LCB7ImciOiAiTEFNSU5BUiBBQ1VTVElDTyIsICJuIjogIkxBTUlOQVIgMyszLjEgQUNVU1RJQ08gUDFBLzJCMiIsICJtZiI6IDQxLjEyLCAic3VzdCI6IDM1LjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBQ1VTVElDTyIsICJuIjogIkxBTUlOQVIgNCs0LjEgQUNVU1RJQ08gUDFBLzJCMiIsICJtZiI6IDQ0Ljc1LCAic3VzdCI6IDQwLjc1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBQ1VTVElDTyIsICJuIjogIkxBTUlOQVIgNSs1LjEgQUNVU1RJQ08gUDFBLzFCMSIsICJtZiI6IDU0LjUsICJzdXN0IjogNDkuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQUNVU1RJQ08iLCAibiI6ICJMQU1JTkFSIDYrNi4xIEFDVVNUSUNPIFAxQS8xQjEiLCAibWYiOiA2MS41LCAic3VzdCI6IDU2LjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIERPQkxFIEJVVElSQUwiLCAibiI6ICJMQU1JTkFSIDMrMy4yIFAyQS8yQjIiLCAibWYiOiAzNy45NSwgInN1c3QiOiAzNy45NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgRE9CTEUgQlVUSVJBTCIsICJuIjogIkxBTUlOQVIgNCs0LjIgUDJBLzJCMiIsICJtZiI6IDQ2LjcsICJzdXN0IjogNDYuNywgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgRE9CTEUgQlVUSVJBTCIsICJuIjogIkxBTUlOQVIgNSs1LjIgUDJBLzJCMiIsICJtZiI6IDYwLjE1LCAic3VzdCI6IDYwLjE1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBET0JMRSBCVVRJUkFMIiwgIm4iOiAiTEFNSU5BUiA2KzYuMiBQMkEvMkIyIiwgIm1mIjogNjkuOSwgInN1c3QiOiA2OS45LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBET0JMRSBCVVRJUkFMIiwgIm4iOiAiTEFNSU5BUiAxMCsxMC4yIFAyQS8yQjIiLCAibWYiOiA4NS4xNSwgInN1c3QiOiA4NS4xNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQUzkgNCs0LjQgKDksNTAgbW0pIFA0QSIsICJtZiI6IDY4LjUsICJzdXN0IjogNjguNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQNUEgNCs0LjYgKDEwLDI4IG1tKSBQNUEiLCAibWYiOiA4MC4xNiwgInN1c3QiOiA4MC4xNiwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQUzEzIDYrNi40ICgxMyw1MCBtbSkgUDRBIiwgIm1mIjogODkuNSwgInN1c3QiOiA4OS41LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBTlRJUlJPQk8iLCAibiI6ICJMQU1JTkFSIFA1QSA2KzYuNiAoMTQsMjggbW0pIFA1QSIsICJtZiI6IDk3LjUsICJzdXN0IjogOTcuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USVJST0JPIiwgIm4iOiAiTEFNSU5BUiBQNkIgNis2LjggKDE1LDA0IG1tKSBQNkIiLCAibWYiOiAxMTIuMzUsICJzdXN0IjogMTEyLjM1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBBTlRJQkFMQSIsICJuIjogIkxBTUlOQVIgQU5USUJBTEEgKDIwIG1tKSBCUjJTIiwgIm1mIjogNDQ3Ljc1LCAic3VzdCI6IDQ0Ny43NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkxBTUlOQVIgQU5USUJBTEEiLCAibiI6ICJMQU1JTkFSIEFOVElCQUxBICgyNiBtbSkgQlIzUyIsICJtZiI6IDUzMS43LCAic3VzdCI6IDUzMS43LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBPVFJPUyIsICJuIjogIkxBTUlOQVIgQU5USURFU0xJWkFOVEUgMTArMTAuMiIsICJtZiI6IDI4OC45NCwgInN1c3QiOiAyODguOTQsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJMQU1JTkFSIE9UUk9TIiwgIm4iOiAiTEFNSU5BUiBBTlRJREVTTElaQU5URSAxMCsxMC4yIE1BVEUiLCAibWYiOiAzMzMuOTQsICJzdXN0IjogMzMzLjk0LCAidGVtcCI6IG51bGx9LCB7ImciOiAiTEFNSU5BUiBPVFJPUyIsICJuIjogIkxBTUlOQVIgRVNQSUEgNCs0LjEiLCAibWYiOiAxNzIuNDUsICJzdXN0IjogMTcyLjQ1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkFKTyBFTUlTSVZPIiwgIm4iOiAiQkFKTyBFTUlTSVZPIDQgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDExLjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkFKTyBFTUlTSVZPIiwgIm4iOiAiQkFKTyBFTUlTSVZPIDYgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDE2LjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkFKTyBFTUlTSVZPIiwgIm4iOiAiQkFKTyBFTUlTSVZPIDMrMy4xIE1NIiwgIm1mIjogbnVsbCwgInN1c3QiOiAzMC43NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA0KzQuMSBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogMzEuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA0KzQuMiBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogNDIuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA0KzQuMSBNTSBBQ1VTVElDTyIsICJtZiI6IG51bGwsICJzdXN0IjogNDYuNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJBSk8gRU1JU0lWTyIsICJuIjogIkJBSk8gRU1JU0lWTyA2KzYuMSBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogNjUuMTUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNCBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogMTIuNjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNiBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogMjIuMzIsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNCs0LjEgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDMzLjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQkUgKyBDT05UUk9MIFNPTEFSIiwgIm4iOiAiR1VBUkRJQU4gU1VOIDQrNC4yIE1NIiwgIm1mIjogbnVsbCwgInN1c3QiOiA0NC4yNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkJFICsgQ09OVFJPTCBTT0xBUiIsICJuIjogIkdVQVJESUFOIFNVTiA0KzQuMSBNTSBBQ1VTVElDTyIsICJtZiI6IG51bGwsICJzdXN0IjogNDguMjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJHVUFSRElBTiBTVU4gNis2LjEgTU0iLCAibWYiOiBudWxsLCAic3VzdCI6IDY3LjEsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJTVU5HVUFSRCBTTlggNjAgNiBNTSIsICJtZiI6IG51bGwsICJzdXN0IjogNDYuNzgsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJCRSArIENPTlRST0wgU09MQVIiLCAibiI6ICJTVU5HVUFSRCBTTlggNjAgNCs0LjEiLCAibWYiOiBudWxsLCAic3VzdCI6IDYyLjgsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJDT05UUk9MIFNPTEFSIiwgIm4iOiAiU1RPUFNPTCBDTEFTU0lDIE5FVVRSTyA0IE1NIiwgIm1mIjogNDMuNSwgInN1c3QiOiA0My41LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgQ0xBU1NJQyBORVVUUk8gNSBNTSIsICJtZiI6IDQ1LjI1LCAic3VzdCI6IDQ1LjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgU1VQRVJTSUxWRVIgSU5DLiA2IE1NIiwgIm1mIjogOTguNDYsICJzdXN0IjogOTguNDYsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJDT05UUk9MIFNPTEFSIiwgIm4iOiAiU1RPUFNPTCBTVVBFUlNJTFZFUiBHUklTIDYgTU0iLCAibWYiOiAxMDMuMjUsICJzdXN0IjogMTAzLjI1LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgU1VQRVJTSUxWRVIgQVpVTCA2IE1NIiwgIm1mIjogMTAzLjI1LCAic3VzdCI6IDEwMy4yNSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIENMQVNTSUMgTkVVVFJPIDQrNCBNTSIsICJtZiI6IDEwMy4yNSwgInN1c3QiOiAxMDMuMjUsICJ0ZW1wIjogbnVsbH0sIHsiZyI6ICJDT05UUk9MIFNPTEFSIiwgIm4iOiAiU1RPUFNPTCBDTEFTU0lDIE5FVVRSTyA1KzUgTU0iLCAibWYiOiAxMzIuNjYsICJzdXN0IjogMTMyLjY2LCAidGVtcCI6IG51bGx9LCB7ImciOiAiQ09OVFJPTCBTT0xBUiIsICJuIjogIlNUT1BTT0wgQ0xBU1NJQyBORVVUUk8gNis2IE1NIiwgIm1mIjogMTU0Ljg1LCAic3VzdCI6IDE1NC44NSwgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIFNVUEVSU0lMVkVSIElOQy4gNis2IE1NIiwgIm1mIjogMTkzLjU3LCAic3VzdCI6IDE5My41NywgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIFNVUEVSU0lMVkVSIEdSSVMgNis2IE1NIiwgIm1mIjogMTkzLjU3LCAic3VzdCI6IDE5My41NywgInRlbXAiOiBudWxsfSwgeyJnIjogIkNPTlRST0wgU09MQVIiLCAibiI6ICJTVE9QU09MIFNVUEVSU0lMVkVSIEFaVUwgNis2IE1NIiwgIm1mIjogMTkzLjU3LCAic3VzdCI6IDE5My41NywgInRlbXAiOiBudWxsfV19Owp2YXIgTElORUFTPVtdOwp0cnl7TElORUFTPUpTT04ucGFyc2UobG9jYWxTdG9yYWdlLmdldEl0ZW0oJ1RBTUFfTElORUFTJykpfHxbXTt9Y2F0Y2goZSl7TElORUFTPVtdO30KZnVuY3Rpb24gc0woKXt0cnl7bG9jYWxTdG9yYWdlLnNldEl0ZW0oJ1RBTUFfTElORUFTJyxKU09OLnN0cmluZ2lmeShMSU5FQVMpKTt9Y2F0Y2goZSl7fX0KLy8gTXVsdGlwbGljYWRvciBkZWwgdmlkcmlvICjDlzIgcG9yIGRlZmVjdG86IG1hcmdlbiBoYWJpdHVhbCBwb3Igcm90dXJhKSB5IHByZWNpby9ob3JhLCBwZXJzaXN0ZW50ZXMKdmFyIE1VTFQ9MjsKdHJ5e01VTFQ9cGFyc2VJbnQobG9jYWxTdG9yYWdlLmdldEl0ZW0oJ1RBTUFfTVVMVCcpKXx8Mjt9Y2F0Y2goZSl7TVVMVD0yO30KdmFyIFBIPTA7CnRyeXtQSD1wYXJzZUZsb2F0KGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdUQU1BX1BIJykpfHwwO31jYXRjaChlKXtQSD0wO30KZnVuY3Rpb24gc2V0TXVsdChlbCl7CiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnI211bHQgLmNoaXAnKS5mb3JFYWNoKGZ1bmN0aW9uKGMpe2MuY2xhc3NMaXN0LnRvZ2dsZSgnb24nLGM9PT1lbCk7fSk7CiAgTVVMVD1wYXJzZUludChlbC5kYXRhc2V0LngpfHwxOwogIHRyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgnVEFNQV9NVUxUJyxNVUxUKTt9Y2F0Y2goZSl7fQogIGNhbGMoKTsKfQpmdW5jdGlvbiBzZXRQSCh2KXsKICBQSD1wYXJzZUZsb2F0KHYpfHwwOwogIHRyeXtsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgnVEFNQV9QSCcsUEgpO31jYXRjaChlKXt9CiAgY2FsYygpOwp9CmZ1bmN0aW9uIGV1cih4KXtyZXR1cm4geC50b0ZpeGVkKDIpLnJlcGxhY2UoJy4nLCcsJykrJyDigqwnO30KZnVuY3Rpb24gbTJ0eHQoeCl7cmV0dXJuIHgudG9GaXhlZCgyKS5yZXBsYWNlKCcuJywnLCcpO30KCi8vIOKUgOKUgCBzZWxlY3RvcmVzIOKUgOKUgApmdW5jdGlvbiBwb2JsYXIoKXsKICB2YXIgYj1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYmFzZScpOwogIFRBTUEuZG9ibGVCYXNlLmZvckVhY2goZnVuY3Rpb24oZCxpKXsKICAgIHZhciBvPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGlvbicpO28udmFsdWU9aTsKICAgIG8udGV4dENvbnRlbnQ9ZC5sKycg4oCUICcrZXVyKGQucCkrJy9twrInO2IuYXBwZW5kQ2hpbGQobyk7CiAgfSk7CiAgLy8gTHVuYXM6IEZMT0FUIDQgYmFzZSAoc2luIHN1cGxlbWVudG8pICsgdG9kbyB2aWRyaW8gY29uIHByZWNpbyBkZSBzdXN0aXR1Y2nDs24KICBbJ2x1bmExJywnbHVuYTInXS5mb3JFYWNoKGZ1bmN0aW9uKGlkKXsKICAgIHZhciBzPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKGlkKTsKICAgIHZhciBvMD1kb2N1bWVudC5jcmVhdGVFbGVtZW50KCdvcHRpb24nKTtvMC52YWx1ZT0nLTEnO28wLnRleHRDb250ZW50PSdGTE9BVCBJTkNPTE9STyA0IE1NIChiYXNlLCArMCwwMCknO3MuYXBwZW5kQ2hpbGQobzApOwogICAgdmFyIGdydXBvQWN0PW51bGwsb2c9bnVsbDsKICAgIFRBTUEudmlkcmlvcy5mb3JFYWNoKGZ1bmN0aW9uKHYsaSl7CiAgICAgIGlmKHYuc3VzdD09PW51bGwpcmV0dXJuOwogICAgICBpZih2LmchPT1ncnVwb0FjdCl7Z3J1cG9BY3Q9di5nO29nPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGdyb3VwJyk7b2cubGFiZWw9di5nO3MuYXBwZW5kQ2hpbGQob2cpO30KICAgICAgdmFyIG89ZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnb3B0aW9uJyk7by52YWx1ZT1pOwogICAgICBvLnRleHRDb250ZW50PXYubisnIOKAlCArJytldXIodi5zdXN0KSsnL23Csic7b2cuYXBwZW5kQ2hpbGQobyk7CiAgICB9KTsKICAgIHMub25jaGFuZ2U9Y2FsYzsKICB9KTsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYmFzZScpLm9uY2hhbmdlPWNhbGM7CiAgLy8gVmlkcmlvIHN1ZWx0bzogdG9kbyBjb24gcHJlY2lvIE1GCiAgdmFyIHMyPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd2c3VlbHRvJyk7CiAgdmFyIGdydXBvQWN0Mj1udWxsLG9nMj1udWxsOwogIFRBTUEudmlkcmlvcy5mb3JFYWNoKGZ1bmN0aW9uKHYsaSl7CiAgICBpZih2Lm1mPT09bnVsbClyZXR1cm47CiAgICBpZih2LmchPT1ncnVwb0FjdDIpe2dydXBvQWN0Mj12Lmc7b2cyPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGdyb3VwJyk7b2cyLmxhYmVsPXYuZztzMi5hcHBlbmRDaGlsZChvZzIpO30KICAgIHZhciBvPWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoJ29wdGlvbicpO28udmFsdWU9aTsKICAgIG8udGV4dENvbnRlbnQ9di5uKycg4oCUICcrZXVyKHYubWYpKycvbcKyJztvZzIuYXBwZW5kQ2hpbGQobyk7CiAgfSk7CiAgczIub25jaGFuZ2U9ZnVuY3Rpb24oKXthY3RUZW1wbGFkbygpO2NhbGMoKTt9OwogIGFjdFRlbXBsYWRvKCk7Cn0KZnVuY3Rpb24gYWN0VGVtcGxhZG8oKXsKICB2YXIgdj1UQU1BLnZpZHJpb3NbcGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3ZzdWVsdG8nKS52YWx1ZSl8fDBdOwogIHZhciBjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0ZW1wbGFkbycpOwogIHZhciBoYXk9diYmdi50ZW1wIT09bnVsbDsKICBjLmRpc2FibGVkPSFoYXk7CiAgaWYoIWhheSljLmNoZWNrZWQ9ZmFsc2U7CiAgYy5wYXJlbnROb2RlLnN0eWxlLm9wYWNpdHk9aGF5PycxJzonMC40JzsKfQp2YXIgTU9ETz0nY2FtYXJhJzsKZnVuY3Rpb24gc2V0TW9kbyhlbCl7CiAgZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnI21vZG8gLmNoaXAnKS5mb3JFYWNoKGZ1bmN0aW9uKGMpe2MuY2xhc3NMaXN0LnRvZ2dsZSgnb24nLGM9PT1lbCk7fSk7CiAgTU9ETz1lbC5kYXRhc2V0Lm07CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3AtY2FtYXJhJykuc3R5bGUuZGlzcGxheT1NT0RPPT09J2NhbWFyYSc/J2Jsb2NrJzonbm9uZSc7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3Atc3VlbHRvJykuc3R5bGUuZGlzcGxheT1NT0RPPT09J3N1ZWx0byc/J2Jsb2NrJzonbm9uZSc7CiAgY2FsYygpOwp9CgovLyDilIDilIAgY8OhbGN1bG8g4pSA4pSACmZ1bmN0aW9uIGNhbGNBY3R1YWwoKXsKICB2YXIgYW49cGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2FuY2hvJykudmFsdWUpfHwwOwogIHZhciBhbD1wYXJzZUludChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYWx0bycpLnZhbHVlKXx8MDsKICB2YXIgdWRzPU1hdGgubWF4KDEscGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3VkcycpLnZhbHVlKXx8MSk7CiAgaWYoYW48PTB8fGFsPD0wKXJldHVybiBudWxsOwogIHZhciBtMnJlYWw9YW4vMTAwMCphbC8xMDAwOwogIHZhciBtMmZhY3Q9TWF0aC5tYXgobTJyZWFsLFRBTUEubWluaW1vTTIpOwogIHZhciBwTTIsIGRlc2MsIGRldGFsbGU7CiAgaWYoTU9ETz09PSdjYW1hcmEnKXsKICAgIHZhciBiYXNlPVRBTUEuZG9ibGVCYXNlW3BhcnNlSW50KGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdiYXNlJykudmFsdWUpfHwwXTsKICAgIHZhciBpMT1wYXJzZUludChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnbHVuYTEnKS52YWx1ZSk7CiAgICB2YXIgaTI9cGFyc2VJbnQoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2x1bmEyJykudmFsdWUpOwogICAgdmFyIHYxPWkxPj0wP1RBTUEudmlkcmlvc1tpMV06bnVsbDsKICAgIHZhciB2Mj1pMj49MD9UQU1BLnZpZHJpb3NbaTJdOm51bGw7CiAgICB2YXIgczE9djE/djEuc3VzdDowLCBzMnY9djI/djIuc3VzdDowOwogICAgcE0yPWJhc2UucCtzMStzMnY7CiAgICB2YXIgbjE9djE/djEubjonRkxPQVQgNCcsIG4yPXYyP3YyLm46J0ZMT0FUIDQnOwogICAgZGVzYz0nRG9ibGUgJytiYXNlLmwrJyDCtyAnK24xKycgLyAnK24yOwogICAgZGV0YWxsZT0nQmFzZSAnK2V1cihiYXNlLnApKyh2MT8nICsgJytldXIoczEpKycgKCcrbjErJyknOicnKSsodjI/JyArICcrZXVyKHMydikrJyAoJytuMisnKSc6JycpKycgPSA8Yj4nK2V1cihwTTIpKycvbcKyPC9iPic7CiAgfSBlbHNlIHsKICAgIHZhciB2PVRBTUEudmlkcmlvc1twYXJzZUludChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgndnN1ZWx0bycpLnZhbHVlKXx8MF07CiAgICBpZighdilyZXR1cm4gbnVsbDsKICAgIHZhciB0cGw9ZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3RlbXBsYWRvJykuY2hlY2tlZCYmdi50ZW1wIT09bnVsbDsKICAgIHBNMj10cGw/di50ZW1wOnYubWY7CiAgICBkZXNjPXYubisodHBsPycgVEVNUExBRE8nOicnKTsKICAgIGRldGFsbGU9JzxiPicrZXVyKHBNMikrJy9twrI8L2I+JysodHBsPycgKHRlbXBsYWRvKSc6JycpOwogIH0KICB2YXIgaG9yYXM9TWF0aC5tYXgoMCxwYXJzZUZsb2F0KGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdob3JhcycpLnZhbHVlKXx8MCk7CiAgdmFyIHBVZENvc3RlPXBNMiptMmZhY3Q7ICAgICAgICAgIC8vIGNvc3RlIHRhcmlmYSBkZWwgdmlkcmlvIHBvciB1bmlkYWQKICB2YXIgcFVkPXBVZENvc3RlKk1VTFQ7ICAgICAgICAgICAgLy8gcHJlY2lvIGRlIHZlbnRhIGRlbCB2aWRyaW8gKGNvbiBtYXJnZW4gcG9yIHJvdHVyYSkKICB2YXIgbW9udGFqZT1ob3JhcypQSDsgICAgICAgICAgICAgLy8gbWFubyBkZSBvYnJhIGRlIGxhIGzDrW5lYQogIHZhciB0b3RhbD1wVWQqdWRzK21vbnRhamU7CiAgcmV0dXJuIHtkZXNjOmRlc2MsZGV0YWxsZTpkZXRhbGxlLGFuOmFuLGFsOmFsLHVkczp1ZHMsbTJyZWFsOm0ycmVhbCxtMmZhY3Q6bTJmYWN0LAogICAgcE0yOnBNMixtdWx0Ok1VTFQsaG9yYXM6aG9yYXMscGg6UEgsbW9udGFqZTptb250YWplLAogICAgcFVkQ29zdGU6cFVkQ29zdGUscFVkOnBVZCx0b3RhbDp0b3RhbCxtaW5pbW86bTJmYWN0Pm0ycmVhbCsxZS05fTsKfQpmdW5jdGlvbiBjYWxjKCl7CiAgdmFyIHI9Y2FsY0FjdHVhbCgpOwogIHZhciBhdj1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYXZpc28tbWluJyk7CiAgaWYoIXIpewogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3AtdG90YWwnKS50ZXh0Q29udGVudD0n4oCUJzsKICAgIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwLWRldGFsbGUnKS50ZXh0Q29udGVudD0nRWxpZ2UgY29tcG9zaWNpw7NuIHkgbWVkaWRhcyc7CiAgICBhdi5zdHlsZS5kaXNwbGF5PSdub25lJztyZXR1cm47CiAgfQogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwLXRvdGFsJykudGV4dENvbnRlbnQ9ZXVyKHIudG90YWwpKyhyLnVkcz4xPycgKCcrci51ZHMrJyB1ZHMpJzonJyk7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3AtZGV0YWxsZScpLmlubmVySFRNTD1yLmRldGFsbGUKICAgICsnPGJyPicrci5hbisnw5cnK3IuYWwrJyBtbSA9ICcrbTJ0eHQoci5tMnJlYWwpKycgbcKyJwogICAgKyhyLm1pbmltbz8nIOKGkiBmYWN0dXJhICcrbTJ0eHQoci5tMmZhY3QpKycgbcKyJzonJykKICAgICsnPGJyPlZpZHJpbzogJytldXIoci5wVWRDb3N0ZSkrJyDDlycrci5tdWx0KycgPSA8Yj4nK2V1cihyLnBVZCkrJy91ZDwvYj4nCiAgICArKHIubW9udGFqZT4wPycgwrcgTW9udGFqZTogJytyLmhvcmFzKycgaCDDlyAnK2V1cihyLnBoKSsnID0gPGI+JytldXIoci5tb250YWplKSsnPC9iPic6JycpOwogIGF2LnN0eWxlLmRpc3BsYXk9ci5taW5pbW8/J2Jsb2NrJzonbm9uZSc7Cn0KZnVuY3Rpb24gYWRkTGluZWEoKXsKICB2YXIgcj1jYWxjQWN0dWFsKCk7CiAgaWYoIXIpe2FsZXJ0KCdQb24gbWVkaWRhcyB2w6FsaWRhcyBwcmltZXJvLicpO3JldHVybjt9CiAgTElORUFTLnB1c2gocik7c0woKTtyZW5kZXJMaW5lYXMoKTsKfQpmdW5jdGlvbiBkZWxMaW5lYShpKXtMSU5FQVMuc3BsaWNlKGksMSk7c0woKTtyZW5kZXJMaW5lYXMoKTt9CmZ1bmN0aW9uIGJvcnJhclRvZG8oKXtpZighTElORUFTLmxlbmd0aClyZXR1cm47aWYoY29uZmlybSgnwr9WYWNpYXIgZWwgcHJlc3VwdWVzdG8/Jykpe0xJTkVBUz1bXTtzTCgpO3JlbmRlckxpbmVhcygpO319CgovLyDilZDilZDilZDilZDilZDilZAgSU1QUkVTScOTTiAvIEdVQVJEQVIgUERGIChkb2N1bWVudG8gZGUgY2xpZW50ZSwgc2luIGNvc3RlIHBvciBkZWZlY3RvKSDilZDilZDilZDilZDilZDilZAKZnVuY3Rpb24gaW1wcmltaXJDcmlzdGFsZXMoaW5jbHVpckNvc3Rlcyl7CiAgaWYoIUxJTkVBUy5sZW5ndGgpe2FsZXJ0KCdObyBoYXkgbMOtbmVhcyBlbiBlbCBwcmVzdXB1ZXN0by4nKTtyZXR1cm47fQogIHZhciB0b3RDbGllbnRlPTAsIHRvdENvc3RlPTA7CiAgdmFyIGh0bWxSb3dzPScnOwogIExJTkVBUy5mb3JFYWNoKGZ1bmN0aW9uKGwpewogICAgdG90Q2xpZW50ZSs9bC50b3RhbDsKICAgIHRvdENvc3RlKz1sLnBVZENvc3RlKmwudWRzKyAobC5tb250YWplfHwwKTsKICAgIGh0bWxSb3dzKz0nPHRyPjx0ZD4nK2wuZGVzYysnPC90ZD4nCiAgICAgICsnPHRkIGNsYXNzPSJyIj4nK2wuYW4rJ8OXJytsLmFsKycgbW08L3RkPicKICAgICAgKyc8dGQgY2xhc3M9InIiPicrbTJ0eHQobC5tMmZhY3QpKyc8L3RkPicKICAgICAgKyc8dGQgY2xhc3M9InIiPicrbC51ZHMrJzwvdGQ+JwogICAgICArJzx0ZCBjbGFzcz0iciI+JytldXIobC5wVWQpKyhsLm1vbnRhamU+MD8nIDxzcGFuIHN0eWxlPSJjb2xvcjojODg4O2ZvbnQtc2l6ZToxMHB4Ij4rIG1vbnRhamU8L3NwYW4+JzonJykrJzwvdGQ+JwogICAgICArJzx0ZCBjbGFzcz0iciI+PGI+JytldXIobC50b3RhbCkrJzwvYj48L3RkPjwvdHI+JzsKICB9KTsKICB2YXIgdG90QmVuZWY9dG90Q2xpZW50ZS10b3RDb3N0ZTsKCiAgdmFyIGludGVybm89Jyc7CiAgaWYoaW5jbHVpckNvc3Rlcyl7CiAgICB2YXIgcm93c0ludD0nJzsKICAgIExJTkVBUy5mb3JFYWNoKGZ1bmN0aW9uKGwpewogICAgICB2YXIgY29zdGVMPWwucFVkQ29zdGUqbC51ZHMrKGwubW9udGFqZXx8MCk7CiAgICAgIHJvd3NJbnQrPSc8dHI+PHRkPicrbC5kZXNjKyc8L3RkPjx0ZCBjbGFzcz0iciI+JytldXIobC5wVWRDb3N0ZSkrJy91ZCAow5cnKyhsLm11bHR8fDEpKycpPC90ZD48dGQgY2xhc3M9InIiPicrZXVyKGNvc3RlTCkrJzwvdGQ+PHRkIGNsYXNzPSJyIj48Yj4nK2V1cihsLnRvdGFsLWNvc3RlTCkrJzwvYj48L3RkPjwvdHI+JzsKICAgIH0pOwogICAgaW50ZXJubz0nPGRpdiBjbGFzcz0icHMtaW50Ij48ZGl2IGNsYXNzPSJwcy1pbnQtdHRsIj7imqAgVXNvIGludGVybm8g4oCUIE5PIGVudHJlZ2FyIGFsIGNsaWVudGU8L2Rpdj4nCiAgICAgICsnPHRhYmxlIGNsYXNzPSJwcy10YWJsZSI+PHRoZWFkPjx0cj48dGg+TMOtbmVhPC90aD48dGggY2xhc3M9InIiPkNvc3RlIHRhcmlmYSBUYW1hPC90aD48dGggY2xhc3M9InIiPkNvc3RlIHRvdGFsIGzDrW5lYTwvdGg+PHRoIGNsYXNzPSJyIj5CZW5lZmljaW88L3RoPjwvdHI+PC90aGVhZD48dGJvZHk+JwogICAgICArcm93c0ludCsnPC90Ym9keT48L3RhYmxlPicKICAgICAgKyc8ZGl2IGNsYXNzPSJwcy10b3QiPjxkaXY+PHNwYW4+Q29zdGUgdG90YWw8L3NwYW4+PHNwYW4+JytldXIodG90Q29zdGUpKyc8L3NwYW4+PC9kaXY+JwogICAgICArJzxkaXYgY2xhc3M9ImZpbiI+PHNwYW4+QmVuZWZpY2lvIGJydXRvPC9zcGFuPjxzcGFuPicrZXVyKHRvdEJlbmVmKSsnICgnKyh0b3RDbGllbnRlPjA/KHRvdEJlbmVmL3RvdENsaWVudGUqMTAwKS50b0ZpeGVkKDEpOicwJykrJyUpPC9zcGFuPjwvZGl2PjwvZGl2PjwvZGl2Pic7CiAgfQoKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncHJpbnQtc2hlZXQnKS5pbm5lckhUTUw9CiAgICAnPGRpdiBjbGFzcz0icHMtaGVhZCI+PGRpdj48ZGl2IGNsYXNzPSJwcy1icmFuZCI+TUFSRVZBIDxzcGFuPkFMVU1JTklPUzwvc3Bhbj48L2Rpdj48ZGl2IGNsYXNzPSJwcy1zdWIiPlByZXN1cHVlc3RvIGRlIGNyaXN0YWxlczwvZGl2PjwvZGl2PicKICAgICsnPGRpdiBjbGFzcz0icHMtZGF0b3MiPkZlY2hhOiA8Yj4nK25ldyBEYXRlKCkudG9Mb2NhbGVEYXRlU3RyaW5nKCdlcy1FUycpKyc8L2I+PC9kaXY+PC9kaXY+JwogICAgKyc8dGFibGUgY2xhc3M9InBzLXRhYmxlIj48dGhlYWQ+PHRyPjx0aD5Db21wb3NpY2nDs248L3RoPjx0aCBjbGFzcz0iciI+TWVkaWRhPC90aD48dGggY2xhc3M9InIiPm3CsiBmYWN0LjwvdGg+PHRoIGNsYXNzPSJyIj5VZC48L3RoPjx0aCBjbGFzcz0iciI+UHJlY2lvL3VkPC90aD48dGggY2xhc3M9InIiPlRvdGFsPC90aD48L3RyPjwvdGhlYWQ+PHRib2R5PicKICAgICtodG1sUm93cysnPC90Ym9keT48L3RhYmxlPicKICAgICsnPGRpdiBjbGFzcz0icHMtdG90Ij48ZGl2IGNsYXNzPSJmaW4iPjxzcGFuPlRPVEFMIChzaW4gSVZBKTwvc3Bhbj48c3Bhbj4nK2V1cih0b3RDbGllbnRlKSsnPC9zcGFuPjwvZGl2PjwvZGl2PicKICAgICtpbnRlcm5vCiAgICArJzxkaXYgY2xhc3M9InBzLWZvb3QiPlByZXN1cHVlc3RvIHNpbiB2YWxpZGV6IGNvbnRyYWN0dWFsIGhhc3RhIGNvbmZpcm1hY2nDs24gwrcgVGFyaWZhIENyaXN0YWxlcsOtYSBUYW1hIGFicmlsLTI1PC9kaXY+JzsKCiAgc2V0VGltZW91dChmdW5jdGlvbigpeyB3aW5kb3cucHJpbnQoKTsgfSw4MCk7Cn0KCmZ1bmN0aW9uIHJlbmRlckxpbmVhcygpewogIHZhciBjPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsaW5lYXMnKSx0PTAsaHRtbD0nJzsKICBMSU5FQVMuZm9yRWFjaChmdW5jdGlvbihsLGkpewogICAgdCs9bC50b3RhbDsKICAgIGh0bWwrPSc8ZGl2IGNsYXNzPSJsaW5lYSI+PGRpdj48Yj4nK2wuZGVzYysnPC9iPjxicj48c3BhbiBzdHlsZT0iY29sb3I6IzY0NzQ4QiI+JwogICAgICArbC5hbisnw5cnK2wuYWwrJyBtbSDCtyAnK20ydHh0KGwubTJmYWN0KSsnIG3CsiBmYWN0LiDCtyAnK2wudWRzKycgdWQnKyhsLnVkcz4xPydzJzonJykKICAgICAgKycgwrcgJytldXIobC5wTTIpKycvbcKyJysobC5tdWx0JiZsLm11bHQ+MT8nIMOXJytsLm11bHQ6JycpCiAgICAgICsobC5tb250YWplPjA/JyDCtyArJytldXIobC5tb250YWplKSsnIG1vbnRhamUgKCcrbC5ob3JhcysnIGgpJzonJykrJzwvc3Bhbj48L2Rpdj4nCiAgICAgICsnPGRpdiBzdHlsZT0idGV4dC1hbGlnbjpyaWdodDt3aGl0ZS1zcGFjZTpub3dyYXAiPjxiPicrZXVyKGwudG90YWwpKyc8L2I+PHNwYW4gY2xhc3M9IngiIG9uY2xpY2s9ImRlbExpbmVhKCcraSsnKSI+4pyVPC9zcGFuPjwvZGl2PjwvZGl2Pic7CiAgfSk7CiAgYy5pbm5lckhUTUw9aHRtbHx8JzxkaXYgc3R5bGU9ImZvbnQtc2l6ZToxMi41cHg7Y29sb3I6Izk0QTNCODtwYWRkaW5nOjZweCAwIj5TaW4gbMOtbmVhcyB0b2RhdsOtYS48L2Rpdj4nOwogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCd0b3RhbCcpLnRleHRDb250ZW50PWV1cih0KTsKfQpwb2JsYXIoKTsKZG9jdW1lbnQucXVlcnlTZWxlY3RvckFsbCgnI211bHQgLmNoaXAnKS5mb3JFYWNoKGZ1bmN0aW9uKGMpe2MuY2xhc3NMaXN0LnRvZ2dsZSgnb24nLHBhcnNlSW50KGMuZGF0YXNldC54KT09PU1VTFQpO30pOwppZihQSD4wKWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdwaCcpLnZhbHVlPVBIOwpyZW5kZXJMaW5lYXMoKTtjYWxjKCk7Cjwvc2NyaXB0Pgo8L2JvZHk+CjwvaHRtbD4=';
