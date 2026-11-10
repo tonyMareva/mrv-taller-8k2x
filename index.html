@@ -349,6 +349,7 @@ select option{background:var(--bg2);color:var(--txt)}
       <span class="chip on" data-v="ninguna" onclick="selPers(this)">Sin persiana</span>
       <span class="chip" data-v="mini" onclick="selPers(this)">Mini</span>
       <span class="chip" data-v="obra" onclick="selPers(this)">De obra</span>
+      <span class="chip" data-v="registro" onclick="selPers(this)">Registro de obra (sin pedir persiana)</span>
     </div>
     <div class="sub" id="sub-mini" style="display:none">
       <div class="sub-ttl">Lamas · mini</div>
@@ -445,10 +446,13 @@ select option{background:var(--bg2);color:var(--txt)}
           </div>
         </div>
       </div>
+    </div>
+    <div id="forro-wrap" style="display:none">
       <div class="forro-box"><div class="forro-ttl">Medida con forro (caja de obra)</div>
         <div class="f"><label>Alto total con forro (mm)</label><input id="forro-alto" type="number" inputmode="numeric" placeholder="ej. 1220" oninput="draw()"></div>
       </div>
     </div>
+    <div id="registro-aviso" style="display:none;font-size:12px;color:#94A3B8;margin-top:.5rem">La ventana lleva el registro de persiana de obra: se dibuja la caja y se anota la medida con forro, pero <b>no se pide ni se cuenta persiana</b>.</div>
   </div>
 </div>
 
@@ -469,8 +473,8 @@ select option{background:var(--bg2);color:var(--txt)}
       </div>
       <div id="mosq-solo-hint" style="display:none;background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.4);border-radius:8px;padding:6px 9px;font-size:11px;color:#F5A623;margin-top:7px">📏 Estas medidas son las de la mosquitera (no hay ventana)</div>
       <div class="row3" id="mosq-med" style="margin-top:7px">
-        <div class="f"><label>Ancho mosq. (mm)</label><input id="mosq-ancho" type="number" inputmode="numeric" placeholder="= ventana" oninput="onMosqMedida(this)"></div>
         <div class="f"><label>Alto mosq. (mm)</label><input id="mosq-alto" type="number" inputmode="numeric" placeholder="= ventana" oninput="onMosqMedida(this)"></div>
+        <div class="f"><label>Ancho mosq. (mm)</label><input id="mosq-ancho" type="number" inputmode="numeric" placeholder="= ventana" oninput="onMosqMedida(this)"></div>
       </div>
       <div class="f" style="margin-top:7px"><label>Color de la mosquitera</label><select id="mosq-color" onchange="VS[IDX].mosqColor=this.value"></select></div>
     </div>
@@ -823,18 +827,18 @@ select option{background:var(--bg2);color:var(--txt)}
   <button class="nav-btn" id="nav-estructura" onclick="irA('estructura')">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>Estructura
   </button>
-  <button class="nav-btn" id="nav-resumen" onclick="irA('resumen')">
-    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Pedido
-  </button>
   <button class="nav-btn" id="nav-trabajos" onclick="irA('trabajos')">
     <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>Trabajos
+  </button>
+  <button class="nav-btn" id="nav-resumen" onclick="irA('resumen')">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Pedido
   </button>
   <button class="nav-btn" id="nav-proyectos" onclick="irA('proyectos')">
     <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Proyectos
   </button>
 </div>
 
-<script>
+<script type="text/plain" class="app-js">
 
 
 // ════════════════════════════════════════
@@ -1242,11 +1246,11 @@ function getPreciosAlu(){
   return _preciosAluCache;
 }
 // Permite editar precios de materiales desde Ajustes sin tocar el código: los
-// cambios se guardan en este navegador (localStorage) y se aplican tanto a la
+// cambios se guardan en este navegador (ALM) y se aplican tanto a la
 // tabla de Ajustes como a los presupuestos reales, porque mutan el mismo
 // objeto en memoria que usan las funciones de cálculo.
 function getOverridesPrecios(storageKey){
-  try{ return JSON.parse(localStorage.getItem(storageKey))||{}; }catch(e){ return {}; }
+  try{ return JSON.parse(ALM.getItem(storageKey))||{}; }catch(e){ return {}; }
 }
 function aplicarOverridesPrecios(data,storageKey){
   if(!data||!data.precios)return data;
@@ -1276,7 +1280,7 @@ function actualizarPrecioMaterial(catIdx,key,valor){
   data.precios[key]=v; // aplica ya mismo a los presupuestos (mismo objeto en memoria)
   var ov=getOverridesPrecios(cat.overridesKey);
   ov[key]=v;
-  try{ localStorage.setItem(cat.overridesKey, JSON.stringify(ov)); }catch(e){}
+  try{ ALM.setItem(cat.overridesKey, JSON.stringify(ov)); }catch(e){}
   toast('💾 Precio guardado: '+v.toFixed(2)+' €');
   renderAjustesGenerales(); // repinta ya mismo: aviso "editado" + botón de deshacer
 }
@@ -1285,7 +1289,7 @@ function restablecerPrecioMaterial(catIdx,key){
   if(!cat)return;
   var ov=getOverridesPrecios(cat.overridesKey);
   delete ov[key];
-  try{ localStorage.setItem(cat.overridesKey, JSON.stringify(ov)); }catch(e){}
+  try{ ALM.setItem(cat.overridesKey, JSON.stringify(ov)); }catch(e){}
   // recargar desde el original (B64) descartando cache y overrides ya aplicados
   if(cat.resetCache)cat.resetCache();
   cat.obtener();
@@ -1652,7 +1656,7 @@ function getPreciosPersianas(){
   if(_preciosPersCache) aplicarOverridesPersianas(_preciosPersCache,'mareva_ov_persianas');
   return _preciosPersCache;
 }
-// Aplica los precios editados desde Ajustes (guardados en localStorage con
+// Aplica los precios editados desde Ajustes (guardados en ALM con
 // claves compuestas tipo "lama|40C|g1") directamente sobre la estructura
 // anidada real que usan los cálculos (pp.mini.___ / pp.obra.___). Se llama
 // justo después de decodificar la tarifa, así que los cálculos reales
@@ -2031,7 +2035,7 @@ function costePersianaUnidad(v,anchoUnidad,accion,mando,etiqueta,incluirMotorPro
 // para esa mitad. persPartidaMotores=1 → UN motor grande mueve las dos mitades
 // juntas, así que se dimensiona con el peso conjunto (ancho TOTAL, no la mitad).
 function costePersianaVentana(v){
-  if(!v.persCat||v.persCat==='ninguna')return null;
+  if(!v.persCat||v.persCat==='ninguna'||v.persCat==='registro')return null; // registro de obra: la caja existe pero no se pide persiana
   var anchoTotal=parseFloat(v.ancho)||0, alto=parseFloat(v.alto)||0;
   var accionGlobal=v.persAc==='motor'?'motor':'cinta';
   if(!v.persPartida){
@@ -2074,11 +2078,11 @@ function costePersianaVentana(v){
 var DATOS_PRECIO_VENTANA_KEY='mareva_datos_precio_ventana';
 var DATOS_PRECIO_VENTANA={precioHoraFab:0, precioHoraMontaje:0, descuentoMosquitera:55, precioHoraMontajeMosq:90, margenPct:0, descuentoPersianas:0, descuentoMotores:0, descuentoAluminio:0, precioHoraMontajePersiana:0, descuentoFabricaSomfy:50};
 try{
-  var _dpv=JSON.parse(localStorage.getItem(DATOS_PRECIO_VENTANA_KEY));
+  var _dpv=JSON.parse(ALM.getItem(DATOS_PRECIO_VENTANA_KEY));
   if(_dpv)DATOS_PRECIO_VENTANA=Object.assign(DATOS_PRECIO_VENTANA,_dpv);
 }catch(e){}
 function guardarDatosPrecioVentana(){
-  try{localStorage.setItem(DATOS_PRECIO_VENTANA_KEY,JSON.stringify(DATOS_PRECIO_VENTANA));}catch(e){}
+  try{ALM.setItem(DATOS_PRECIO_VENTANA_KEY,JSON.stringify(DATOS_PRECIO_VENTANA));}catch(e){}
 }
 
 // ── TOTAL POR VENTANA ──────────────────────────────────────────────
@@ -2376,27 +2380,27 @@ var PP={modo:'completa',persCat:'mini',persAc:'cinta',persMando:'mando',persMand
 // ══════════════════════════════════════════════════════════════════════
 // HISTORIAL DE CONSULTAS — guarda resultados de las calculadoras sueltas
 // (persiana, mosquitera, cristal, techo) para poder volver a mirarlos sin
-// tener que recalcular. Simple lista en localStorage, más reciente primero.
+// tener que recalcular. Simple lista en ALM, más reciente primero.
 // ══════════════════════════════════════════════════════════════════════
 var HISTORIAL_KEY='mareva_historial_consultas';
 function getHistorial(){
-  try{ return JSON.parse(localStorage.getItem(HISTORIAL_KEY))||[]; }catch(e){ return []; }
+  try{ return JSON.parse(ALM.getItem(HISTORIAL_KEY))||[]; }catch(e){ return []; }
 }
 function guardarEnHistorial(tipo,icono,resumen,total){
   var arr=getHistorial();
   arr.unshift({id:'h'+Date.now(), tipo:tipo, icono:icono, resumen:resumen, total:total, fecha:new Date().toLocaleString('es-ES')});
   if(arr.length>200)arr=arr.slice(0,200);
-  try{ localStorage.setItem(HISTORIAL_KEY,JSON.stringify(arr)); }catch(e){}
+  try{ ALM.setItem(HISTORIAL_KEY,JSON.stringify(arr)); }catch(e){}
   toast('💾 Guardado en el historial');
 }
 function borrarDeHistorial(id){
   var arr=getHistorial().filter(function(h){return h.id!==id;});
-  try{ localStorage.setItem(HISTORIAL_KEY,JSON.stringify(arr)); }catch(e){}
+  try{ ALM.setItem(HISTORIAL_KEY,JSON.stringify(arr)); }catch(e){}
   renderHistorial();
 }
 function vaciarHistorial(){
   if(!confirm('¿Borrar todo el historial de consultas guardadas?'))return;
-  try{ localStorage.removeItem(HISTORIAL_KEY); }catch(e){}
+  try{ ALM.removeItem(HISTORIAL_KEY); }catch(e){}
   renderHistorial();
 }
 function abrirHistorial(){
@@ -2551,7 +2555,7 @@ var IRONLUX_DEFAULT={
     'Perfil Unión en H 10mm (€/ml)':4.05,
     'Perfil Unión en H 16mm (€/ml)':6.50,
     'Perfil Unión en H 16mm Opal (€/ml)':7.55,
-    'Perfil Unión en H 25mm (€/ml)':8.15,
+    'Perfil Unión en H 25mm (€/ml)':9.15,
     'Tapón Polipropileno (€/ud)':1.00,
     'GM Sombrero Aluminio (€/ud)':1.00,
     'Cinta Microperforada 25mm (€/ud)':20.15,
@@ -2753,13 +2757,13 @@ function calcIronlux(){
     _ilUltimoResultado=null;return;
   }
   if((!ancho||!alto)&&!subtotalRemates){
-    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el ancho y el alto para calcular el panel (o añade solo remates).</div></div>';
+    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el alto y el ancho para calcular el panel (o añade solo remates).</div></div>';
     _ilUltimoResultado=null;return;
   }
   var areaM2=(ancho/1000)*(alto/1000);
   var subtotalPanel=(ancho&&alto)?areaM2*precioM2:0;
   var total=subtotalPanel+subtotalRemates;
-  var resumen=ilNombreProducto()+(ancho&&alto?' · '+ancho+'×'+alto+'mm':'');
+  var resumen=ilNombreProducto()+(ancho&&alto?' · '+alto+'×'+ancho+'mm':'');
   _ilUltimoResultado={tipo:'Cerramientos IronLux',icono:'🏭',resumen:resumen,total:total};
   cont.innerHTML='<div class="card" style="border-color:#F59E0B"><div class="card-body">'
     +(ancho&&alto?'<div class="pv-linea"><span>'+areaM2.toFixed(2)+' m² × '+eur2(precioM2)+'/m²</span><b>'+eur2(subtotalPanel)+'</b></div>':'')
@@ -2806,13 +2810,13 @@ function calcRapidoTecho(){
   var ancho=parseFloat(document.getElementById('rt-ancho').value)||0;
   var alto=parseFloat(document.getElementById('rt-alto').value)||0;
   var cont=document.getElementById('rt-resultado');
-  if(!ancho||!alto){cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el ancho y el alto para calcular.</div></div>';_ultimoResultadoRapido=null;return;}
+  if(!ancho||!alto){cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el alto y el ancho para calcular.</div></div>';_ultimoResultadoRapido=null;return;}
   var r=calcTechoAluminio(ancho,alto,RT.acabado,RT.lama,RT.liston==='con');
   if(!r){cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#F87171;padding:1.5rem">Esa combinación de acabado/lama no existe en la tarifa.</div></div>';_ultimoResultadoRapido=null;return;}
-  var resumen='Techo '+RT.acabado+' · lama '+RT.lama+'mm · '+ancho+'×'+alto+'mm';
+  var resumen='Techo '+RT.acabado+' · lama '+RT.lama+'mm · '+alto+'×'+ancho+'mm';
   _ultimoResultadoRapido={tipo:'Techo aluminio',icono:'🏗️',resumen:resumen,total:r.total};
   cont.innerHTML='<div class="card" style="border-color:#34D399"><div class="card-body">'
-    +(r.anchoR!==ancho||r.altoR!==alto?'<div style="font-size:11px;color:#64748B;margin-bottom:.4rem">Medida facturable (redondeo a 5cm): '+r.anchoR+'×'+r.altoR+' mm</div>':'')
+    +(r.anchoR!==ancho||r.altoR!==alto?'<div style="font-size:11px;color:#64748B;margin-bottom:.4rem">Medida facturable (redondeo a 5cm): '+r.altoR+'×'+r.anchoR+' mm</div>':'')
     +'<div class="pv-linea"><span>'+r.areaM2.toFixed(2)+' m² × '+eur2(r.precioM2)+'/m²</span><b>'+eur2(r.total)+'</b></div>'
     +'<div class="pv-total" style="font-size:15px;border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.5rem"><span>TOTAL</span><span>'+eur2(r.total)+'</span></div>'
     +'<div class="btn-row" style="margin-top:.6rem"><button class="btn drk" onclick="guardarRapido()">💾 Guardar en historial</button></div>'
@@ -2826,13 +2830,13 @@ function guardarRapido(){
 function guardarPersianaSuelta(){
   var ancho=parseFloat(document.getElementById('pp-ancho').value)||0;
   var alto=parseFloat(document.getElementById('pp-alto').value)||0;
-  if(!ancho||!alto){toast('⚠️ Pon ancho y alto primero');return;}
+  if(!ancho||!alto){toast('⚠️ Pon alto y ancho primero');return;}
   var horasMontaje=parseFloat(document.getElementById('pp-horas-montaje').value)||0;
   var precioHora=parseFloat(document.getElementById('pp-precio-hora').value)||0;
   if(PP.modo==='motor'){
     var rm=costeSoloMotorPersiana(PP.persCat,ancho,alto,PP.persMando,PP.persMotorMarca,PP.persMandoTipo);
     var total=rm.total+(horasMontaje*precioHora);
-    var resumen='Motor '+(PP.persMotorMarca==='somfy'?'Somfy':'Cherubini')+' '+ancho+'×'+alto+'mm';
+    var resumen='Motor '+(PP.persMotorMarca==='somfy'?'Somfy':'Cherubini')+' '+alto+'×'+ancho+'mm';
     guardarEnHistorial('Cambio de motor','🔌',resumen,total);
     return;
   }
@@ -2842,7 +2846,7 @@ function guardarPersianaSuelta(){
   var persiana=costePersianaVentana(input);
   if(!persiana){toast('⚠️ No se pudo calcular');return;}
   var total=persiana.total+(horasMontaje*precioHora);
-  var resumen='Persiana '+PP.persCat+' '+ancho+'×'+alto+'mm '+PP.color;
+  var resumen='Persiana '+PP.persCat+' '+alto+'×'+ancho+'mm '+PP.color;
   guardarEnHistorial('Persiana','🪟',resumen,total);
 }
 function abrirPresupers(){
@@ -2936,6 +2940,31 @@ function selPPMando(val){
   PP.persMando=val;
   calcPresupers();
 }
+
+// Caja grande con el PRECIO DE VENTA (lo que va en el presupuesto). El coste se
+// queda pequeño y en gris para no confundirlo con lo que hay que cobrar.
+function htmlPrecioVentaGrande(pventa,margen){
+  return '<div style="background:rgba(52,211,153,.14);border:2px solid #34D399;border-radius:12px;padding:12px 14px;margin:.2rem 0 .7rem;text-align:center">'
+    +'<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:#6EE7B7">PRECIO DE VENTA · el del presupuesto (+'+margen+'%)</div>'
+    +'<div style="font-size:32px;font-weight:900;color:#34D399;line-height:1.15;margin-top:2px">'+eur2(pventa)+'</div></div>';
+}
+function htmlSinMargenAviso(coste){
+  return '<div style="background:rgba(245,158,11,.12);border:2px solid #F59E0B;border-radius:12px;padding:12px 14px;margin:.2rem 0 .7rem;text-align:center">'
+    +'<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:#FBBF24">⚠ SIN MARGEN EN AJUSTES ⚙️ — ESTO ES TU COSTE, NO EL PRECIO DE VENTA</div>'
+    +'<div style="font-size:26px;font-weight:900;color:#FBBF24;line-height:1.15;margin-top:2px">'+eur2(coste)+'</div></div>';
+}
+function htmlLineaCoste(etq,val,fuerte){
+  return '<div class="pv-linea" style="font-size:12px;color:#94A3B8'+(fuerte?';font-weight:700':'')+'"><span>'+etq+'</span><span>'+eur2(val)+'</span></div>';
+}
+function htmlResumenVentaCoste(coste){
+  var margen=DATOS_PRECIO_VENTANA.margenPct||0;
+  if(margen>0){
+    var pventa=coste*(1+margen/100);
+    return {arriba:htmlPrecioVentaGrande(pventa,margen),
+            abajo:htmlLineaCoste('Tu coste (con tus descuentos)',coste)+htmlLineaCoste('💰 Beneficio',pventa-coste,true)};
+  }
+  return {arriba:htmlSinMargenAviso(coste),abajo:''};
+}
 function calcPresupers(){
   var ancho=parseFloat(document.getElementById('pp-ancho').value)||0;
   var alto=parseFloat(document.getElementById('pp-alto').value)||0;
@@ -2943,14 +2972,16 @@ function calcPresupers(){
   var precioHora=parseFloat(document.getElementById('pp-precio-hora').value)||0;
   var cont=document.getElementById('pp-resultado');
   if(!ancho||!alto){
-    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el ancho y el alto de la persiana para calcular.</div></div>';
+    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:#64748B;padding:1.5rem">Pon el alto y el ancho de la persiana para calcular.</div></div>';
     return;
   }
   if(PP.modo==='motor'){
     var rm=costeSoloMotorPersiana(PP.persCat,ancho,alto,PP.persMando,PP.persMotorMarca,PP.persMandoTipo);
     var costeMontajeM=horasMontaje*precioHora;
     var totalM=rm.total+costeMontajeM;
-    var htmlM='<div class="card" style="border-color:#A78BFA"><div class="card-body">';
+    var resM=htmlResumenVentaCoste(totalM);
+    var htmlM='<div class="card" style="border-color:#34D399"><div class="card-body">';
+    htmlM+=resM.arriba;
     htmlM+='<div class="pv-linea" style="margin-top:.2rem"><span>🔌 <b>SOLO MOTOR</b></span></div>';
     rm.detalle.forEach(function(d){htmlM+='<div class="pv-linea" style="padding-left:8px"><span>· '+d.concepto+'</span><b>'+eur2(d.coste)+'</b></div>';});
     if(rm.avisos&&rm.avisos.length)rm.avisos.forEach(function(a){htmlM+='<div class="pv-aviso">⚠ '+a+'</div>';});
@@ -2962,15 +2993,7 @@ function calcPresupers(){
       }
     }
     if(horasMontaje>0)htmlM+='<div class="pv-linea"><span>🔧 Montaje ('+horasMontaje+' h × '+eur2(precioHora)+')</span><b>'+eur2(costeMontajeM)+'</b></div>';
-    htmlM+='<div class="pv-total" style="font-size:15px;border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.5rem"><span>TU COSTE</span><span>'+eur2(totalM)+'</span></div>';
-    var margenM=DATOS_PRECIO_VENTANA.margenPct||0;
-    if(margenM>0){
-      var pventaM=totalM*(1+margenM/100);
-      htmlM+='<div class="pv-linea" style="color:#34D399;margin-top:.4rem"><span>Precio de venta (+'+margenM+'%)</span><b>'+eur2(pventaM)+'</b></div>';
-      htmlM+='<div class="pv-linea" style="color:#34D399;font-weight:700"><span>💰 Beneficio</span><b>'+eur2(pventaM-totalM)+'</b></div>';
-    } else {
-      htmlM+='<div class="pv-nota" style="margin-top:.4rem">Pon un margen en Ajustes ⚙️ para ver precio de venta y beneficio.</div>';
-    }
+    htmlM+='<div style="border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.4rem">'+resM.abajo+(resM.abajo?'':htmlLineaCoste('Tu coste',totalM))+'</div>';
     htmlM+='<div class="btn-row" style="margin-top:.6rem"><button class="btn drk" onclick="guardarPersianaSuelta()">💾 Guardar en historial</button></div>';
     htmlM+='</div></div>';
     cont.innerHTML=htmlM;
@@ -2985,21 +3008,14 @@ function calcPresupers(){
   if(!persiana){cont.innerHTML='';return;}
   var costeMontaje=horasMontaje*precioHora;
   var totalConMontaje=persiana.total+costeMontaje;
-  var html='<div class="card" style="border-color:#A78BFA"><div class="card-body">';
-  html+=htmlDesglosePersiana(persiana);
+  var resC=htmlResumenVentaCoste(totalConMontaje);
+  var html='<div class="card" style="border-color:#34D399"><div class="card-body">';
+  html+=resC.arriba;
+  html+=htmlDesglosePersiana(persiana,true);
   if(horasMontaje>0){
     html+='<div class="pv-linea"><span>🔧 Montaje ('+horasMontaje+' h × '+eur2(precioHora)+')</span><b>'+eur2(costeMontaje)+'</b></div>';
   }
-  html+='<div class="pv-total" style="font-size:15px;border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.5rem"><span>TU COSTE (con tus descuentos)</span><span>'+eur2(totalConMontaje)+'</span></div>';
-  var margen=DATOS_PRECIO_VENTANA.margenPct||0;
-  if(margen>0){
-    var pventa=totalConMontaje*(1+margen/100);
-    var beneficio=pventa-totalConMontaje;
-    html+='<div class="pv-linea" style="color:#34D399;margin-top:.4rem"><span>Precio de venta (+'+margen+'%)</span><b>'+eur2(pventa)+'</b></div>';
-    html+='<div class="pv-linea" style="color:#34D399;font-weight:700"><span>💰 Beneficio</span><b>'+eur2(beneficio)+'</b></div>';
-  } else {
-    html+='<div class="pv-nota" style="margin-top:.4rem">Pon un margen en Ajustes ⚙️ para ver precio de venta y beneficio.</div>';
-  }
+  html+='<div style="border-top:1px solid var(--brd);margin-top:.4rem;padding-top:.4rem">'+resC.abajo+(resC.abajo?'':htmlLineaCoste('Tu coste',totalConMontaje))+'</div>';
   html+='<div class="btn-row" style="margin-top:.6rem"><button class="btn drk" onclick="guardarPersianaSuelta()">💾 Guardar en historial</button></div>';
   html+='</div></div>';
   cont.innerHTML=html;
@@ -3040,7 +3056,7 @@ function renderSelectorProyectos(){
 }
 // Desglose HTML de una persiana ya calculada (costePersianaVentana) — reutilizable
 // tanto en el presupuesto de ventana como en el presupuestador de persianas suelto.
-function htmlDesglosePersiana(persiana){
+function htmlDesglosePersiana(persiana,neutro){
   var html='<div class="pv-linea" style="margin-top:.5rem"><span>🪟 <b>PERSIANA · '+(persiana.categoria==='mini'?'Mini (cajón'+(persiana.cajon&&persiana.cajon.size?' '+persiana.cajon.size:'')+')':'De obra')+'</b></span></div>';
   (persiana.detalle||[]).forEach(function(d){
     html+='<div class="pv-linea" style="padding-left:8px"><span>· '+d.concepto+'</span><b>'+eur2(d.coste)+'</b></div>';
@@ -3048,7 +3064,8 @@ function htmlDesglosePersiana(persiana){
   if(persiana.avisos&&persiana.avisos.length){
     persiana.avisos.forEach(function(a){html+='<div class="pv-aviso">⚠ '+a+'</div>';});
   }
-  html+='<div class="pv-total" style="background:rgba(52,211,153,.08)"><span>PERSIANA</span><span>'+eur2(persiana.total)+'</span></div>';
+  if(neutro)html+='<div class="pv-linea" style="color:#94A3B8;border-top:1px solid var(--brd);padding-top:6px;margin-top:4px;font-weight:700"><span>Coste persiana</span><span>'+eur2(persiana.total)+'</span></div>';
+  else html+='<div class="pv-total" style="background:rgba(52,211,153,.08)"><span>PERSIANA</span><span>'+eur2(persiana.total)+'</span></div>';
   return html;
 }
 function renderPrecioVentanas(){
@@ -3301,6 +3318,8 @@ function selPers(el){
   var cat=el.dataset.v;
   document.getElementById('sub-mini').style.display=cat==='mini'?'block':'none';
   document.getElementById('sub-obra').style.display=cat==='obra'?'block':'none';
+  document.getElementById('forro-wrap').style.display=(cat==='obra'||cat==='registro')?'block':'none';
+  document.getElementById('registro-aviso').style.display=cat==='registro'?'block':'none';
   // Guardar inmediatamente en el objeto
   VS[IDX].persCat=cat;
   draw();
@@ -3730,6 +3749,8 @@ function cargar(){
   document.querySelectorAll('#ch-pers .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===v.persCat);});
   document.getElementById('sub-mini').style.display=v.persCat==='mini'?'block':'none';
   document.getElementById('sub-obra').style.display=v.persCat==='obra'?'block':'none';
+  document.getElementById('forro-wrap').style.display=(v.persCat==='obra'||v.persCat==='registro')?'block':'none';
+  document.getElementById('registro-aviso').style.display=v.persCat==='registro'?'block':'none';
   // Lamas (cosida / sin coser)
   document.querySelectorAll('#ch-mini-cos .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.persCos||'cosida'));});
   document.querySelectorAll('#ch-obra-cos .chip').forEach(function(c){c.classList.toggle('on',c.dataset.v===(v.persCos||'cosida'));});
@@ -4031,7 +4052,7 @@ function guardarTodo(){
 // ════════════════════════════════════════
 function sLocal(){
   try{
-    localStorage.setItem('mareva2',JSON.stringify({
+    ALM.setItem('mareva2',JSON.stringify({
       VS:VS,ESTS:ESTS,TRS:TRS,
       ref:gV('cli-ref'),tel:gV('cli-tel'),dir:gV('cli-dir'),noc:gV('notas-cli')
     }));
@@ -4045,7 +4066,7 @@ function sLocal(){
 function sLocalEst(){ sLocal(); }
 function lLocal(){
   try{
-    var r=localStorage.getItem('mareva2')||localStorage.getItem('mareva');
+    var r=ALM.getItem('mareva2')||ALM.getItem('mareva');
     if(!r)return;
     var d=JSON.parse(r);
     var src=d.VS||d.ventanas;
@@ -4150,16 +4171,16 @@ function detectarSistemaCE(v){
 }
 var CE_ESTILO_KEY='mareva_ce_estilo';
 var CE_ESTILO='clasica';
-try{CE_ESTILO=localStorage.getItem(CE_ESTILO_KEY)||'clasica';}catch(e){CE_ESTILO='clasica';}
+try{CE_ESTILO=ALM.getItem(CE_ESTILO_KEY)||'clasica';}catch(e){CE_ESTILO='clasica';}
 function selEstiloCE(el){
   document.querySelectorAll('#ce-estilo .chip').forEach(function(c){c.classList.toggle('on',c===el);});
   CE_ESTILO=el.dataset.v;
-  try{localStorage.setItem(CE_ESTILO_KEY,CE_ESTILO);}catch(e){}
+  try{ALM.setItem(CE_ESTILO_KEY,CE_ESTILO);}catch(e){}
 }
 function cargarDatosCE(){
   renderSistemasCE();
   var datos={};
-  try{datos=JSON.parse(localStorage.getItem(CE_KEY))||{};}catch(e){datos={};}
+  try{datos=JSON.parse(ALM.getItem(CE_KEY))||{};}catch(e){datos={};}
   CE_CAMPOS.forEach(function(id){
     var el=document.getElementById(id);
     // Solo restaurar si hay algo real guardado — un valor vacío guardado antes
@@ -4175,7 +4196,7 @@ function guardarDatosCE(){
     if(el) datos[id]=el.value;
   });
   try{
-    localStorage.setItem(CE_KEY,JSON.stringify(datos));
+    ALM.setItem(CE_KEY,JSON.stringify(datos));
     toast('💾 Datos CE guardados');
   }catch(e){toast('⚠️ No se pudieron guardar los datos');}
 }
@@ -4262,7 +4283,7 @@ function imprimirEtiquetaCEVentana(){
   setTimeout(function(){ window.print(); },80);
 }
 
-function nuevoPedido(){if(!confirm('¿Borrar todo el pedido y empezar de nuevo?'))return;localStorage.removeItem('mareva2');localStorage.removeItem('mareva');VS=[vN(1)];IDX=0;ESTS=[nuevaEstObj()];EIDX=0;EST=ESTS[0];RPT='fria';MP=[0,0,0,0];H3=0;H5=0;H7=0;sCr='4/16/4 Incoloro';sCrBase='aire';sCl='BLANCO';_prevTipoCat=null;EXP=null;proyActualId=null;TRS=[];['cli-ref','cli-tel','cli-dir','notas-cli'].forEach(function(id){document.getElementById(id).value='';});rTabs();cargar();sLocal();toast('🗑 Pedido borrado');}
+function nuevoPedido(){if(!confirm('¿Borrar todo el pedido y empezar de nuevo?'))return;ALM.removeItem('mareva2');ALM.removeItem('mareva');VS=[vN(1)];IDX=0;ESTS=[nuevaEstObj()];EIDX=0;EST=ESTS[0];RPT='fria';MP=[0,0,0,0];H3=0;H5=0;H7=0;sCr='4/16/4 Incoloro';sCrBase='aire';sCl='BLANCO';_prevTipoCat=null;EXP=null;proyActualId=null;TRS=[];['cli-ref','cli-tel','cli-dir','notas-cli'].forEach(function(id){document.getElementById(id).value='';});rTabs();cargar();sLocal();toast('🗑 Pedido borrado');}
 
 // ════════════════════════════════════════
 // TEXTOS
@@ -4292,6 +4313,7 @@ function listarMosquiteras(guardadas){
 }
 function pTxt(v){
   if(v.persCat==='ninguna')return'Sin persiana';
+  if(v.persCat==='registro')return'Registro de obra (sin persiana)';
   var b=v.persCat==='mini'?'Mini':'Obra';
   var lamaInfo=lamaParaVentana(v);
   var lamaTxt=(lamaInfo.key!=='40C')?(' · '+lamaInfo.label):'';
@@ -4456,7 +4478,7 @@ function drawQ(cv,bg,pdf){
   var altMan=parseInt(gV('alt-man'))||0;
   var mHex=gHex();
   // Leer persiana del OBJETO (no del DOM) para que funcione en PDF también
-  var cajaObra=v.persCat==='obra';
+  var cajaObra=(v.persCat==='obra'||v.persCat==='registro');
   var perH=cajaObra?(pdf?55:40):0;
   var pL=pdf?90:54,pR=pdf?70:34,pT=pdf?40:22,pB=pdf?65:38;
   if(!ancho||!alto||ancho<=0||alto<=0){return;}
@@ -4737,7 +4759,7 @@ function drawQ(cv,bg,pdf){
     perf(ox,cajaY,dW,perH);
     ctx.fillStyle=pdf?'#333':'rgba(255,255,255,.5)';
     ctx.font='bold '+(pdf?13:7)+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('CAJA PERSIANA · '+(v.persAc==='motor'?'MOTOR':'CINTA'),ox+dW/2,cajaY+perH/2);
+    ctx.fillText(v.persCat==='registro'?'REGISTRO DE OBRA':'CAJA PERSIANA · '+(v.persAc==='motor'?'MOTOR':'CINTA'),ox+dW/2,cajaY+perH/2);
   }
 
   // Cotas — se omiten cuando esta ventana se dibuja dentro de una estructura,
@@ -5673,7 +5695,8 @@ function construirDocPDF(){
       +avisoPesoH
       +nVH
       +'<div class="cbox"><div class="clbl">CROQUIS TÉCNICO</div><img src="'+crs[i]+'" style="width:100%;display:block"></div>'
-      +((!esM&&htmlDespiece(v,i+1))?'<div class="dp"><div class="dp-ttl">📐 Despiece — Medidas de corte</div>'+htmlDespiece(v,i+1)+'</div>':'')+'<div class="nt"><div class="ntl">NOTAS DEL TALLER</div><div class="lin"></div></div>'
+      +((!esM&&htmlDespiece(v,i+1))?'<div class="dp"><div class="dp-ttl">📐 Despiece — Medidas de corte</div>'+htmlDespiece(v,i+1)+'</div>':'')+'<div style="display:flex;gap:2mm;align-items:stretch"><div class="nt" style="flex:1"><div class="ntl">NOTAS DEL TALLER</div><div class="lin"></div></div>'
+      +(v.foto?'<div style="flex:none;width:52mm;border:0.5pt solid #cbd5e1;display:flex;align-items:center;justify-content:center;background:#fff"><img src="'+v.foto+'" style="max-width:52mm;max-height:40mm;object-fit:contain;display:block"></div>':'')+'</div>'
       +'<div class="pie">V.'+(i+1)+'/'+gs.length+' | Ref: '+(ref||'-')+' | '+fecha+'<span style="float:right">Pag '+(i+1)+'</span></div>'
       +'</div>';
   });
@@ -6033,8 +6056,8 @@ function trRender(){
       +'<div class="card-body">'
       +'<div class="chips">'+chips+'</div>'
       +'<div class="f"><label>Título corto</label><input type="text" value="'+escT(t.titulo)+'" placeholder="Ej: Cinta persiana salón" oninput="trCambio('+i+',\'titulo\',this.value)"></div>'
-      +(T.med?'<div class="row3" style="margin-top:.5rem"><div class="f"><label>Ancho (mm)</label><input type="number" inputmode="numeric" value="'+escT(t.ancho)+'" oninput="trCambio('+i+',\'ancho\',this.value)"></div>'
-        +'<div class="f"><label>Alto (mm)</label><input type="number" inputmode="numeric" value="'+escT(t.alto)+'" oninput="trCambio('+i+',\'alto\',this.value)"></div></div>':'')
+      +(T.med?'<div class="row3" style="margin-top:.5rem"><div class="f"><label>Alto (mm)</label><input type="number" inputmode="numeric" value="'+escT(t.alto)+'" oninput="trCambio('+i+',\'alto\',this.value)"></div>'
+        +'<div class="f"><label>Ancho (mm)</label><input type="number" inputmode="numeric" value="'+escT(t.ancho)+'" oninput="trCambio('+i+',\'ancho\',this.value)"></div></div>':'')
       +'<div class="f" style="margin-top:.5rem"><label>Notas</label><textarea rows="3" placeholder="Detalles del trabajo…" oninput="trCambio('+i+',\'notas\',this.value)">'+escT(t.notas)+'</textarea></div>'
       +'<div style="margin-top:.5rem">'+fotos
       +(puedeFoto?'<label class="btn drk" style="display:inline-block;cursor:pointer;margin:0">📷 Añadir foto<input type="file" accept="image/*" style="display:none" onchange="trFoto('+i+',this)"></label>':'')
@@ -6063,7 +6086,7 @@ function trHtmlPaginas(ref,tel,dir,fecha){
 
 // ════════════════════════════════════════
 // HOJA DE TALLER — trabajos sueltos (cambiar un cristal, poner una chapa,
-// arreglos...). Se guarda aparte del pedido (clave propia en localStorage),
+// arreglos...). Se guarda aparte del pedido (clave propia en ALM),
 // así "Borrar todo" del Medidor NO toca estas hojas. Se guarda solo mientras
 // escribes; el PDF usa el mismo generador que "Compartir PDF" (captura real
 // de la página + jsPDF), no el print() del navegador que fallaba en móvil.
@@ -6081,9 +6104,9 @@ var TL_FILTRO='pend';   // pend | hecha | todas
 var _tlTimer=null;
 
 function escT(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function getTaller(){try{var a=JSON.parse(localStorage.getItem(TALLER_KEY));return Array.isArray(a)?a:[];}catch(e){return [];}}
+function getTaller(){try{var a=JSON.parse(ALM.getItem(TALLER_KEY));return Array.isArray(a)?a:[];}catch(e){return [];}}
 function setTaller(arr){
-  try{localStorage.setItem(TALLER_KEY,JSON.stringify(arr));return true;}
+  try{ALM.setItem(TALLER_KEY,JSON.stringify(arr));return true;}
   catch(e){toast('⚠️ No hay espacio en el móvil: borra hojas antiguas o exporta una copia');return false;}
 }
 function tlHoyISO(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -6091,8 +6114,9 @@ function tlFechaES(iso){if(!iso)return '';var p=String(iso).split('-');return p.
 function tlTieneContenido(h){return !!(h&&(h.nombre||h.tel||h.dir||h.desc||h.material||h.alto||h.ancho||h.notas||(h.fotos&&h.fotos.length)));}
 // Cuánto del almacenamiento del navegador (≈5 M de caracteres) está usado en total
 function tlUsoPct(){
+  if(ALM.modo==='idb')return ALM.pct||0; // almacenamiento grande: % real del espacio que da el navegador
   var t=0;
-  try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);t+=k.length+(localStorage.getItem(k)||'').length;}}catch(e){}
+  try{for(var i=0;i<ALM.length;i++){var k=ALM.key(i);t+=k.length+(ALM.getItem(k)||'').length;}}catch(e){}
   return Math.round(t/5000000*100);
 }
 
@@ -6433,6 +6457,33 @@ document.addEventListener('visibilitychange',function(){if(document.hidden)tlFlu
 // ════════════════════════════════════════
 // COPIA DE SEGURIDAD (exportar / importar TODO)
 // ════════════════════════════════════════
+// ── Borrar TODO (pide escribir «Borrar») ──
+function abrirBorrarTodo(){
+  var i=document.getElementById('borrar-todo-inp');if(i)i.value='';
+  borrarTodoValida();
+  document.getElementById('borrar-todo-wrap').style.display='flex';
+  setTimeout(function(){try{i.focus();}catch(e){}},50);
+}
+function cerrarBorrarTodo(){document.getElementById('borrar-todo-wrap').style.display='none';}
+function borrarTodoValida(){
+  var ok=(document.getElementById('borrar-todo-inp').value||'').trim().toLowerCase()==='borrar';
+  var b=document.getElementById('borrar-todo-ok');
+  b.disabled=!ok;b.style.opacity=ok?'1':'.35';
+}
+function ejecutarBorrarTodo(){
+  if((document.getElementById('borrar-todo-inp').value||'').trim().toLowerCase()!=='borrar')return;
+  // parar cualquier guardado pendiente para que no reescriba datos al recargar
+  try{clearTimeout(_tlTimer);}catch(e){}
+  try{if(_trTimer){clearTimeout(_trTimer);_trTimer=null;}}catch(e){}
+  try{TL_CUR=null;}catch(e){}
+  try{ALM.bloquear();}catch(e){}
+  try{localStorage.clear();}catch(e){}
+  try{sessionStorage.clear();}catch(e){}
+  try{Storage.prototype.setItem=function(){};}catch(e){}
+  var _rec=false;function _recargar(){if(_rec)return;_rec=true;location.reload();}
+  try{ALM.clear().then(_recargar,_recargar);}catch(e){_recargar();}
+  setTimeout(_recargar,4000);
+}
 function exportarCopia(){
   leer();sLocal();
   var datos={
@@ -6511,7 +6562,7 @@ var proyActualId = null;
 
 function getProyectos() {
   try {
-    var raw = localStorage.getItem(PROY_KEY);
+    var raw = ALM.getItem(PROY_KEY);
     if (!raw) return [];
     var arr = JSON.parse(raw);
     return Array.isArray(arr) ? arr : [];
@@ -6520,7 +6571,7 @@ function getProyectos() {
 
 function setProyectos(arr) {
   try {
-    localStorage.setItem(PROY_KEY, JSON.stringify(arr));
+    ALM.setItem(PROY_KEY, JSON.stringify(arr));
     return true;
   } catch(e) {
     console.error('Error guardando proyecto:', e);
@@ -7816,6 +7867,13 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
       <button onclick="importarCopia()" style="flex:1;background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:10px;padding:11px 8px;font-weight:700;font-size:13px;cursor:pointer">📥 Importar todo</button>
     </div>
   </div>
+  <button onclick="abrirBorrarTodo()" style="width:100%;max-width:420px;background:#1E293B;border:1.5px solid rgba(239,68,68,.5);border-radius:16px;padding:14px 18px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px">
+    <span style="font-size:26px">🗑</span>
+    <span>
+      <span style="display:block;color:#F87171;font-weight:800;font-size:15px">Borrar todo y empezar de cero</span>
+      <span style="display:block;color:#64748B;font-size:12px;margin-top:2px">Deja el móvil sin ningún dato de la app</span>
+    </span>
+  </button>
 </div>
 <div id="inicio-precios" style="flex-direction:column;align-items:center;gap:16px;width:100%;display:none">
   <button onclick="cerrarMenuPrecios()" style="width:100%;max-width:420px;background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:12px;padding:12px 14px;font-weight:700;font-size:14px;cursor:pointer;text-align:left">← Volver</button>
@@ -7899,8 +7957,8 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
       <div class="card-head"><span class="bdg" style="background:#7C3AED">📐</span><span class="card-ttl">Medidas y color</span></div>
       <div class="card-body">
         <div class="row3">
-          <div class="f"><label>Ancho (mm)</label><input id="pp-ancho" type="number" inputmode="numeric" placeholder="1500" oninput="calcPresupers()"></div>
           <div class="f"><label>Alto (mm)</label><input id="pp-alto" type="number" inputmode="numeric" placeholder="1200" oninput="calcPresupers()"></div>
+          <div class="f"><label>Ancho (mm)</label><input id="pp-ancho" type="number" inputmode="numeric" placeholder="1500" oninput="calcPresupers()"></div>
         </div>
         <label>Color</label>
         <div class="exp-wrap">
@@ -8016,8 +8074,8 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
           <label style="margin-top:.5rem">Ancho de lama</label>
           <div class="chips" id="rt-ch-lama"></div>
           <div class="row3" style="margin-top:.6rem">
-            <div class="f"><label>Ancho (mm)</label><input id="rt-ancho" type="number" inputmode="numeric" placeholder="3000" oninput="calcRapidoTecho()"></div>
             <div class="f"><label>Alto/fondo (mm)</label><input id="rt-alto" type="number" inputmode="numeric" placeholder="2000" oninput="calcRapidoTecho()"></div>
+            <div class="f"><label>Ancho (mm)</label><input id="rt-ancho" type="number" inputmode="numeric" placeholder="3000" oninput="calcRapidoTecho()"></div>
           </div>
         </div>
       </div>
@@ -8048,8 +8106,8 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
         </div>
         <div id="il-opciones" style="margin-top:.3rem"></div>
         <div class="row3" style="margin-top:.6rem">
-          <div class="f"><label>Ancho (mm)</label><input id="il-ancho" type="number" inputmode="numeric" placeholder="3000" oninput="calcIronlux()"></div>
           <div class="f"><label>Alto/largo (mm)</label><input id="il-alto" type="number" inputmode="numeric" placeholder="2000" oninput="calcIronlux()"></div>
+          <div class="f"><label>Ancho (mm)</label><input id="il-ancho" type="number" inputmode="numeric" placeholder="3000" oninput="calcIronlux()"></div>
         </div>
       </div>
     </div>
@@ -8185,7 +8243,7 @@ window.addEventListener("resize",function(){if(document.getElementById("cv-est")
   </div>
   <iframe id="presu-frame" style="flex:1;border:none;width:100%"></iframe>
 </div>
-<script>
+<script type="text/plain" class="app-js">
 // ── ACCESO A PRESUPUESTOS Y PANTALLA DE INICIO ──
 function elegirModo(m){
   document.getElementById('inicio-wrap').style.display='none';
@@ -8238,6 +8296,142 @@ function cerrarPresupuestos(){document.getElementById('presu-wrap').style.displa
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
   navigator.serviceWorker.register('sw.js').catch(function(){});
 }
+</script>
+
+<div id="borrar-todo-wrap" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(2,6,23,.88);align-items:center;justify-content:center;padding:18px;box-sizing:border-box">
+  <div style="width:100%;max-width:400px;background:#1E293B;border:1.5px solid #EF4444;border-radius:16px;padding:20px;box-sizing:border-box;font-family:Arial,sans-serif">
+    <div style="color:#F87171;font-weight:800;font-size:18px;margin-bottom:8px">⚠️ Borrar TODO</div>
+    <div style="color:#CBD5E1;font-size:13.5px;line-height:1.45;margin-bottom:10px">Se borrarán de este móvil <b>todos</b> los proyectos, el pedido en curso, las hojas de taller, los trabajos sueltos, el historial, los ajustes y los precios que hayas cambiado. <b>No se puede deshacer.</b></div>
+    <div style="color:#FCD34D;font-size:12.5px;margin-bottom:12px">Si no quieres perder nada, cancela y pulsa antes «Exportar todo».</div>
+    <div style="color:#94A3B8;font-size:12.5px;margin-bottom:6px">Para confirmar, escribe la palabra <b style="color:#F87171">Borrar</b>:</div>
+    <input id="borrar-todo-inp" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="borrarTodoValida()" style="width:100%;box-sizing:border-box;background:#0F172A;color:#fff;border:1px solid #475569;border-radius:10px;padding:12px;font-size:16px;margin-bottom:14px">
+    <div style="display:flex;gap:8px">
+      <button onclick="cerrarBorrarTodo()" style="flex:1;background:#0F172A;color:#E2E8F0;border:0.5px solid #334155;border-radius:10px;padding:12px 8px;font-weight:700;font-size:14px;cursor:pointer">Cancelar</button>
+      <button id="borrar-todo-ok" disabled onclick="ejecutarBorrarTodo()" style="flex:1;background:#EF4444;color:#fff;border:none;border-radius:10px;padding:12px 8px;font-weight:800;font-size:14px;cursor:pointer;opacity:.35">Borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<div id="alm-bloqueo" style="display:none;position:fixed;inset:0;z-index:100000;background:#0F172A;color:#E2E8F0;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;font-family:Arial,sans-serif;text-align:center">
+  <div style="max-width:360px">
+    <div style="font-size:40px;margin-bottom:10px">⚠️</div>
+    <div style="font-weight:800;font-size:17px;margin-bottom:8px">No se han podido abrir tus datos</div>
+    <div style="font-size:13.5px;color:#94A3B8;line-height:1.45;margin-bottom:16px">Tus datos siguen guardados. Cierra la app del todo y vuelve a abrirla. No se ha borrado nada.</div>
+    <button onclick="location.reload()" style="background:#F5A623;color:#0F172A;border:none;border-radius:12px;padding:13px 22px;font-weight:800;font-size:15px;cursor:pointer">Reintentar</button>
+  </div>
+</div>
+<script>
+// ── ALM: almacenamiento de la app ──
+// Antes todo iba a localStorage (tope ≈5 MB por navegador). Ahora va a IndexedDB
+// (tope: el espacio libre del aparato). La app sigue leyendo/escribiendo igual
+// (getItem/setItem) contra una copia en memoria; ALM la vuelca a IndexedDB.
+// Si el navegador no tiene IndexedDB, ALM usa localStorage como siempre.
+var ALM=(function(){
+  var c={},db=null,modo='ls',bloqueado=false,LS=null,_mt=null;
+  try{LS=window.localStorage;}catch(e){}
+  function oculta(k){return k.indexOf('__alm')===0;}
+  function claves(){return Object.keys(c).filter(function(k){return !oculta(k);});}
+  function aviso(){try{if(typeof toast==='function')toast('⚠️ No se pudo guardar — falta espacio en el dispositivo');}catch(e){}}
+  function medir(){
+    if(_mt||!navigator.storage||!navigator.storage.estimate)return;
+    _mt=setTimeout(function(){_mt=null;
+      try{navigator.storage.estimate().then(function(e){if(e&&e.quota)api.pct=Math.round(e.usage/e.quota*100);}).catch(function(){});}catch(e){}
+    },1200);
+  }
+  function escribir(fn,fin){
+    try{var t=db.transaction('kv','readwrite');
+      t.onabort=function(){aviso();if(fin)fin(false);};
+      t.oncomplete=function(){if(fin)fin(true);};
+      fn(t.objectStore('kv'));medir();
+    }catch(e){aviso();if(fin)fin(false);}
+  }
+  function lsClaves(){var o=[];try{for(var i=0;i<LS.length;i++){var k=LS.key(i);if(/^mareva/.test(k))o.push(k);}}catch(e){}return o;}
+  var api={pct:0,
+    getItem:function(k){k=String(k);
+      if(modo==='ls'){try{return LS.getItem(k);}catch(e){return null;}}
+      return Object.prototype.hasOwnProperty.call(c,k)?c[k]:null;},
+    setItem:function(k,v){if(bloqueado)return;k=String(k);v=String(v);
+      if(modo==='ls'){LS.setItem(k,v);return;}
+      c[k]=v;escribir(function(s){s.put(v,k);});},
+    removeItem:function(k){if(bloqueado)return;k=String(k);
+      if(modo==='ls'){try{LS.removeItem(k);}catch(e){}return;}
+      delete c[k];escribir(function(s){s['delete'](k);});},
+    clear:function(){
+      if(modo==='ls'){try{LS.clear();}catch(e){}return Promise.resolve();}
+      c={};return new Promise(function(res){
+        try{var t=db.transaction('kv','readwrite');t.oncomplete=function(){res();};t.onabort=function(){res();};t.objectStore('kv').clear();}catch(e){res();}});},
+    key:function(i){if(modo==='ls'){try{return LS.key(i);}catch(e){return null;}}var a=claves();return i<a.length?a[i]:null;},
+    bloquear:function(){bloqueado=true;},
+    init:function(cb){
+      var hecho=false,yaMigrado=false;
+      try{yaMigrado=!!LS&&LS.getItem('ALM_IDB')==='1';}catch(e){}
+      function listo(m){if(hecho)return;hecho=true;modo=m;
+        var b=document.getElementById('alm-bloqueo');if(b)b.style.display='none';
+        if(m==='idb'){try{LS.setItem('ALM_IDB','1');}catch(e){}
+          try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(e){}
+          medir();}
+        cb();}
+      // Si los datos YA viven en IndexedDB y no se puede abrir, NO arrancamos en vacío: se avisa.
+      function fallo(){if(hecho)return;
+        if(yaMigrado){var b=document.getElementById('alm-bloqueo');if(b)b.style.display='flex';}
+        else listo('ls');}
+      if(!window.indexedDB){fallo();return;}
+      var req;try{req=indexedDB.open('mareva_db',1);}catch(e){fallo();return;}
+      var tmo=setTimeout(fallo,6000);
+      req.onupgradeneeded=function(){try{req.result.createObjectStore('kv');}catch(e){}};
+      req.onerror=function(){clearTimeout(tmo);fallo();};
+      req.onsuccess=function(){clearTimeout(tmo);
+        if(hecho){try{req.result.close();}catch(e){}return;} // ya arrancó con el sistema antiguo
+        db=req.result;db.onversionchange=function(){try{db.close();}catch(e){}};
+        var cur;try{cur=db.transaction('kv','readonly').objectStore('kv').openCursor();}catch(e){db=null;fallo();return;}
+        cur.onerror=function(){db=null;fallo();};
+        cur.onsuccess=function(){var r=cur.result;
+          if(r){c[String(r.key)]=r.value;r['continue']();return;}
+          migrar();};
+      };
+      function migrar(){
+        // 1) Copiar a IndexedDB lo que aún esté solo en el almacenamiento antiguo
+        var nuevos=lsClaves().filter(function(k){return !Object.prototype.hasOwnProperty.call(c,k);});
+        var marca=c.__alm_migrado;
+        if(!nuevos.length&&marca){limpiar(marca);return;}
+        var vals={};nuevos.forEach(function(k){vals[k]=LS.getItem(k);});
+        escribir(function(s){nuevos.forEach(function(k){s.put(vals[k],k);});if(!marca)s.put('1','__alm_migrado');},function(ok){
+          if(!ok){db=null;fallo();return;}
+          // 2) Comprobar releyendo de IndexedDB que la copia es idéntica
+          var bien=true,pend=nuevos.length;
+          if(!pend){fin();return;}
+          var st=db.transaction('kv','readonly').objectStore('kv');
+          nuevos.forEach(function(k){var g=st.get(k);
+            g.onsuccess=function(){if(g.result!==vals[k])bien=false;if(--pend===0)fin();};
+            g.onerror=function(){bien=false;if(--pend===0)fin();};});
+          function fin(){
+            if(!bien){db=null;fallo();return;}
+            nuevos.forEach(function(k){c[k]=vals[k];});if(!marca)c.__alm_migrado='1';
+            listo('idb');}
+        });
+      }
+      // 3) En un arranque POSTERIOR al de la copia (ya comprobada), liberar el almacenamiento antiguo
+      function limpiar(marca){
+        if(marca==='1'){
+          lsClaves().forEach(function(k){try{if(LS.getItem(k)===c[k])LS.removeItem(k);}catch(e){}});
+          c.__alm_migrado='2';escribir(function(s){s.put('2','__alm_migrado');});
+        }
+        listo('idb');
+      }
+    }
+  };
+  Object.defineProperty(api,'modo',{get:function(){return modo;}});
+  Object.defineProperty(api,'length',{get:function(){if(modo==='ls'){try{return LS.length;}catch(e){return 0;}}return claves().length;}});
+  return api;
+})();
+// Arranque: primero se cargan los datos y después se pone en marcha la app
+ALM.init(function(){
+  var bloques=document.querySelectorAll('script.app-js');
+  for(var i=0;i<bloques.length;i++){
+    var e=document.createElement('script');e.textContent=bloques[i].textContent;
+    document.body.appendChild(e);
+  }
+});
 </script>
 </body>
 </html>
